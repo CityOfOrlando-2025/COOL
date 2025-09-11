@@ -13,8 +13,8 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 -- Defines user roles and their attributes. [LOOKUP]
 CREATE TABLE user_role (
-    role_id INT PRIMARY KEY AUTO_INCREMENT, 
-    role_name VARCHAR(50) NOT NULL UNIQUE, -- Admin, Employee, Citizen
+    user_role_id INT PRIMARY KEY AUTO_INCREMENT, 
+    user_role_name VARCHAR(50) NOT NULL UNIQUE, -- Admin, Employee, Citizen
     dl_required BOOLEAN NOT NULL, -- (1 = dl REQUIRED, 0 = dl NOT REQUIRED)
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = role ACTIVE, 0 = role INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
@@ -22,33 +22,33 @@ CREATE TABLE user_role (
 -- Defines the types of actions that users can perform in the system. [LOOKUP]
 CREATE TABLE user_action_type (
     user_action_type_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_action_name VARCHAR(50) NOT NULL UNIQUE, -- (Create, Read, Update, Delete)
+    user_action_type_name VARCHAR(50) NOT NULL UNIQUE, -- (Create, Read, Update, Delete)
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = action ACTIVE, 0 = action INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines the allowed types of devices in the system. [LOOKUP]
 CREATE TABLE device_type (
     device_type_id INT PRIMARY KEY AUTO_INCREMENT, 
-    type_name VARCHAR(50) NOT NULL UNIQUE, -- (Mobile Phone, Laptop, Tablet, etc.)
+    device_type_name VARCHAR(50) NOT NULL UNIQUE, -- (Mobile Phone, Laptop, Tablet, etc.)
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = type ACTIVE, 0 = type INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines the allowed states for a device. [LOOKUP]
 CREATE TABLE device_status (
     device_status_id INT PRIMARY KEY AUTO_INCREMENT,
-    status_name VARCHAR(50) NOT NULL UNIQUE -- (Available, Loaned, Maintenance, Retired, Lost)
+    device_status_name VARCHAR(50) NOT NULL UNIQUE -- (Available, Loaned, Maintenance, Retired, Lost)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines the allowed physical condition values for a device. [LOOKUP]
 CREATE TABLE device_condition (
-    condition_id INT PRIMARY KEY AUTO_INCREMENT,
-    condition_name VARCHAR(50) NOT NULL UNIQUE -- (Excellent, Good, Fair, Poor, Damaged)
+    device_condition_id INT PRIMARY KEY AUTO_INCREMENT,
+    device_condition_name VARCHAR(50) NOT NULL UNIQUE -- (Excellent, Good, Fair, Poor, Damaged)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines the lifecycle states for a loan. [LOOKUP]
 CREATE TABLE loan_status (
     loan_status_id INT PRIMARY KEY AUTO_INCREMENT,
-    status_name VARCHAR(50) NOT NULL UNIQUE -- (Open, Returned, Overdue, Lost)
+    loan_status_name VARCHAR(50) NOT NULL UNIQUE -- (Open, Returned, Overdue, Lost)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines actions specific to a loan transaction. [LOOKUP]
@@ -56,22 +56,23 @@ CREATE TABLE loan_action_type (
     loan_action_type_id INT PRIMARY KEY AUTO_INCREMENT,
     
     -- This covers the cases when a device might need a status change outside of a normal checkout/return
-    action_name VARCHAR(50) NOT NULL UNIQUE, -- (Checkout, Return, Status_Change, (NOT NULL UNIQUE))
+    loan_action_name VARCHAR(50) NOT NULL UNIQUE, -- (Checkout, Return, Status_Change, (NOT NULL UNIQUE))
+   
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = action ACTIVE, 0 = action INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines the outcome of a logged action. [LOOKUP]
 CREATE TABLE transaction_status (
     transaction_status_id INT PRIMARY KEY AUTO_INCREMENT,
-    status_name VARCHAR(50) NOT NULL UNIQUE  -- Success, Failure, Pending
+    transaction_status_name VARCHAR(50) NOT NULL UNIQUE  -- Success, Failure, Pending
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- 2. CORE ENTITY TABLES
 
 -- Stores user account information and links to the roles table. [CORE ENTITY]
 CREATE TABLE app_user (
-    user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    full_name VARCHAR(100) NOT NULL,
+    app_user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    app_user_full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     password_salt VARBINARY(64) NOT NULL, --per-user salt for hashing passwords
