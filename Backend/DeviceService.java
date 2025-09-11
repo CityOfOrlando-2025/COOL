@@ -12,3 +12,4 @@ public interface DeviceService {
 
     void deleteDeviceById(Long deviceId);
 }
+
