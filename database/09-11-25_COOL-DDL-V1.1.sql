@@ -77,7 +77,7 @@ CREATE TABLE app_user (
     password_hash VARCHAR(255) NOT NULL,
     password_salt VARBINARY(64) NOT NULL, --per-user salt for hashing passwords
     -- Ensures every user has a role, a user cannot exist in the system without one
-    role_id INT NOT NULL,
+    user_role_id INT NOT NULL,
 
     -- Citizen-specific fields (nullable if role does not require DL)
     dl_num VARCHAR(50), -- (nullable unless role.dl_required = 1)
@@ -95,7 +95,7 @@ CREATE TABLE app_user (
 
     -- Enforce referential integrity with user_role table
     CONSTRAINT fk_app_user_role 
-        FOREIGN KEY (role_id) REFERENCES user_role(role_id),
+        FOREIGN KEY (user_role_id) REFERENCES user_role(user_role_id),
         ON DELETE RESTRICT -- prevents deletion of a role if users are assigned to it
         ON UPDATE CASCADE -- if a role_id changes, all linked users are updated automatically to stay in sync
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
@@ -125,7 +125,7 @@ CREATE TABLE device (
    
     -- serial_number must be unique to prevent duplicate entries
     serial_number VARCHAR(100) NOT NULL UNIQUE,
-    status_id INT NOT NULL,
+    device_status_id INT NOT NULL,
     location_id INT NOT NULL,
     
     -- The user ID of the employee who registered this device.
@@ -141,7 +141,7 @@ CREATE TABLE device (
         ON UPDATE CASCADE, -- if a device_type_id changes, all linked devices are updated automatically to stay in sync
 
     CONSTRAINT fk_device_status 
-        FOREIGN KEY (status_id) REFERENCES device_status(device_status_id)
+        FOREIGN KEY (device_status_id) REFERENCES device_status(device_status_id)
         ON DELETE RESTRICT -- prevents deletion of a device status if devices are assigned to it
         ON UPDATE CASCADE, -- if a device_status_id changes, all linked devices are updated automatically to stay in sync
 
@@ -151,7 +151,7 @@ CREATE TABLE device (
         ON UPDATE CASCADE, -- if a location_id changes, all linked devices are updated automatically to stay in sync
 
     CONSTRAINT fk_device_creator
-        FOREIGN KEY (created_by_user_id) REFERENCES app_user(user_id)
+        FOREIGN KEY (created_by_user_id) REFERENCES app_user(app_user_id)
         
         -- a creator_user_id must always reference a valid employee user
         -- for auditing purposes, prevents deletion of an employee if they created devices (preserves the audit trail, no orphaned records, no lost accountability)
@@ -165,7 +165,7 @@ CREATE TABLE device (
 CREATE TABLE loan (
     loan_id INT PRIMARY KEY AUTO_INCREMENT,
     device_id BIGINT NOT NULL, -- a loan must be associated with a device
-    status_id INT NOT NULL, -- a loan must have a status
+    loan_status_id INT NOT NULL, -- a loan must have a status
 
     -- The user who is borrowing the device (citizen) and the employee processing the loan
     citizen_id BIGINT NOT NULL, -- a loan must be associated with a citizen
@@ -197,27 +197,27 @@ CREATE TABLE loan (
         ON UPDATE CASCADE, -- if a device_id changes, all linked loans are updated automatically to stay in sync
 
     CONSTRAINT fk_loan_status
-        FOREIGN KEY (status_id) REFERENCES loan_status(loan_status_id)
+        FOREIGN KEY (loan_status_id) REFERENCES loan_status(loan_status_id)
         ON DELETE RESTRICT -- prevents deletion of a loan status if loans are associated with it
         ON UPDATE CASCADE, -- if a loan_status_id changes, all linked loans are updated automatically to stay in sync
 
     CONSTRAINT fk_loan_citizen
-        FOREIGN KEY (citizen_id) REFERENCES app_user(user_id)       
+        FOREIGN KEY (citizen_id) REFERENCES app_user(app_user_id)       
         ON DELETE RESTRICT -- prevents deletion of a citizen if loans are associated with them
         ON UPDATE CASCADE, -- if a user_id changes, all linked loans are updated automatically to stay in sync
 
     CONSTRAINT fk_loan_employee
-        FOREIGN KEY (employee_id) REFERENCES app_user(user_id)      
+        FOREIGN KEY (employee_id) REFERENCES app_user(app_user_id)      
         ON DELETE RESTRICT -- prevents deletion of an employee if loans are associated with them
         ON UPDATE CASCADE, -- if a user_id changes, all linked loans are updated automatically to stay in sync
 
     CONSTRAINT fk_loan_loan_condition
-        FOREIGN KEY (loan_condition_id) REFERENCES device_condition(condition_id)
+        FOREIGN KEY (loan_condition_id) REFERENCES device_condition(device_condition_id)
         ON DELETE RESTRICT -- prevents deletion of a device condition if loans are associated with it
         ON UPDATE CASCADE, -- if a condition_id changes, all linked loans are updated automatically to stay in sync
 
     CONSTRAINT fk_loan_return_condition
-        FOREIGN KEY (return_condition_id) REFERENCES device_condition(condition_id)
+        FOREIGN KEY (return_condition_id) REFERENCES device_condition(device_condition_id)
         ON DELETE SET NULL -- if a device condition is deleted, set return_condition_id to NULL
         ON UPDATE CASCADE -- if a condition_id changes, all linked loans are updated automatically to stay in sync
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
@@ -226,7 +226,7 @@ CREATE TABLE loan (
 CREATE TABLE loan_log (
     loan_log_id INT PRIMARY KEY AUTO_INCREMENT,
     loan_id INT NOT NULL, -- a log entry must be associated with a loan 
-    user_id BIGINT NOT NULL, -- a log entry must be associated with a user (employee or citizen) associated with app_user
+    app_user_id BIGINT NOT NULL, -- a log entry must be associated with a user (employee or citizen) associated with app_user
     loan_action_type_id INT NOT NULL, -- a log entry must have an action type    
     success_message VARCHAR(255), -- can be NULL if action failed
     transaction_status_id INT NOT NULL, -- a log entry must have a transaction status
@@ -239,7 +239,7 @@ CREATE TABLE loan_log (
         ON UPDATE CASCADE, -- if a loan_id changes, all linked log entries are updated automatically to stay in sync
 
     CONSTRAINT fk_loanlog_user
-        FOREIGN KEY (user_id) REFERENCES app_user(user_id)
+        FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
         ON DELETE RESTRICT -- prevents deletion of a user if log entries are associated with them
         ON UPDATE CASCADE, -- if a user_id changes, all linked log entries are updated automatically to stay in sync
 
@@ -257,7 +257,7 @@ CREATE TABLE loan_log (
 -- Logs all significant actions taken in the system. [CORE ENTITY]
 CREATE TABLE action_log (
     action_log_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_id BIGINT NOT NULL, -- a log entry must be associated with a user (employee or citizen)
+    app_user_id BIGINT NOT NULL, -- a log entry must be associated with a user (employee or citizen)
     user_action_type_id INT NOT NULL,
 
     -- Links this log entry to a specific USER row affected by the action, if applicable
@@ -282,7 +282,7 @@ CREATE TABLE action_log (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- TIMESTAMP automatically records when the action occurred
 
     CONSTRAINT fk_actionlog_user
-        FOREIGN KEY (user_id) REFERENCES app_user(user_id)
+        FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
         ON DELETE RESTRICT -- prevents deletion of a user if log entries are associated with them
         ON UPDATE CASCADE, -- if a user_id changes, all linked log entries are updated automatically to stay in sync
 
@@ -293,7 +293,7 @@ CREATE TABLE action_log (
 
     -- Each row should use exactly ONE of these three foreign keys to reference the affected record.
     CONSTRAINT fk_actionlog_user_record
-        FOREIGN KEY (user_record_id) REFERENCES app_user(user_id)
+        FOREIGN KEY (user_record_id) REFERENCES app_user(app_user_id)
         ON DELETE SET NULL -- if a user is deleted, set user_record_id to NULL
         ON UPDATE CASCADE, -- if a user_id changes, all linked log entries are updated automatically to stay in sync
 
@@ -320,12 +320,12 @@ CREATE TABLE action_log (
 
 -- Many-to-many join table for employee location access permissions. [JOIN TABLE]
 CREATE TABLE user_location_access (
-    user_id BIGINT NOT NULL, -- an access entry must be associated with a user
+    app_user_id BIGINT NOT NULL, -- an access entry must be associated with a user
     location_id INT NOT NULL, -- an access entry must be associated with a location
-    PRIMARY KEY (user_id, location_id), -- composite primary key to prevent duplicate entries
+    PRIMARY KEY (app_user_id, location_id), -- composite primary key to prevent duplicate entries
 
     CONSTRAINT fk_ula_user
-        FOREIGN KEY (user_id) REFERENCES app_user(user_id)
+        FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
         ON DELETE CASCADE -- if a user is deleted, all their access entries are also deleted
         ON UPDATE CASCADE, -- if a user_id changes, all linked access entries are updated automatically to stay in sync
 
