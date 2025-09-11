@@ -47,3 +47,4 @@ public class DeviceController {
         return "Deleted Successfully";
     }
 }
+
