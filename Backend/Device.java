@@ -38,4 +38,5 @@ public class Device {
     public void setDeviceType(String deviceType) {
         this.type = deviceType;
     }
+
 }
