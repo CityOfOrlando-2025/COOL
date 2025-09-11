@@ -12,9 +12,9 @@ erDiagram
     %% ===[ LOOKUP TABLES ]===
     user_role {
         %% [LOOKUP] Defines Admin, Employee, Citizen and flags like dl_required (citizen ONLY)
-        INT role_id PK
+        INT user_role_id PK
         
-        VARCHAR(50) role_name "Admin, Employee, Citizen (NOT NULL UNIQUE)"
+        VARCHAR(50) user_role_name "Admin, Employee, Citizen (NOT NULL UNIQUE)"
         BOOLEAN dl_required "(1 = DL REQUIRED), (0 = NOT required), (NOT NULL)"
         
         %% useful for debugging user roles
@@ -35,7 +35,7 @@ erDiagram
         %% [LOOKUP] Allowed types of devices in the system
         INT device_type_id PK
        
-        VARCHAR(50) type_name "Mobile Phone, Laptop, Tablet, etc. (NOT NULL UNIQUE)"
+        VARCHAR(50) device_type_name "Mobile Phone, Laptop, Tablet, etc. (NOT NULL UNIQUE)"
         BOOLEAN is_active "(DEFAULT TRUE)"
     }
 
@@ -43,28 +43,28 @@ erDiagram
         %% [LOOKUP] Allowed device states
         INT device_status_id PK
         
-        VARCHAR(50) status_name "Available, Loaned, Maintenance, Retired, Lost (NOT NULL UNIQUE)"
+        VARCHAR(50) device_status_name "Available, Loaned, Maintenance, Retired, Lost (NOT NULL UNIQUE)"
     }
 
     device_condition {
         %% [LOOKUP] Allowed physical condition values
-        INT condition_id PK
+        INT device_condition_id PK
        
-        VARCHAR(50) condition_name "Excellent, Good, Fair, Poor, Damaged, (NOT NULL UNIQUE)"
+        VARCHAR(50) device_condition_name "Excellent, Good, Fair, Poor, Damaged, (NOT NULL UNIQUE)"
     }
 
     loan_status {
         %% [LOOKUP] Allowed loan lifecycle states
         INT loan_status_id PK
        
-        VARCHAR(50) status_name "Open, Returned, Overdue, Lost, (NOT NULL UNIQUE)" 
+        VARCHAR(50) loan_status_name "Open, Returned, Overdue, Lost, (NOT NULL UNIQUE)" 
     }
 
     loan_action_type {
         %% [LOOKUP] Defines loan-specific actions
         INT loan_action_type_id PK
        
-        VARCHAR(50) action_name "Checkout, Return, Status_Change, (NOT NULL UNIQUE)"
+        VARCHAR(50) loan_action_type_name "Checkout, Return, Status_Change, (NOT NULL UNIQUE)"
        
         %% allows you to turn off loans durings maintenance
         BOOLEAN is_active "(DEFAULT TRUE)" 
@@ -74,7 +74,7 @@ erDiagram
        %% [LOOKUP] Defines the outcome of a logged action
        INT transaction_status_id PK
        
-       VARCHAR(50) status_name "Success, Failed, Pending, (NOT NULL UNIQUE)"
+       VARCHAR(50) transaction_status_name "Success, Failed, Pending, (NOT NULL UNIQUE)"
     }
 
     %% ===[ CORE ENTITY TABLES ]===
@@ -82,15 +82,15 @@ erDiagram
     app_user {
         %% [CORE] All users (Admins, Employees, Citizens)
         %% NOTE: Initialize with root admin  
-        BIGINT user_id PK
+        BIGINT app_user_id PK
        
-        VARCHAR(100) full_name "(NOT NULL)"
+        VARCHAR(100) app_user_full_name "(NOT NULL)"
         VARCHAR(100) email "(UNIQUE NOT NULL)"
         VARCHAR(255) password_hash "(NOT NULL)"
         VARBINARY(64) password_salt "per-user salt for hashing passwords NOT NULL"
         
         %% INT role_id (NOT NULL) Ensures that every user has a role, a user cannot exist in the system without one
-        INT role_id FK "NOT NULL"  
+        INT user_role_id FK "NOT NULL"  
        
         VARCHAR(50) dl_num "(nullable unless role.dl_required = 1)"
         CHAR(2) dl_state "Citizen DL state"
@@ -128,16 +128,16 @@ erDiagram
         INT device_type_id FK "Points to device_type"
         VARCHAR(100) serial_number "(NOT NULL UNIQUE)"
         
-        %% status_id FK - This column links each device to a row in the device_status table. 
+        %% device_status_id FK - This column links each device to a row in the device_status table. 
         %% For example: A device might have a status of "Available" or "Loaned".
         %% This tracks the device's current state (Avail, Loaned, Maintenance, Retired, Lost)
         %% Allows for easy changes by an admin
-        INT status_id FK  
+        INT device_status_id FK  
         
         INT location_id FK
 
         %% The user ID of the employee who registered this device.        
-        BIGINT created_by_user_id "A device must have a creator (employee),(NOT NULL)"
+        BIGINT created_by_user_id FK "A device must have a creator (employee),(NOT NULL)"
         
         TIMESTAMP created_at
         TIMESTAMP updated_at
@@ -150,7 +150,7 @@ erDiagram
         BIGINT citizen_id FK "Points to app_user (the borrower)(NOT NULL)"
         BIGINT employee_id FK "Points to app_user (staff)(NOT NULL)"
         BIGINT device_id FK
-        INT status_id FK "Points to loan_status (Open, Returned,etc.)"
+        INT loan_status_id FK "Points to loan_status (Open, Returned,etc.)"
        
         TIMESTAMP start_at "when the loan begin (NOT NULL)"
         TIMESTAMP due_at "when the device should be returned (NOT NULL)"
@@ -175,7 +175,7 @@ erDiagram
         INT loan_log_id PK 
        
         INT loan_id FK "Which loan this action belongs to (NOT NULL)"
-        BIGINT user_id FK "Points to app_user (NOT NULL)"
+        BIGINT app_user_id FK "Points to app_user (NOT NULL)"
         INT loan_action_type_id FK "Points to loan_action_type (NOT NULL)"
         VARCHAR(255) success_message
         INT transaction_status_id FK "Points to transaction_status table"
@@ -187,24 +187,24 @@ erDiagram
         %% [CORE] System-wide audit trail of all user actions
         BIGINT action_log_id PK
       
-        BIGINT user_id FK "Points to app_user (NOT NULL)"
+        BIGINT app_user_id FK "Points to app_user (NOT NULL)"
         INT user_action_type_id FK "Points to user_action_type (NOT NULL)"
 
         %% Links this log entry to a specific USER row affected by the action, if applicable
         %% Lets auditors and developers trace which user account was created, updated, or deleted. 
         %% Supports queries like: "Show all actions performed on user_id = 12345"
-        BIGINT user_record_id
+        BIGINT user_record_id FK
 
         %% Points to the exact LOAN row affected by the action, if applicable
         %% Critical for reconstructing loan history, troubleshooting overdue returns, and auditing loan 
         %% transactions. 
         %% Supports queries like: "Show all actions performed on loan_id = 67890"
-        INT loan_record_id
+        INT loan_record_id FK
 
         %% Identifies the specific DEVICE row affected by the action, if applicable
         %% Essential for tracking device lifecycle events, status changes, maintenance history,
         %% or changes to inventory status (e.g. "who retired device_id = 54321?")
-        BIGINT device_record_id
+        BIGINT device_record_id FK
 
         %% CHECK CONSTRAINT: Exactly one of user_record_id, loan_record_id, or device_record_id must be NON-NULL (you need at least one per row)
 
@@ -218,37 +218,37 @@ erDiagram
     %% ===[ JOIN TABLE ]===
     user_location_access {
         %% [JOIN] Allows one employee to work at many locations, and one location to have many employees
-        BIGINT user_id FK "(NOT NULL)"
+        BIGINT app_user_id FK "(NOT NULL)"
       
         INT location_id FK "(NOT NULL)"
-        %% PK (user_id, location_id)
+        %% PK (app_user_id, location_id)
     }
 
     %% ===[ RELATIONSHIPS ]===
 
-    user_role ||--o{ app_user : "role_id"
+    user_role ||--o{ app_user : "user_role_id"
 
-    loan_status ||--o{ loan : "status_id"
+    loan_status ||--o{ loan : "loan_status_id"
     device_condition ||--o{ loan : "loan_condition_id"
     device_condition ||--o{ loan : "return_condition_id"
     app_user ||--o{ loan : "citizen_id"
     app_user ||--o{ loan : "employee_id"
     device ||--o{ loan : "device_id"
 
-    app_user ||--o{ user_location_access : "user_id"
+    app_user ||--o{ user_location_access : "app_user_id"
     location ||--o{ user_location_access : "location_id"   
     
     app_user ||--o{ device : "created_by_user_id"
-    device_status ||--o{ device : "status_id"
+    device_status ||--o{ device : "device_status_id"
     device_type ||--o{ device : "device_type_id"
     location ||--o{ device : "location_id"
 
     loan ||--o{ loan_log : "loan_id"
-    app_user ||--o{ loan_log : "user_id"
+    app_user ||--o{ loan_log : "app_user_id"
     loan_action_type ||--o{ loan_log : "loan_action_type_id"
     transaction_status ||--o{ loan_log : "transaction_status_id"
 
-    app_user ||--o{ action_log : "user_id"
+    app_user ||--o{ action_log : "app_user_id"
     app_user ||--o{ action_log : "user_record_id"
     loan ||--o{ action_log : "loan_record_id"
     device ||--o{ action_log : "device_record_id"
