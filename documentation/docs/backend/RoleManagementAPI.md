@@ -1,10 +1,9 @@
 #  Role Management API Function: 
-When a new user registers for an account, their role_name is automatically set to "citizen." 
+When a new user registers for an account, their role_name is automatically set to "employee." 
 
 Only users with the admin role have permission to change another user's role_name using the user's role_id number. 
 - role_id
 - role_name 
-- dl_required
 
 ---
 
@@ -23,17 +22,14 @@ This function allows the admin to retrieve every role available in the system.
                 {
                     role_id: int,
                     role_name: string
-                    dl_required: boolean
                 },
                 {
                     role_id: int,
                     role_name: string
-                    dl_required: boolean
                 }
                 {
                     role_id: int,
                     role_name: string
-                    dl_required: boolean
                 }
 
             ]
@@ -50,8 +46,8 @@ This function allows the admin to retrieve every role available in the system.
     }
 ```
 ---
-### Changing User Role
-This function allows the admin to update the user's role in the system. 
+### Update User Role
+This function allows an admin to update the role properties in the system.
 <br>
 
      PATCH https://website.com/api/user_role
@@ -69,7 +65,6 @@ This function allows the admin to update the user's role in the system.
         {
             role_id: int,
             role_name: string,
-            dl_required: boolean
         }    
 
         error: 403 Forbidden
@@ -101,6 +96,7 @@ This function lets the admin add a new role to the system.
     Response: 
         success: 201 Created
         {
+            role_id: int
             role_name: string
             dl_required: boolean
         }
@@ -127,7 +123,7 @@ This function lets the admin add a new role to the system.
 ### Delete Role Funtionality 
 This function allows the admin to delete roles in the system. 
 
-<u>**NOTE**: Core Roles ("Admin", "Employee", and "Citizen") cannot be deleted.</u>
+<u>**NOTE**: Core Roles ("Admin", and "Employee") cannot be deleted.</u>
 
         DELETE https://website. com/api/user_role
 
