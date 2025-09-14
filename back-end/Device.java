@@ -1,9 +1,6 @@
 package org.example.cruddevice.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,29 +11,47 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-
+@Table(name="device")
 public class Device {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long deviceId;
-    private static String status;
+    @Column(name="deviceId")
+    private long deviceId;
+
+    private String status;
     private String type;
 
-    public static String getDeviceStatus() {
+    public long getDeviceId() {
+        return deviceId;
+    }
+
+    public void setDeviceId(long deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getStatus() {
         return status;
     }
 
-    public void setDeviceStatus(String deviceStatus) {
+    public void setStatus(String deviceStatus) {
         this.status = deviceStatus;
     }
 
-    public String getDeviceType() {
+    public String getType() {
         return type;
     }
 
-    public void setDeviceType(String deviceType) {
+    public void setType(String deviceType) {
         this.type = deviceType;
     }
 
+    @Override
+    public String toString() {
+        return "Device{" +
+                "deviceId=" + deviceId +
+                ", status='" + status + '\'' +
+                ", type='" + type + '\'' +
+                '}';
+    }
 }
