@@ -5,6 +5,8 @@ import org.example.cruddevice.service.DeviceService;
 import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -12,31 +14,36 @@ import org.springframework.web.bind.annotation.*;
 
 public class DeviceController {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private ApplicationContext context;
     @Autowired private DeviceService deviceService;
 
-    @PostMapping("/device")
-
-    public Device saveDevice(
-            @Valid @RequestBody Device device)
+    @PostMapping(path="/device", consumes="application/json",produces="application/json")
+    public ResponseEntity<Device> saveDevice(
+            @RequestBody Device device)
     {
-        return deviceService.saveDevice(device);
+        System.out.println(device);
+        device= deviceService.saveDevice(device);
+        return ResponseEntity.status(200).body(device);
     }
 
     @GetMapping("/device")
 
-    public List<Device> fetchDeviceList()
+    public ResponseEntity<List<Device>> fetchDeviceList()
     {
-        return deviceService.fetchDeviceList();
+        return ResponseEntity.status(200).body((deviceService.fetchDeviceList()));
     }
 
-    @PutMapping("/device/{id}")
-
-    public Device
+    //@PutMapping("/device/{id}")
+    @PutMapping(path="/device/{id}", consumes="application/json",produces="application/json")
+    public ResponseEntity<Device>
     updateDevice(@RequestBody Device device,
                      @PathVariable("id") Long deviceId)
     {
-        return deviceService.updateDevice(
+        device= deviceService.updateDevice(
                 device, deviceId);
+
+        return ResponseEntity.ok(device);
     }
 
     @DeleteMapping("/device/{id}")
@@ -47,5 +54,3 @@ public class DeviceController {
         return "Deleted Successfully";
     }
 }
-
-
