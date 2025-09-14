@@ -33,18 +33,18 @@ public class DeviceServiceImpl implements DeviceService{
 
         Device devDB = deviceRepository.findById(deviceId).get();
 
-        if (Objects.nonNull(device.getDeviceStatus())
-                && !"".equalsIgnoreCase(Device.getDeviceStatus())) {
-            devDB.setDeviceStatus(
-                    device.getDeviceStatus());
+        if (Objects.nonNull(device.getStatus())
+                && !"".equalsIgnoreCase(device.getStatus())) {
+            devDB.setStatus(
+                    device.getStatus());
         }
 
         if (Objects.nonNull(
-                device.getDeviceType())
+                device.getType())
                 && !"".equalsIgnoreCase(
-                device.getDeviceType())) {
-            devDB.setDeviceType(
-                    device.getDeviceType());
+                device.getType())) {
+            devDB.setType(
+                    device.getType());
         }
 
         return deviceRepository.save(devDB);
@@ -57,4 +57,3 @@ public class DeviceServiceImpl implements DeviceService{
         deviceRepository.deleteById(deviceId);
     }
 }
-
