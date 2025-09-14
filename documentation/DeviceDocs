@@ -1,0 +1,59 @@
+package org.example.cruddevice.service;
+
+import org.example.cruddevice.entity.Device;
+import org.example.cruddevice.repository.DeviceRepository;
+import java.util.List;
+import java.util.Objects;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class DeviceServiceImpl implements DeviceService{
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    private DeviceRepository deviceRepository;
+
+
+    @Override
+    public Device saveDevice(Device device)
+    {
+        return deviceRepository.save(device);
+    }
+
+    @Override public List<Device> fetchDeviceList()
+    {
+        return (List<Device>)
+                deviceRepository.findAll();
+    }
+
+    @Override
+    public Device
+    updateDevice(Device device, Long deviceId)
+    {
+
+        Device devDB = deviceRepository.findById(deviceId).get();
+
+        if (Objects.nonNull(device.getStatus())
+                && !"".equalsIgnoreCase(device.getStatus())) {
+            devDB.setStatus(
+                    device.getStatus());
+        }
+
+        if (Objects.nonNull(
+                device.getType())
+                && !"".equalsIgnoreCase(
+                device.getType())) {
+            devDB.setType(
+                    device.getType());
+        }
+
+        return deviceRepository.save(devDB);
+    }
+
+    // Delete operation
+    @Override
+    public void deleteDeviceById(Long deviceId)
+    {
+        deviceRepository.deleteById(deviceId);
+    }
+}
