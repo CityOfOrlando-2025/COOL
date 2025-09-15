@@ -121,7 +121,7 @@ erDiagram
     }
 
     bin {
-        %% [CORE] Physical bins used for to contain devices (laptops, hotspots, tablets, accessories)
+        %% [CORE] Physical bins used to contain devices (laptops, hotspots, tablets, accessories)
         INT bin_id PK 
         VARCHAR(255) "Bin contents (NOT NULL) - example: Laptop + hotspot, tablet, hotspot"
 
