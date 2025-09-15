@@ -120,6 +120,19 @@ erDiagram
         TIMESTAMP updated_at
     }
 
+    bin {
+        %% [CORE] Physical bins used for to contain devices (laptops, hotspots, tablets, accessories)
+        INT bin_id PK 
+        VARCHAR(255) "Bin contents (NOT NULL) - example: Laptop + hotspot, tablet, hotspot"
+
+        BIGINT device_id FK "Points to the device table (nullable if bin is empty)"
+        INT location_id FK "Points to location table (NOT NULL)" %% a bin MUST belong to a location
+        BIGINT created_by_user_id FK "A bin must have a creator (employee),(NOT NULL)"
+
+        TIMESTAMP created_at
+        TIMESTAMP updated_at
+    }
+
     device {
         %% [CORE] Physical devices that can be loaned
         BIGINT device_id PK
