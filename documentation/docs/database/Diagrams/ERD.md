@@ -123,10 +123,10 @@ erDiagram
     bin {
         %% [CORE] Physical bins used to contain devices (laptops, hotspots, tablets, accessories)
         INT bin_id PK 
-        VARCHAR(255) "Bin contents (NOT NULL) - example: Laptop + hotspot, tablet, hotspot"
+        %% VARCHAR(255) bin_contents "Bin contents (NOT NULL) - example: Laptop + hotspot, tablet, hotspot"
 
         BIGINT device_id FK "Points to the device table (nullable if bin is empty)"
-        INT location_id FK "Points to location table (NOT NULL)" %% a bin MUST belong to a location
+        INT location_id FK "Points to location table (NOT NULL)"
         BIGINT created_by_user_id FK "A bin must have a creator (employee),(NOT NULL)"
 
         TIMESTAMP created_at
@@ -267,6 +267,8 @@ erDiagram
     device ||--o{ action_log : "device_record_id"
     user_action_type ||--o{ action_log : "user_action_type_id"
 
+    device ||--o{ bin : "device_id"
+    location ||--o{ bin : "location_id"
 </div>
 
 
