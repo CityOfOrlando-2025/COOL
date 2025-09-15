@@ -123,7 +123,7 @@ erDiagram
     bin {
         %% [CORE] Physical bins used to contain devices (laptops, hotspots, tablets, accessories)
         INT bin_id PK 
-        %% VARCHAR(255) bin_contents "Bin contents (NOT NULL) - example: Laptop + hotspot, tablet, hotspot"
+        VARCHAR(255) bin_contents "Bin contents (NOT NULL) - example: Laptop + hotspot, tablet, hotspot"
 
         BIGINT device_id FK "Points to the device table (nullable if bin is empty)"
         INT location_id FK "Points to location table (NOT NULL)"
