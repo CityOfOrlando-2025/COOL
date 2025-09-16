@@ -132,6 +132,7 @@ CREATE TABLE bin (
     CONSTRAINT fk_bin_device
         FOREIGN KEY (device_id) REFERENCES device(device_id)
         ON DELETE SET NULL -- if a device is deleted, set device_id to NULL (to allow reusing the bin)
+        ON UPDATE CASCADE, -- if a device_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
 
     CONSTRAINT fk_bin_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
