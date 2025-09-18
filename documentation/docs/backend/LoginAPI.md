@@ -6,11 +6,11 @@ Enables users to log in and out of the system.
 ### Login Function:
 Users must provide a username and password to log in. Failed logins return error messages. Only registered users, employee and admin, can log in.
 
-```
+```javascript
     POST https://website.com/api/user/login
 ```
 
-```
+```javascript
     Request:
 	{
  	    "username": "ExampleUser",
@@ -22,7 +22,7 @@ Required fields:
 - Username (string)
 - Password (string)
 
-```
+```javascript
     Response:
         Success: 200 Ok
         {
@@ -61,11 +61,11 @@ Required fields:
 ### Logout Function:
 Allows a logged-in user to log out of the system. Once logged out, the user will no longer have access until they log in again.
 
-```
+```javascript
     POST https://website.com/api/user/logout
 ```
 
-```
+```javascript
     Request:
 	{
  	    "username": "ExampleUser",
@@ -74,7 +74,7 @@ Allows a logged-in user to log out of the system. Once logged out, the user will
 Required fields:
 - Username (string)
 
-```
+```javascript
     Response:
         Success: 200 Ok
         {
