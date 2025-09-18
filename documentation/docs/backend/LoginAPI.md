@@ -3,7 +3,7 @@ Enables users to log in and out of the system.
 
 ---
 
-### Login Function:
+## Login Function:
 Users must provide a username and password to log in. Failed logins return error messages. Only registered users, employee and admin, can log in.
 
 ```javascript
@@ -13,8 +13,8 @@ Users must provide a username and password to log in. Failed logins return error
 ```javascript
     Request:
 	{
- 	    "username": "ExampleUser",
- 	    "password": "SecurePassword#123"
+ 	    "username": string
+ 	    "password": string
     }
 
 ```
@@ -58,7 +58,7 @@ Required fields:
 
 ---
 
-### Logout Function:
+## Logout Function:
 Allows a logged-in user to log out of the system. Once logged out, the user will no longer have access until they log in again.
 
 ```javascript
@@ -68,7 +68,7 @@ Allows a logged-in user to log out of the system. Once logged out, the user will
 ```javascript
     Request:
 	{
- 	    "username": "ExampleUser",
+ 	    "username": string
     }
 ```
 Required fields:
@@ -78,7 +78,7 @@ Required fields:
     Response:
         Success: 200 Ok
         {
-            message: "Logout successful",
+            message: "Logout successful"
         }
         
         Error: 401 Unauthorized
