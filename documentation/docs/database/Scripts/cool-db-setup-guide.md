@@ -10,7 +10,7 @@ Included are all the required tables, lookup data, and a test admin user.
 ### 1. Environment Variables (**`.env`** file)
 
 We use an **`.env`** file to keep database credentials out of the codebase and GitHub.  
-#### 1.1. A **`.env.sample`** file is included in the repo with placeholder values:
+#### 1.1 A **`.env.sample`** file is included in the repo with placeholder values:
 
 **`.env.sample`**
 ```
@@ -19,12 +19,12 @@ We use an **`.env`** file to keep database credentials out of the codebase and G
    MYSQL_APP_PW=REPLACE_ME_APP_PW
    MYSQL_DATABASE=cool_db
 ```
-#### 1.2. Copy the sample file to create your local **`.env`**: 
+#### 1.2 Copy the sample file to create your local **`.env`**: 
 ```
     cp .env.sample .env
 ```
 
-#### 1.3. Update **`.env`** with your own secure values.
+#### 1.3 Update **`.env`** with your own secure values.
 
 **`.env`** (example)
 ```
@@ -33,7 +33,7 @@ We use an **`.env`** file to keep database credentials out of the codebase and G
    MYSQL_APP_PW=MySecureAppPW123
    MYSQL_DATABASE=cool_db
 ```
-#### 1.4. Ensure **`.env`** is ignored by Git so it's never committed: 
+#### 1.4 Ensure **`.env`** is ignored by Git so it's never committed: 
 
 **`.gitignore`**
 
@@ -48,7 +48,7 @@ We use an **`.env`** file to keep database credentials out of the codebase and G
 
 ### 2. Start Docker MySQL
 
-#### 2.1. If using **`docker run`**:
+#### 2.1 If using **`docker run`**:
 
 ```
 docker run --name cool-mysql \
@@ -61,7 +61,7 @@ docker run --name cool-mysql \
 -d mysql:8.0
 ```
 
-#### 2.2. If using **`docker compose`**:
+#### 2.2 If using **`docker compose`**:
 
 ```
 # 'up' builds and starts the container
@@ -73,7 +73,7 @@ docker compose up -d
 
 ### 3. Resetting After Testing (Clean State)
 
-#### 3.1. If using **`docker run`**:
+#### 3.1 If using **`docker run`**:
 
 ```
 # Stop the container
@@ -83,7 +83,7 @@ docker stop cool-mysql
 docker rm -v cool-mysql
 ```
 
-#### 3.2. If using **`docker compose`**:
+#### 3.2 If using **`docker compose`**:
 
 ```
 # Stops and removes the container and associated volume
@@ -92,4 +92,21 @@ docker compose down -v
 
 ---
 
+### 4. Troubleshooting
 
+#### 4.1 Missing Environment Variables
+
+If you see warnings like this when running **`docker compose up -d`**:
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_APP_PW" variable is not set. Defaulting to a blank string."
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_ROOT_PW" variable is not set. Defaulting to a blank string."
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_DATABASE" variable is not set. Defaulting to a blank string."
+
+This means **`Docker Compose`** could not find your environment variable. Most often this happens because the **`.env`** file was never created
+from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
+
+**Fix:**
+##### 1. **Copy** the template file to create your personal **`.env`**:
+```
+cp .env.sample .env
+```
