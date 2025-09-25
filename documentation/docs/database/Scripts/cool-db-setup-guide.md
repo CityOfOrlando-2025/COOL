@@ -79,15 +79,14 @@ docker compose up -d
 # Stop the container
 docker stop cool-mysql
 
-# Remove the container and its associated volume
+# Remove the container and associated volume
 docker rm -v cool-mysql
 ```
 
 #### 3.2. If using **`docker compose`**:
 
 ```
-# 'down' stops and removes the container
-# '-v' removes associated volumes (database data)
+# Stops and removes the container and associated volume
 docker compose down -v
 ```
 
