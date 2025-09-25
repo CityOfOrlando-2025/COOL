@@ -1,0 +1,24 @@
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: cool-mysql
+    restart: unless-stopped
+
+    # Port mapping
+    ports:
+      - "3306:3306"
+
+    # Environment variables
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PW}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_APP_PW}
+
+    # Mount initialization scripts (DDL, seeds, etc.)
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+
+volumes:
+  db_data:
