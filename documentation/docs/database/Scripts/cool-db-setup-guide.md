@@ -121,7 +121,7 @@ records.
 
 #### 5.1 Connect to the Database
 
-From you terminal: 
+From your terminal: 
 ```
 docker exec -it cool-mysql mysql -u root -p
 ```
