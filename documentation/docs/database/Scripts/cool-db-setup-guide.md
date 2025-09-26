@@ -92,7 +92,7 @@ docker compose down -v
 
 ---
 
-### 4. Troubleshooting
+### 4. Troubleshooting the Database Initialization
 
 #### 4.1 Missing Environment Variables
 
@@ -113,3 +113,59 @@ from the **`.env.sample`** template, or the values inside **`.env`** are still p
 ```
 cp .env.sample .env
 ```
+### 5. Populating the Database (Manual Inserts)
+
+When the database container starts, all of the tables defined in the DDL are created, but they are **empty**.
+To actually use the system, you must populate the lookup tables (roles, statues, types, etc.) and add some starter
+records.
+
+#### 5.1 Connect to the Database
+
+From you terminal: 
+```
+docker exec -it cool-mysql mysql -u root -p
+```
+
+Enter the **root password** you set in your **`.env`** file (`MYSQL_ROOT_PW`) 
+
+You should then see the MySQL prompt: 
+
+`mysql>`
+
+Switch to the project database:
+
+`USE cool_db;`
+
+#### 5.2 Insert Lookup Data
+
+Lookup tables hold the fixed lists that the system depends on (roles, device types, statuses). These **must** be
+populated first. 
+
+
+
+Example: 
+```
+-- User Roles
+INSERT INTO user_role (user_role_name, dl_required, is_active) VALUES
+('Admin', 0, 1),
+('Employee', 0, 1),
+('Citizen', 1, 1);
+```
+
+```
+-- Device Status
+INSERT INTO device_status (device_status_name) VALUES
+('Available'),
+('Loaned'),
+('Maintenance'),
+('Retired'),
+('Lost');
+```
+
+#### 5.3 Insert Test Data
+Once lookups exist, you can add test records to core tables. 
+
+Example: 
+
+
+
