@@ -113,7 +113,19 @@ from the **`.env.sample`** template, or the values inside **`.env`** are still p
 ```
 cp .env.sample .env
 ```
+
+> #### **Note:** 
+>
+>**Section 5** (Manual Inserts): Intended for **granual testing** and validation of individual tables.
+>
+>**Section 6** (Automatic Inserts): Intended for quickly populating the schema with a consistent baseline dataset using a **seed script**. 
+
 ### 5. Populating the Database (Manual Inserts)
+
+>#### **Note**:
+> This section provides **sample insert statements** for a few key tables to demonstrate the manual
+> process of adding records. It is not an exhaustive list of all required inserts. For a 
+> **complete dataset covering all tables, see **Section 6 (Automatic Inserts).**
 
 When the database container starts, all of the tables defined in the DDL are created, but they are **empty**.
 To actually use the system, you must populate the lookup tables (roles, statues, types, etc.) and add some starter
@@ -138,10 +150,7 @@ Switch to the project database:
 
 #### 5.2 Insert Lookup Data
 
-Lookup tables hold the fixed lists that the system depends on (roles, device types, statuses). These **must** be
-populated first. 
-
-
+Lookup tables hold the fixed lists that the system depends on (roles, device types, statuses). These **must** be populated first. 
 
 Example: 
 ```
@@ -163,9 +172,82 @@ INSERT INTO device_status (device_status_name) VALUES
 ```
 
 #### 5.3 Insert Test Data
-Once lookups exist, you can add test records to core tables. 
+Once the lookups exist, you can now add the test records to the core tables. 
 
 Example: 
 
+```
+-- Test Admin User (resplace password fields with actual values)
+INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
+VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
+```
+
+```
+-- Test Location
+INSERT INTO location (loaction_name, street_address, city, state, zip_code, contact_phone)
+VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234');
+```
+#### 5.4 Verify Data
+Check that the rows were inserted: 
+
+```
+SELECT * FROM user_role;
+SELECT * FROM device_status;
+SELECT * FROM location;
+```
+### 6. Loading Seed Data (Automatic Inserts)
+
+> #### **Note:** 
+> This section provides a **seed script** that automatically populates the schema with a consistent baseline dataset across **all tables**. Use this when you want to quickly bring up the database to a usable state without entering data manually.
+
+#### 6.1 Setup
+- Place **`seed-dev.sql`** inside the **`./init`** directory (alongside the DDL script). 
+- During container startup, MySQL executes all **`.sql`** files in **`./init`** the **first time** the database is created.
+- This ensures that each environment is provisioned with a consistent, known dataset.
+
+#### 6.2 Example Seed Script
+```
+USE cool_db;
+
+-- Roles
+INSERT INTO user_role (user_role_name, dl_required, is_active) VALUES
+('Admin', 0, 1),
+('Employee', 0, 1),
+('Citizen', 1, 1);
+
+-- Device Types
+INSERT INTO device_type (device_type_name, is_active) VALUES
+('Laptop', 1),
+('Tablet', 1),
+('Hotspot', 1);
+
+-- Device Statuses
+INSERT INTO device_status (device_status_name) VALUES
+('Available'),
+('Loaned'),
+('Maintenance'),
+('Retired'),
+('Lost');
+
+-- Test Users
+INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
+VALUES ('Test Employee', 'employee@example.com', 'hashed_pw_here', 'salt_here', 1);
+
+INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
+VALUE ('Test Employees', 'employee@example.com', 'hashed_pw_here', 'salt_here', 2);
 
 
+-- Test Location
+INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
+VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234')
+```
+
+#### 6.3 Resetting and Reloading
+
+To reload the seed data, reset the database volume: 
+```
+docker compose down -v
+docker compose up -d
+```
+
+This clears all data and re-runs the DDL and seed file.
