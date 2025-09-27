@@ -137,7 +137,7 @@ CREATE TABLE bin (
     CONSTRAINT fk_bin_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
         ON DELETE RESTRICT -- prevents deletion of a location if bins are assigned to it
-        ON UPDATE CASCADE, -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
+        ON UPDATE CASCADE -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 
@@ -184,7 +184,7 @@ CREATE TABLE device (
         -- to retire a user, set their role to inactive instead of deleting them. 
         ON DELETE RESTRICT 
 
-        ON UPDATE CASCADE, -- if a user_id changes, all linked devices are updated automatically to stay in sync
+        ON UPDATE CASCADE -- if a user_id changes, all linked devices are updated automatically to stay in sync
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Tracks each loan transaction, linking a device to a citizen and employee. [CORE ENTITY]

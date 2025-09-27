@@ -116,7 +116,7 @@ cp .env.sample .env
 
 > #### **Note:** 
 >
->**Section 5** (Manual Inserts): Intended for **granual testing** and validation of individual tables.
+>**Section 5** (Manual Inserts): Intended for **granular testing** and validation of individual tables.
 >
 >**Section 6** (Automatic Inserts): Intended for quickly populating the schema with a consistent baseline dataset using a **seed script**. 
 
@@ -177,14 +177,14 @@ Once the lookups exist, you can now add the test records to the core tables.
 Example: 
 
 ```
--- Test Admin User (resplace password fields with actual values)
+-- Test Admin User (replace password fields with actual values)
 INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
 VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
 ```
 
 ```
 -- Test Location
-INSERT INTO location (loaction_name, street_address, city, state, zip_code, contact_phone)
+INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
 VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234');
 ```
 #### 5.4 Verify Data

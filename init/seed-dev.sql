@@ -25,7 +25,7 @@ INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, u
 VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
 
 INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
-VALUE ('Test Employee', 'employee@example.com', 'hashed_pw_here', 'salt_here', 2);
+VALUES ('Test Employee', 'employee@example.com', 'hashed_pw_here', 'salt_here', 2);
 
 
 -- Test Location
