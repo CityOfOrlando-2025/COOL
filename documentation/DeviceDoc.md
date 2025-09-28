@@ -84,11 +84,11 @@ Status: 200 OK
 
 {
 
-  "deviceId": Long,
+  "deviceId": number,
   
-  "status": String,
+  "status": string,
   
-  "type": String
+  "type": string
 
 }
 
@@ -112,11 +112,11 @@ Status: 200 OK
 
 {
 
-  "deviceId": Long,
+  "deviceId": number,
   
-  "status": String,
+  "status": string,
   
-  "type": String
+  "type": string
 
 }
 
