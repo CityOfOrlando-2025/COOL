@@ -91,7 +91,7 @@ CREATE TABLE app_user (
     
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     -- Enforce referential integrity with user_role table
     CONSTRAINT fk_app_user_role 
@@ -133,7 +133,7 @@ CREATE TABLE device (
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_device_type 
         FOREIGN KEY (device_type_id) REFERENCES device_type(device_type_id)
@@ -173,7 +173,7 @@ CREATE TABLE bin (
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_bin_device
         FOREIGN KEY (device_id) REFERENCES device(device_id)
@@ -183,7 +183,7 @@ CREATE TABLE bin (
     CONSTRAINT fk_bin_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
         ON DELETE RESTRICT -- prevents deletion of a location if bins are assigned to it
-        ON UPDATE CASCADE -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
+        ON UPDATE CASCADE, -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
 
     CONSTRAINT fk_bin_creator
         FOREIGN KEY (created_by_user_id) REFERENCES app_user(app_user_id)
@@ -219,7 +219,7 @@ CREATE TABLE loan (
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_loan_device 
         FOREIGN KEY (device_id) REFERENCES device(device_id)
@@ -335,16 +335,9 @@ CREATE TABLE action_log (
     CONSTRAINT fk_actionlog_device_record
         FOREIGN KEY (device_record_id) REFERENCES device(device_id)     
         ON DELETE SET NULL -- if a device is deleted, set device_record_id to NULL
-        ON UPDATE CASCADE -- if a device_id changes, all linked log entries are updated automatically to stay in sync
+        ON UPDATE CASCADE, -- if a device_id changes, all linked log entries are updated automatically to stay in sync
 
-    -- DB-level guard: requires exactly one of the three *_record_id fields to be non-NULL
-    -- Prevents ambiguous log entries that reference multiple record types or none at all
-    CONSTRAINT check_exactly_one_target_record CHECK (
-        (user_record_id IS NOT NULL) +
-        (loan_record_id IS NOT NULL) +
-        (device_record_id IS NOT NULL) = 1
-    )
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
+-- removed CHECK constraint to allow NULLs in all three *_record_id fields, this can be enforced at the application level.
 
 -- 3. JOIN TABLES
 
