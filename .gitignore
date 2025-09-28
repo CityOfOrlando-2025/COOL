@@ -140,3 +140,6 @@ vite.config.ts.timestamp-*
 
 */site
 */documentation_venv
+
+# Environment files (do not commit passwords)
+.env
