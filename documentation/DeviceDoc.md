@@ -20,6 +20,7 @@ GET /api/my-devices/device
 
 Status: 200 OK
 
+#### Response
 ```javascript
 [
 
@@ -74,6 +75,7 @@ POST /api/my-devices/device
 
 Status: 200 OK
 
+#### Request
 ```javascript
 {
 
@@ -94,6 +96,17 @@ Status: 200 OK
 }
 ```
 
+#### Response
+```javascript
+{
+
+  "deviceId": 252,
+  "status": "Lent",
+  "type": "Laptop"
+
+}
+```
+
 ### Update Device
 
 Allows the user to change a device’s type and status.
@@ -102,6 +115,7 @@ PUT /api/my-devices/device/{deviceId}
 
 Status: 200 OK
 
+#### Request
 ```javascript
 {
 
@@ -122,6 +136,17 @@ Status: 200 OK
 }
 ```
 
+#### Response
+```javascript
+{
+
+  "deviceId": 2,
+  "status": "Ready",
+  "type": "Phone"
+
+}
+```
+
 ### Delete Device
 
 Allows for the deletion of a device from the database.
@@ -130,4 +155,5 @@ DELETE /api/my-devices/device/{deviceId}
 
 Status: 200 OK
 
+#### Response
 Deleted Successfully
