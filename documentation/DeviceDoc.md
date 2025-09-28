@@ -1,8 +1,8 @@
-Overview
+# Device CRUD
 
 The device CRUD is made for the purpose of managing devices in the overall system. It allows for the system to perform all basic functions towards device objects, each containing a type and status alongside an ID so the system can differentiate each one. Most of it is not supposed to be accessed by average users, only employees will have direct access to manage the device database directly.
 
-Tutorials
+## Tutorials
 
 The device objects have three parts to them, an ID, a status, and a type. The ID is there so that the system can differentiate between each device, it is the only unique part of each device. Conversely status is used to determine whether the device can be loaded out, isn’t able to be loaned out, or already loaned out. And type is used to describe what the device is, but unlike ID can be the same as any other device and is not used outside of information. Users will not directly be able to affect any of these, with ID and type being locked behind the system not for them to touch, the only one they will be able to affect indirectly is status, being able to change the status of them by withdrawing or returning.
 
@@ -12,129 +12,129 @@ If the status is available there will be a button that allows them to take out a
 
 Additionally full CRUD functionality has been programmed, allowing for more direct modifications of the status and type if needed.
 
-fetchDeviseList
+### Read Devices
 
 This function returns all devices in the database.
 
-GET [http://localhost:8082/api/my-devices/device](http://localhost:8082/api/my-devices/device)
+GET /api/my-devices/device](http://localhost:8082/api/my-devices/device)
 
 Status: 200 OK
 
 \[
 
-{
-
-"deviceId": 0,
-
-"status": "active",
-
-"type": "basic"
-
-},
-
-{
-
-"deviceId": 2,
-
-"status": null,
-
-"type": null
-
-},
-
-{
-
-"deviceId": 52,
-
-"status": "Update",
-
-"type": "Testing"
-
-},
-
-{
-
-"deviceId": 102,
-
-"status": null,
-
-"type": null
-
-},
-
-{
-
-"deviceId": 202,
-
-"status": "test2",
-
-"type": "type2"
-
-}
+  {
+  
+    "deviceId": 0,
+    
+    "status": "active",
+    
+    "type": "basic"
+  
+  },
+  
+  {
+  
+    "deviceId": 2,
+    
+    "status": null,
+    
+    "type": null
+  
+  },
+  
+  {
+  
+    "deviceId": 52,
+    
+    "status": "Update",
+    
+    "type": "Testing"
+  
+  },
+  
+  {
+  
+    "deviceId": 102,
+    
+    "status": null,
+    
+    "type": null
+  
+  },
+  
+  {
+  
+    "deviceId": 202,
+    
+    "status": "test2",
+    
+    "type": "type2"
+  
+  }
 
 \]
 
-saveDevice
+### Create Device
 
 Adds a device to the database
 
-POST [http://localhost:8082/api/my-devices/device](http://localhost:8082/api/my-devices/device)
+POST /api/my-devices/device](http://localhost:8082/api/my-devices/device)
 
 Status: 200 OK
 
 {
 
-"deviceId": Long,
-
-"status": String,
-
-"type": String
+  "deviceId": Long,
+  
+  "status": String,
+  
+  "type": String
 
 }
 
 {
 
-"deviceId": 252,
-
-"status": "Lent",
-
-"type": "Laptop"
+  "deviceId": 252,
+  
+  "status": "Lent",
+  
+  "type": "Laptop"
 
 }
 
-updateDevice
+### Update Device
 
 Allows the user to change a device’s type and status.
 
-PUT [http://localhost:8082/api/my-devices/device/2](http://localhost:8082/api/my-devices/device/2)
+PUT /api/my-devices/device/2](http://localhost:8082/api/my-devices/device/2)
 
 Status: 200 OK
 
 {
 
-"deviceId": Long,
-
-"status": String,
-
-"type": String
+  "deviceId": Long,
+  
+  "status": String,
+  
+  "type": String
 
 }
 
 {
 
-"deviceId": 2,
-
-"status": "Ready",
-
-"type": "Phone"
+  "deviceId": 2,
+  
+  "status": "Ready",
+  
+  "type": "Phone"
 
 }
 
-deleteDeviceById
+### Delete Device
 
 Allows for the deletion of a device from the database.
 
-DELETE [http://localhost:8082/api/my-devices/device/202](http://localhost:8082/api/my-devices/device/202)
+DELETE /api/my-devices/device/202](http://localhost:8082/api/my-devices/device/202)
 
 Status: 200 OK
 
