@@ -68,6 +68,14 @@ Status: 200 OK
 ]
 ```
 
+Status: 500 Internal Server Error
+
+```javascript
+{
+  "error": "Internal Server Error"
+}
+```
+
 ### Create Device
 
 Adds a device to the database
@@ -107,6 +115,14 @@ Status: 200 OK
   "status": "Lent",
   "type": "Laptop"
 
+}
+```
+
+Status: 400 Bad Request
+
+```javascript
+{
+  "error": "Bad Request"
 }
 ```
 
@@ -151,6 +167,14 @@ Status: 200 OK
 }
 ```
 
+Status: 400 Bad Request
+
+```javascript
+{
+  "error": "Bad Request"
+}
+```
+
 ### Delete Device
 
 Allows for the deletion of a device from the database.
@@ -162,3 +186,11 @@ DELETE /api/my-devices/device/{deviceId}
 Status: 200 OK
 
 Deleted Successfully
+
+Status: 404 Not Found
+
+```javascript
+{
+  "error": "Not Found"
+}
+```
