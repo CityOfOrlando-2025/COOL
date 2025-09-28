@@ -125,20 +125,20 @@ It usually means that your **`.env`** file still contains **placeholder values**
 
 **Fix:**
 
-1. Open your local **`.env`** file.
-2. Make sure the **`MYSQL_ROOT_PW`** entry is updated with your secure password. For example:
+##### 1. Open your local **`.env`** file.
+##### 2. Make sure the **`MYSQL_ROOT_PW`** entry is updated with your secure password. For example:
 
 ```
 MySQL_ROOT_PW=MySecureRootPW123
 ```
-3. **Restart** the container so that the changes take effect. 
+##### 3. **Restart** the container so that the changes take effect. 
 
 ```
 docker compose down -v
 docker compose up -d
 ```
 
-4. Try connecting again with: 
+##### 4. Try connecting again with: 
 ```
 docker exec -it cool-mysql mysql -u root -p
 ```
