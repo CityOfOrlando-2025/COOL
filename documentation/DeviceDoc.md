@@ -16,18 +16,17 @@ Additionally full CRUD functionality has been programmed, allowing for more dire
 
 This function returns all devices in the database.
 
-GET /api/my-devices/device](http://localhost:8082/api/my-devices/device)
+GET /api/my-devices/device
 
 Status: 200 OK
 
-\[
+```javascript
+[
 
   {
   
     "deviceId": 0,
-    
     "status": "active",
-    
     "type": "basic"
   
   },
@@ -35,9 +34,7 @@ Status: 200 OK
   {
   
     "deviceId": 2,
-    
     "status": null,
-    
     "type": null
   
   },
@@ -45,9 +42,7 @@ Status: 200 OK
   {
   
     "deviceId": 52,
-    
     "status": "Update",
-    
     "type": "Testing"
   
   },
@@ -55,9 +50,7 @@ Status: 200 OK
   {
   
     "deviceId": 102,
-    
     "status": null,
-    
     "type": null
   
   },
@@ -65,76 +58,75 @@ Status: 200 OK
   {
   
     "deviceId": 202,
-    
     "status": "test2",
-    
     "type": "type2"
   
   }
 
-\]
+]
+```
 
 ### Create Device
 
 Adds a device to the database
 
-POST /api/my-devices/device](http://localhost:8082/api/my-devices/device)
+POST /api/my-devices/device
 
 Status: 200 OK
 
+```javascript
 {
 
   "deviceId": number,
-  
   "status": string,
-  
   "type": string
 
 }
+```
 
+```javascript
 {
 
   "deviceId": 252,
-  
   "status": "Lent",
-  
   "type": "Laptop"
 
 }
+```
 
 ### Update Device
 
 Allows the user to change a device’s type and status.
 
-PUT /api/my-devices/device/2](http://localhost:8082/api/my-devices/device/2)
+PUT /api/my-devices/device/{deviceId}
 
 Status: 200 OK
 
+```javascript
 {
 
   "deviceId": number,
-  
   "status": string,
-  
   "type": string
 
 }
+```
 
+```javascript
 {
 
   "deviceId": 2,
-  
   "status": "Ready",
-  
   "type": "Phone"
 
 }
+```
 
 ### Delete Device
 
 Allows for the deletion of a device from the database.
 
-DELETE /api/my-devices/device/202](http://localhost:8082/api/my-devices/device/202)
+DELETE /api/my-devices/device/{deviceId}
 
 Status: 200 OK
 
