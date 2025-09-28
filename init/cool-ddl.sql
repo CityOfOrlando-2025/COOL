@@ -75,7 +75,7 @@ CREATE TABLE app_user (
     app_user_full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    password_salt VARBINARY(64) NOT NULL, --per-user salt for hashing passwords
+    password_salt VARBINARY(64) NOT NULL, -- per-user salt for hashing passwords
     -- Ensures every user has a role, a user cannot exist in the system without one
     user_role_id INT NOT NULL,
 
@@ -114,32 +114,6 @@ CREATE TABLE location (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
-
--- Stores information about storage bins for organizing devices at locations. [CORE ENTITY]
-CREATE TABLE bin (
-    bin_id INT PRIMARY KEY AUTO_INCREMENT,
-    asset_tag VARCHAR(50) NOT NULL UNIQUE, -- unique identifier for the bin used for inventory tracking (bin # already in use by county)
-    bin_contents VARCHAR(255), -- description of what is stored in the bin (e.g. "Laptop + hotspot", "Tablet", etc.)
-    created_by_user_id BIGINT NOT NULL, -- a bin must have a creator (employee)
-
-    device_id BIGINT, -- can be NULL if bin is empty
-    location_id INT NOT NULL, -- a bin must be associated with a location
-
-    -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_bin_device
-        FOREIGN KEY (device_id) REFERENCES device(device_id)
-        ON DELETE SET NULL -- if a device is deleted, set device_id to NULL (to allow reusing the bin)
-        ON UPDATE CASCADE, -- if a device_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
-
-    CONSTRAINT fk_bin_location
-        FOREIGN KEY (location_id) REFERENCES location(location_id)
-        ON DELETE RESTRICT -- prevents deletion of a location if bins are assigned to it
-        ON UPDATE CASCADE -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
-
 
 -- Stores information about each physical device that can be loaned. [CORE ENTITY]
 CREATE TABLE device (
@@ -185,6 +159,31 @@ CREATE TABLE device (
         ON DELETE RESTRICT 
 
         ON UPDATE CASCADE -- if a user_id changes, all linked devices are updated automatically to stay in sync
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
+
+-- Stores information about storage bins for organizing devices at locations. [CORE ENTITY]
+CREATE TABLE bin (
+    bin_id INT PRIMARY KEY AUTO_INCREMENT,
+    asset_tag VARCHAR(50) NOT NULL UNIQUE, -- unique identifier for the bin used for inventory tracking (bin # already in use by county)
+    bin_contents VARCHAR(255), -- description of what is stored in the bin (e.g. "Laptop + hotspot", "Tablet", etc.)
+    created_by_user_id BIGINT NOT NULL, -- a bin must have a creator (employee)
+
+    device_id BIGINT, -- can be NULL if bin is empty
+    location_id INT NOT NULL, -- a bin must be associated with a location
+
+    -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_bin_device
+        FOREIGN KEY (device_id) REFERENCES device(device_id)
+        ON DELETE SET NULL -- if a device is deleted, set device_id to NULL (to allow reusing the bin)
+        ON UPDATE CASCADE, -- if a device_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
+
+    CONSTRAINT fk_bin_location
+        FOREIGN KEY (location_id) REFERENCES location(location_id)
+        ON DELETE RESTRICT -- prevents deletion of a location if bins are assigned to it
+        ON UPDATE CASCADE -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Tracks each loan transaction, linking a device to a citizen and employee. [CORE ENTITY]

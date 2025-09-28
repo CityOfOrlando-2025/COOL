@@ -145,11 +145,13 @@ docker exec -it cool-mysql mysql -u root -p
 
 Enter the updated password when prompted. 
 
+---
 > #### **Note:** 
 >
 >**Section 5** (Manual Inserts): Intended for **granular testing** and validation of individual tables.
 >
 >**Section 6** (Automatic Inserts): Intended for quickly populating the schema with a consistent baseline dataset using a **seed script**. 
+---
 
 ### 5. Populating the Database (Manual Inserts)
 
@@ -202,16 +204,17 @@ INSERT INTO device_status (device_status_name) VALUES
 ('Lost');
 ```
 
-#### 5.3 Insert Test Data
-Once the lookups exist, you can now add the test records to the core tables. 
-
-Example: 
+#### 5.3 Insert a Test User (app_user)
+Once the lookups exist, you can add a user. This table depends on **`user_role`**, so make sure the roles were inserted first.  
 
 ```
--- Test Admin User (replace password fields with actual values)
+-- Test Admin User
 INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
 VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
 ```
+- `user_role_id = 1` assumes "Admin" is role ID 1.
+- (_Placeholder values used here for testing. However, in production these should be replaced with securely generated hashes._)
+
 
 ```
 -- Test Location
