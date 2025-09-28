@@ -84,6 +84,16 @@ Status: 200 OK
 
 {
 
+"deviceId": Long,
+
+"status": String,
+
+"type": String
+
+}
+
+{
+
 "deviceId": 252,
 
 "status": "Lent",
@@ -99,6 +109,16 @@ Allows the user to change a device’s type and status.
 PUT [http://localhost:8082/api/my-devices/device/2](http://localhost:8082/api/my-devices/device/2)
 
 Status: 200 OK
+
+{
+
+"deviceId": Long,
+
+"status": String,
+
+"type": String
+
+}
 
 {
 
