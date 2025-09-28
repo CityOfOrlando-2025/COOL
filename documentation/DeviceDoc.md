@@ -18,9 +18,10 @@ This function returns all devices in the database.
 
 GET /api/my-devices/device
 
+#### Response
+
 Status: 200 OK
 
-#### Response
 ```javascript
 [
 
@@ -73,9 +74,8 @@ Adds a device to the database
 
 POST /api/my-devices/device
 
-Status: 200 OK
-
 #### Request
+
 ```javascript
 {
 
@@ -97,6 +97,9 @@ Status: 200 OK
 ```
 
 #### Response
+
+Status: 200 OK
+
 ```javascript
 {
 
@@ -113,8 +116,6 @@ Allows the user to change a device’s type and status.
 
 PUT /api/my-devices/device/{deviceId}
 
-Status: 200 OK
-
 #### Request
 ```javascript
 {
@@ -137,6 +138,9 @@ Status: 200 OK
 ```
 
 #### Response
+
+Status: 200 OK
+
 ```javascript
 {
 
@@ -153,7 +157,8 @@ Allows for the deletion of a device from the database.
 
 DELETE /api/my-devices/device/{deviceId}
 
+#### Response
+
 Status: 200 OK
 
-#### Response
 Deleted Successfully
