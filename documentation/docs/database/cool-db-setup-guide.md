@@ -113,6 +113,37 @@ from the **`.env.sample`** template, or the values inside **`.env`** are still p
 ```
 cp .env.sample .env
 ```
+#### 4.2 Access Denied for Root User
+
+If you see an error like this when trying to connect: 
+```
+$ docker exec -it cool-mysql mysql -u root -p
+Enter password:
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+```
+It usually means that your **`.env`** file still contains **placeholder values**, such as **`REPLACE_ME_ROOT_PW`**, instead of your real password.
+
+**Fix:**
+
+1. Open your local **`.env`** file.
+2. Make sure the **`MYSQL_ROOT_PW`** entry is updated with your secure password. For example:
+
+```
+MySQL_ROOT_PW=MySecureRootPW123
+```
+3. **Restart** the container so that the changes take effect. 
+
+```
+docker compose down -v
+docker compose up -d
+```
+
+4. Try connecting again with: 
+```
+docker exec -it cool-mysql mysql -u root -p
+```
+
+Enter the updated password when prompted. 
 
 > #### **Note:** 
 >
