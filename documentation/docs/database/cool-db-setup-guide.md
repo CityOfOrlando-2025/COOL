@@ -269,7 +269,7 @@ docker compose up -d
 - `up` - Builds and starts the services defined in your `docker-compose.yml` file.
 - `-d` (detached mode) - Runs them in the background, so your terminal stays free instead of locking on logs.
 
-#### 6.2 Verify the Seeded Tables
+#### 6.3 Verify the Seeded Tables
 After the container starts, connect to MySQL.
 
 In your terminal type:
@@ -292,43 +292,27 @@ Switch to your project database
 
 ```
 USE cool_db;
-
--- Roles
-INSERT INTO user_role (user_role_name, dl_required, is_active) VALUES
-('Admin', 0, 1),
-('Employee', 0, 1),
-('Citizen', 1, 1);
-
--- Device Types
-INSERT INTO device_type (device_type_name, is_active) VALUES
-('Laptop', 1),
-('Tablet', 1),
-('Hotspot', 1);
-
--- Device Statuses
-INSERT INTO device_status (device_status_name) VALUES
-('Available'),
-('Loaned'),
-('Maintenance'),
-('Retired'),
-('Lost');
-
--- Test Users
-INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
-VALUES ('Test Employee', 'employee@example.com', 'hashed_pw_here', 'salt_here', 1);
-
-INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
-VALUE ('Test Employees', 'employee@example.com', 'hashed_pw_here', 'salt_here', 2);
-
-
--- Test Location
-INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
-VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234')
+```
+Check to see if the seed worked by running:
+```
+SHOW TABLES;
+```
+```
+SELECT * FROM user_role;
+```
+```
+SELECT * FROM app_user;
+```
+```
+SELECT * FROM location;
 ```
 
-#### 6.3 Resetting and Reloading
+You shoujld see all schema tables plus sample data from the seed file.
 
-To reload the seed data, reset the database volume: 
+#### 6.4 Resetting and Reloading
+
+If you need to wipe the database and reload fresh seed data: 
+
 ```
 docker compose down -v
 docker compose up -d

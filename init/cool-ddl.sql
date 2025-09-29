@@ -335,7 +335,7 @@ CREATE TABLE action_log (
     CONSTRAINT fk_actionlog_device_record
         FOREIGN KEY (device_record_id) REFERENCES device(device_id)     
         ON DELETE SET NULL -- if a device is deleted, set device_record_id to NULL
-        ON UPDATE CASCADE, -- if a device_id changes, all linked log entries are updated automatically to stay in sync
+        ON UPDATE CASCADE -- if a device_id changes, all linked log entries are updated automatically to stay in sync
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- removed CHECK constraint to handle NULLs in the three *_record_id fields, this can be enforced at the application level.
