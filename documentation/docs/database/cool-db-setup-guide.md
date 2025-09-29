@@ -19,10 +19,25 @@ We use an **`.env`** file to keep database credentials out of the codebase and G
    MYSQL_APP_PW=REPLACE_ME_APP_PW
    MYSQL_DATABASE=cool_db
 ```
-#### 1.2 Copy the sample file to create your local **`.env`**: 
+#### 1.2 Navigate to your project folder and copy the sample file: 
+
+Open your terminal in the project folder and run: 
 ```
-    cp .env.sample .env
+# Mac / Linus (bash or zsh)
+cp .env.sample .env
 ```
+```
+# Windows (Command Prompt)
+copy .env.sample .env
+```
+```
+# Windows (PowerShell)
+Copy-Item .env.sample .env
+```
+> #### Note on Operating Systems:
+>
+> Once the Docker containers are running, everyone is working inside the same Linux environment. 
+> This means commands such as **`docker compose up -d, docker exec -it ...`**, and SQL queries will be identical across Mac, Linux, and Windows.
 
 #### 1.3 Update **`.env`** with your own secure values.
 
@@ -154,11 +169,14 @@ Enter the updated password when prompted.
 ---
 
 ### 5. Populating the Database (Manual Inserts)
-
->#### **Note**:
+ 
+>#### **Note:**
 > This section provides **sample insert statements** for a few key tables to demonstrate the manual
 > process of adding records. It is not an exhaustive list of all required inserts. For a 
 > **complete dataset covering all tables, see **Section 6 (Automatic Inserts).**
+>
+> The commands in this section are the same on Mac, Linux, and Windows since they are run inside of the Docker container.
+
 
 When the database container starts, all of the tables defined in the DDL are created, but they are **empty**.
 To actually use the system, you must populate the lookup tables (roles, statues, types, etc.) and add some starter
@@ -166,7 +184,7 @@ records.
 
 #### 5.1 Connect to the Database
 
-From your terminal: 
+In your terminal, type:
 ```
 docker exec -it cool-mysql mysql -u root -p
 ```
@@ -228,18 +246,50 @@ Check that the rows were inserted:
 SELECT * FROM user_role;
 SELECT * FROM device_status;
 SELECT * FROM location;
+SELECT * FROM app_user;
 ```
 ### 6. Loading Seed Data (Automatic Inserts)
 
 > #### **Note:** 
 > This section provides a **seed script** that automatically populates the schema with a consistent baseline dataset across **all tables**. Use this when you want to quickly bring up the database to a usable state without entering data manually.
+>
+> The commands in this section are the same on Mac, Linux, and Windows, since they are run inside the Docker container.
 
 #### 6.1 Setup
-- Place **`seed-dev.sql`** inside the **`./init`** directory (alongside the DDL script). 
+- Copy **`seed-dev.sql`** inside the **`./init`** directory (alongside the **`cool-ddl.sql`**). 
 - During container startup, MySQL executes all **`.sql`** files in **`./init`** the **first time** the database is created.
 - This ensures that each environment is provisioned with a consistent, known dataset.
 
-#### 6.2 Example Seed Script
+#### 6.2 Start the Database
+From your project folder open your terminal and type: 
+```
+docker compose up -d
+```
+- This creates and starts the **cool-mysql** container with MySQL running inside it.
+- `up` - Builds and starts the services defined in your `docker-compose.yml` file.
+- `-d` (detached mode) - Runs them in the background, so your terminal stays free instead of locking on logs.
+
+#### 6.2 Verify the Seeded Tables
+After the container starts, connect to MySQL.
+
+In your terminal type:
+```
+docker exec -it cool-mysql mysql -u root - p
+```
+- `docker exec` - Tells docker to run a command inside an already running container.
+- `-it` - Combines two flags: 
+   - `-i` - Keeps the session open for interactive input (so you can type commands).
+   - `-t` - Gives you a terminal interface inside the container. 
+- `cool-mysql` - The name of your running container. 
+- `-u root` - Logs into MySQL as the `root` user. 
+- `-p` - Tells MySQL to prompt you for a password (you'll type it in next).
+
+Enter your password: 
+```
+Enter password: 
+```
+Switch to your project database
+
 ```
 USE cool_db;
 
