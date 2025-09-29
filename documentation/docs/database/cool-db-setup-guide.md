@@ -307,7 +307,7 @@ SELECT * FROM app_user;
 SELECT * FROM location;
 ```
 
-You shoujld see all schema tables plus sample data from the seed file.
+You should see all schema tables plus sample data from the seed file.
 
 #### 6.4 Resetting and Reloading
 
