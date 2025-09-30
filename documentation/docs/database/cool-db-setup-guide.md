@@ -93,7 +93,15 @@ docker compose version
 Both should return the version numbers. Make sure Docker Desktop is running.
 
 
-#### 2.1 If using **`docker run`**:
+#### 2.1 If using **`docker compose`**:
+
+```
+# 'up' builds and starts the container
+# '-d' runs it in the background (detached)
+docker compose up -d
+```
+
+#### 2.2 If using **`docker run`**:
 
 ```
 docker run --name cool-mysql \
@@ -106,20 +114,11 @@ docker run --name cool-mysql \
 -d mysql:8.0
 ```
 
-#### 2.2 If using **`docker compose`**:
-
-```
-# 'up' builds and starts the container
-# '-d' runs it in the background (detached)
-docker compose up -d
-```
-
 ---
 
+### 3. Troubleshooting the Database Initialization
 
-### 4. Troubleshooting the Database Initialization
-
-#### 4.1 Missing Environment Variables
+#### 3.1 Missing Environment Variables
 
 If you see warnings like this when running **`docker compose up -d`**:
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
@@ -138,7 +137,7 @@ from the **`.env.sample`** template, or the values inside **`.env`** are still p
 ```
 cp .env.sample .env
 ```
-#### 4.2 Access Denied for Root User
+#### 3.2 Access Denied for Root User
 
 If you see an error like this when trying to connect: 
 ```
@@ -173,12 +172,12 @@ Enter the updated password when prompted.
 ---
 > #### **Note:** 
 >
->**Section 5** (Manual Inserts): Intended for **granular testing** and validation of individual tables.
+>**Section 4** (Manual Inserts): Intended for **granular testing** and validation of individual tables.
 >
->**Section 6** (Automatic Inserts): Intended for quickly populating the schema with a consistent baseline dataset using a **seed script**. 
+>**Section 5** (Automatic Inserts): Intended for quickly populating the schema with a consistent baseline dataset using a **seed script**. 
 ---
 
-### 5. Populating the Database (Manual Inserts)
+### 4. Populating the Database (Manual Inserts)
  
 >#### **Note:**
 > This section provides **sample insert statements** for a few key tables to demonstrate the manual
@@ -192,7 +191,7 @@ When the database container starts, all of the tables defined in the DDL are cre
 To actually use the system, you must populate the lookup tables (roles, statues, types, etc.) and add some starter
 records.
 
-#### 5.1 Connect to the Database
+#### 4.1 Connect to the Database
 
 In your terminal, type:
 ```
@@ -209,7 +208,7 @@ Switch to the project database:
 
 `USE cool_db;`
 
-#### 5.2 Insert Lookup Data
+#### 4.2 Insert Lookup Data
 
 Lookup tables hold the fixed lists that the system depends on (roles, device types, statuses). These **must** be populated first. 
 
@@ -232,7 +231,7 @@ INSERT INTO device_status (device_status_name) VALUES
 ('Lost');
 ```
 
-#### 5.3 Insert a Test User (app_user)
+#### 4.3 Insert a Test User (app_user)
 Once the lookups exist, you can add a user. This table depends on **`user_role`**, so make sure the roles were inserted first.  
 
 ```
@@ -249,7 +248,7 @@ VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
 INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
 VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234');
 ```
-#### 5.4 Verify Data
+#### 4.4 Verify Data
 Check that the rows were inserted: 
 
 ```
@@ -258,19 +257,19 @@ SELECT * FROM device_status;
 SELECT * FROM location;
 SELECT * FROM app_user;
 ```
-### 6. Loading Seed Data (Automatic Inserts)
+### 5. Loading Seed Data (Automatic Inserts)
 
 > #### **Note:** 
 > This section provides a **seed script** that automatically populates the schema with a consistent baseline dataset across **all tables**. Use this when you want to quickly bring up the database to a usable state without entering data manually.
 >
 > The commands in this section are the same on Mac, Linux, and Windows, since they are run inside the Docker container.
 
-#### 6.1 Setup
+#### 5.1 Setup
 - Copy **`seed-dev.sql`** inside the **`./init`** directory (alongside the **`cool-ddl.sql`**). 
 - During container startup, MySQL executes all **`.sql`** files in **`./init`** the **first time** the database is created.
 - This ensures that each environment is provisioned with a consistent, known dataset.
 
-#### 6.2 Start the Database
+#### 5.2 Start the Database
 From your project folder open your terminal and type: 
 ```
 docker compose up -d
@@ -279,7 +278,7 @@ docker compose up -d
 - `up` - Builds and starts the services defined in your `docker-compose.yml` file.
 - `-d` (detached mode) - Runs them in the background, so your terminal stays free instead of locking on logs.
 
-#### 6.3 Verify the Seeded Tables
+#### 5.3 Verify the Seeded Tables
 After the container starts, connect to MySQL.
 
 In your terminal type:
@@ -319,7 +318,7 @@ SELECT * FROM location;
 
 You should see all schema tables plus sample data from the seed file.
 
-#### 6.4 Resetting and Reloading
+#### 5.4 Resetting and Reloading
 
 If you need to wipe the database and reload fresh seed data: 
 
