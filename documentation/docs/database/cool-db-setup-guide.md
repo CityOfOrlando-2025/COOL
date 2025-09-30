@@ -61,7 +61,37 @@ Copy-Item .env.sample .env
 > The **`.env`** is a hidden **dotfile** like **`.gitignore`** and has no name before the dot. 
 > This file is used by Docker Compose and needs to be named exactly **`.env`**.
 
-### 2. Start Docker MySQL
+### 2. Docker Setup
+
+We'll set up MySQL in Docker. You can do this in two ways: 
+
+- **Option A (Recommended): Docker Compose** - Easiest and most consistent across the team.
+- **Option B: Manual Run Command** - Enter everything in yourself.
+
+Docker Overview
+
+- Docker runs software inside **containers**.
+- A container is a lightweight virtual machine. 
+- We're using Docker here so everyone has the **same MySQL setup** 
+
+#### 2.1 Install Docker Desktop
+
+##### 1. Download Docker Desktop: 
+   - [Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
+
+   - [Docker for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
+
+   - [Docker for Linux](https://docs.docker.com/desktop/setup/install/linux/)
+
+##### 2. After install check that Docker is working.
+
+In your terminal type: 
+```
+docker --version
+docker compose version
+```
+Both should return the version numbers. Make sure Docker Desktop is running.
+
 
 #### 2.1 If using **`docker run`**:
 
@@ -86,26 +116,6 @@ docker compose up -d
 
 ---
 
-### 3. Resetting After Testing (Clean State)
-
-#### 3.1 If using **`docker run`**:
-
-```
-# Stop the container
-docker stop cool-mysql
-
-# Remove the container and associated volume
-docker rm -v cool-mysql
-```
-
-#### 3.2 If using **`docker compose`**:
-
-```
-# Stops and removes the container and associated volume
-docker compose down -v
-```
-
----
 
 ### 4. Troubleshooting the Database Initialization
 
