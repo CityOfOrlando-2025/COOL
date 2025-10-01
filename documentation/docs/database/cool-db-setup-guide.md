@@ -21,6 +21,22 @@ We use an **`.env`** file to keep database credentials out of the codebase and G
 ```
 #### 1.2 Navigate to your project folder and copy the sample file: 
 
+>**Note:**
+
+>You must place your **`.env`** file in the **root** directory. 
+
+Example structure:
+```
+project-root/
+├── docker-compose.yaml
+├── .env
+├── .env.sample
+├── .gitignore
+└── initdb/
+    ├── cool-ddl.sql
+    └── seed-dev.sql
+```
+
 Open your terminal in the project folder and run: 
 ```
 # Mac / Linus (bash or zsh)
@@ -41,6 +57,9 @@ Copy-Item .env.sample .env
 
 #### 1.3 Update **`.env`** with your own secure values.
 
+In your project root folder, locate the newly copied **`.env`** file. 
+Open it with your text editor and **change** the following lines: 
+
 **`.env`** (example)
 ```
    MYSQL_ROOT_PW=MySecureRootPW123
@@ -50,12 +69,17 @@ Copy-Item .env.sample .env
 ```
 #### 1.4 Ensure **`.env`** is ignored by Git so it's never committed: 
 
-**`.gitignore`**
+Open the **`.gitignore`** file:     
+
+- In your project root folder, locate the **`.gitignore`** file. 
+- Open it with your text editor and at the bottom of the file **add** the following line: 
 
 ```
 # Ignore environment file
 .env
 ```
+
+Save the **`.gitignore`** file and close the editor. 
 
 > **Note:**
 > The **`.env`** is a hidden **dotfile** like **`.gitignore`** and has no name before the dot. 
@@ -74,20 +98,24 @@ Docker Overview
 - A container is a lightweight virtual machine. 
 - We're using Docker here so everyone has the **same MySQL setup** 
 
-#### 2.1 Install Docker Desktop
-
-##### 1. Download Docker Desktop: 
+#### 2.1 Install Docker Desktop: 
    - [Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
 
    - [Docker for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
 
    - [Docker for Linux](https://docs.docker.com/desktop/setup/install/linux/)
 
-##### 2. After install check that Docker is working.
+Verify that docker is working:
 
 In your terminal type: 
 ```
 docker --version
+```
+#### 2.2 Working with Docker Compose
+
+This project uses a **`docker-compose.yaml`** file.
+- The **`docker-compose.yaml`** file must be placed in the **project root folder**. 
+
 docker compose version
 ```
 Both should return the version numbers. Make sure Docker Desktop is running.
