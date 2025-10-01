@@ -61,9 +61,9 @@ An **`.env.sample`** file is included in the repo with placeholder values:
 
 **`.env.sample`**
 ```
-   MYSQL_ROOT_PW=REPLACE_ME_ROOT_PW
+   MYSQL_ROOT_PASSWORD=REPLACE_ME_ROOT_PASSWORD
    MYSQL_USER=cooldev
-   MYSQL_APP_PW=REPLACE_ME_APP_PW
+   MYSQL_APP_PASSWORD=REPLACE_ME_APP_PASSWORD
    MYSQL_DATABASE=cool_db
 ```
 #### 1.2.1 Navigate to your project folder and copy the sample file: 
@@ -104,13 +104,13 @@ Copy-Item .env.sample .env
 >
 >In your project root folder, locate the newly copied **`.env`** file. 
 >
->Open it with your text editor and **change** the following lines by replacing **`MYSQL_ROOT_PW`** and **`MYSQL_APP_PW`** with **your own passwords**. 
+>Open it with your text editor and **change** the following lines by replacing **`MYSQL_ROOT_PASSWORD`** and **`MYSQL_APP_PASSWORD`** with **your own passwords**. 
 
 **`.env`** (example)
 ```
-   MYSQL_ROOT_PW=MySecureRootPW123
+   MYSQL_ROOT_PASSWORD=MySecureRootPW123
    MYSQL_USER=cooldev
-   MYSQL_APP_PW=MySecureAppPW123
+   MYSQL_APP_PASSWORD=MySecureAppPW123
    MYSQL_DATABASE=cool_db
 ```
 #### 1.2.3 Ensure **`.env`** is ignored by Git so it's never committed: 
@@ -203,7 +203,7 @@ In your terminal, type:
 docker exec -it cool-mysql mysql -u root -p
 ```
 
-Enter the **root password** you set in your **`.env`** file (`MYSQL_ROOT_PW`) 
+Enter the **root password** you set in your **`.env`** file (`MYSQL_ROOT_PASSWORD`) 
 
 You should then see the MySQL prompt: 
 
@@ -253,7 +253,7 @@ SHOW TABLES;
 
 You should see a list of all the defined by the DDL scripts (e.g. user_role, app_user, bin, device, etc.)
 
-If no tables appear, it means the initialization scripts didn't run correctly. Double-check that your **`.sql`** files are located in the **`init/`** folder mapped to **`/docker-entrypoint-initdb.d/`** in your **`docker-compose.yaml`**. 
+If no tables appear, it means the initialization scripts didn't run correctly. Double-check that your **`.sql`** files are located in the **`initdb/`** folder mapped to **`/docker-entrypoint-initdb.d/`** in your **`docker-compose.yaml`**. 
 
 Example output: 
 ```
@@ -280,7 +280,7 @@ mysql> SHOW TABLES;
 +----------------------+
 16 rows in set (0.00 sec)
 ```
-When you run a container with Docker Compose it automatically runs everything in the **`init/`** including our **`seed-dev.sql`**. 
+When you run a container with Docker Compose it automatically runs everything in the **`initdb/`** including our **`seed-dev.sql`**. 
 
 To check if the data was inserted, type into your terminal:
 ```
@@ -303,7 +303,111 @@ mysql> SELECT * FROM user_role;
 +--------------+----------------+-------------+-----------+
 3 rows in set (0.02 sec)
 ```
+### 2.3 Docker Manual Inserts
 
+If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
+>**Note:** The exact command format depends on your shell. Instructions for each will be included. 
+
+#### 2.3.1 Choose one of these two options:
+
+- ##### 2.3.2 Auto-load schema and seeds (Recommended)   
+&nbsp;- This mounts the **`initdb/`** folder so MySQL runs **`seed-dev.sql`** on first startup.
+
+- ##### 2.3.3 Start empty    
+&nbsp;- This runs MySQL without seeding. You’ll load the schema and add data yourself.
+
+#### 2.3.2 Auto-load Schema and Seeds
+
+This option mounts the **`initdb/`** folder so MySQL runs **`cool-ddl.sql`** and **`seed-devl.sql`** on first startup. 
+
+>**Note:**
+> You must change your password in **`MYSQL_ROOT_PASSWORD`**
+##### 2.3.2.1 Using Windows
+```
+docker run -d --name cool-mysql -p 3306:3306 ^
+  -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! ^
+  -e MYSQL_DATABASE=cool_db ^
+  -e MYSQL_USER=cooldev ^
+  -e MYSQL_PASSWORD=ChangeThisAppPW! ^
+  -v "%cd%\initdb:/docker-entrypoint-initdb.d" mysql:8.0
+```
+
+##### 2.3.2.2 Using Git Bash / macOS / Linux:
+```
+docker run -d --name cool-mysql \
+  -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! \
+  -e MYSQL_DATABASE=cool_db \
+  -e MYSQL_USER=cooldev \
+  -e MYSQL_PASSWORD=ChangeThisAppPW! \
+  -v "$(pwd)/initdb:/docker-entrypoint-initdb.d" \
+  mysql:8.0
+```
+
+
+
+
+
+
+## 3. Troubleshooting the Database Initialization
+
+### 3.1 Docker Compose 
+#### 3.1.1 Missing Environment Variables
+
+If you see warnings like this when running **`docker compose up -d`**:
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
+
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_APP_PASSWORD" variable is not set. Defaulting to a blank string."
+
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_ROOT_PASSWORD" variable is not set. Defaulting to a blank string."  
+
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_DATABASE" variable is not set. Defaulting to a blank string."  
+
+This means **`Docker Compose`** could not find your environment variable. Most often this happens because the **`.env`** file was never created
+from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
+
+**Fix:**
+**Copy** the template file to create your personal **`.env`**:
+```
+cp .env.sample .env
+```
+#### 3.1.2 Access Denied for Root User
+
+If you see an error like this when trying to connect: 
+```
+$ docker exec -it cool-mysql mysql -u root -p
+Enter password:
+ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
+```
+It usually means that your **`.env`** file still contains **placeholder values**, such as **`REPLACE_ME_ROOT_PASSWORD`**, instead of your real password.
+
+**Fix:**
+
+##### 1. Open your local **`.env`** file.
+##### 2. Make sure the **`MYSQL_ROOT_PASSWORD`** entry is updated with your secure password. For example:
+
+```
+MySQL_ROOT_PASSWORD=MySecureRootPW123
+```
+##### 3.1.3 **Restart** the container so that the changes take effect. 
+
+```
+docker compose down -v
+docker compose up -d
+```
+
+##### 3.1.4 Try connecting again with: 
+```
+docker exec -it cool-mysql mysql -u root -p
+```
+
+Enter the updated password when prompted. 
+
+---
+*************************************************************************************************************************
+*************************************************************************************************************************
+*************************************************************************************************************************
+DELETE BELOW THIS LINE AFTER REVIEW
 ### 2.3 Docker Manual Inserts
  
  If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
@@ -311,7 +415,7 @@ mysql> SELECT * FROM user_role;
 
 #### 2.3.1 Using **`docker run`** in Windows (Command Prompt or PowerShell):
 
-> **Note**: You must **change the passwords** in the replacement text in **`MYSQL_ROOT_PW`** AND **`MYSQL_PASSWORD`** before hitting ENTER.
+> **Note**: You must **change the passwords** in the replacement text in **`MYSQL_ROOT_PASSWORD`** AND **`MYSQL_PASSWORD`** before hitting ENTER.
 
 In your terminal paste:
 
@@ -325,12 +429,12 @@ In your terminal paste:
 
 ```
 docker run --name cool-mysql \
--e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PW} \
+-e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 -e MYSQL_DATABASE=${MYSQL_DATABASE} \
 -e MYSQL_USER=${MYSQL_USER} \
--e MYSQL_PASSWORD=${MYSQL_APP_PW} \
+-e MYSQL_PASSWORD=${MYSQL_APP_PASSWORD} \
 -p 3306:3306 \
--v ./init:/docker-entrypoint-initdb.d \
+-v ./initdb:/docker-entrypoint-initdb.d \
 -d mysql:8.0
 ```
 
@@ -345,7 +449,7 @@ In your terminal, type:
 docker exec -it cool-mysql mysql -u root -p
 ```
 
-Enter the **root password** you set in your **`.env`** file (`MYSQL_ROOT_PW`) 
+Enter the **root password** you set in your **`.env`** file (`MYSQL_ROOT_PASSWORD`) 
 
 You should then see the MySQL prompt: 
 
@@ -426,65 +530,3 @@ SELECT * FROM location;
 ```
 
 You should see all schema tables plus sample data from the seed file.
-
-## 3. Troubleshooting the Database Initialization
-
-### 3.1 Docker Compose 
-#### 3.1.1 Missing Environment Variables
-
-If you see warnings like this when running **`docker compose up -d`**:
-> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
-
-> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_APP_PW" variable is not set. Defaulting to a blank string."
-
-> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_ROOT_PW" variable is not set. Defaulting to a blank string."  
-
-> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_DATABASE" variable is not set. Defaulting to a blank string."  
-
-This means **`Docker Compose`** could not find your environment variable. Most often this happens because the **`.env`** file was never created
-from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
-
-**Fix:**
-**Copy** the template file to create your personal **`.env`**:
-```
-cp .env.sample .env
-```
-#### 3.1.2 Access Denied for Root User
-
-If you see an error like this when trying to connect: 
-```
-$ docker exec -it cool-mysql mysql -u root -p
-Enter password:
-ERROR 1045 (28000): Access denied for user 'root'@'localhost' (using password: YES)
-```
-It usually means that your **`.env`** file still contains **placeholder values**, such as **`REPLACE_ME_ROOT_PW`**, instead of your real password.
-
-**Fix:**
-
-##### 1. Open your local **`.env`** file.
-##### 2. Make sure the **`MYSQL_ROOT_PW`** entry is updated with your secure password. For example:
-
-```
-MySQL_ROOT_PW=MySecureRootPW123
-```
-##### 3.1.3 **Restart** the container so that the changes take effect. 
-
-```
-docker compose down -v
-docker compose up -d
-```
-
-##### 3.1.4 Try connecting again with: 
-```
-docker exec -it cool-mysql mysql -u root -p
-```
-
-Enter the updated password when prompted. 
-
----
-> #### **Note:** 
->
->**Section 4** (Manual Inserts): Intended for **granular testing** and validation of individual tables.
->
->**Section 5** (Automatic Inserts): Intended for quickly populating the schema with a consistent baseline dataset using a **seed script**. 
----
