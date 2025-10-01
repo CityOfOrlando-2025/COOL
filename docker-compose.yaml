@@ -18,7 +18,7 @@ services:
 
     # Mount initialization scripts (DDL, seeds, etc.)
     volumes:
-      - ./init:/docker-entrypoint-initdb.d
+      - ./initdb:/docker-entrypoint-initdb.d
 
 volumes:
   db_data:
