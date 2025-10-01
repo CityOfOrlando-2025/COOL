@@ -1,11 +1,10 @@
 # COOL Database Setup Guide (Dev Testing)
 
 This guide is to help you set up the COOL project database locally using Docker and MySQL.  
-Included are all the required tables, lookup data, and a test admin user.
 
 ---
 
-### 1. Project Files
+## 1. Project Files
 
 Our project includes a small but important set of files organized in a specific hierarchy. Keeping this structure intact is essential because Docker Compose and MySQL rely on these paths to initialize the database correctly.
 
@@ -24,14 +23,38 @@ project-root/
 > Once the Docker containers are running, everyone is working inside the same Linux environment. 
 > This means commands such as **`docker compose up -d, docker exec -it ...`**, and SQL queries will be identical across Mac, Linux, and Windows.
 
-#### 1.1 File and Folder Explanations
+### 1.1 File and Folder Explanations
 
-`docker-compose.yaml`
+#### 1.1.1 `docker-compose.yaml`
+
 - Defines the services used in the project (for example, the MySQL container).
 - References the **`initdb/`** folder to automatically load the database schema and seed data when the container is created. 
 - Points to the **`.env`** file for sensitive environment variables (passwords).
 
-#### 1.2 Environment Variables (**`.env`** file)
+#### 1.1.2`.env.sample`
+
+- A template environment file with placeholder values.
+- Devs will need to replace placeholer passwords with their own passwords with a copy `.env` file.
+- Ensures that secrets (passwords) are not accidently committed publicly to Git. This file makes sure that the correct format is used by teammates.  
+
+#### 1.1.3 `.gitignore`
+
+- Tells Git which files to exclude from version control.
+- Prevents committing sensitive files (like `.env`) or system-specific log files.
+
+#### 1.1.4 `initdb/` folder
+
+- Contains SQL scripts that are automatically run the first time the MySQL container starts.
+
+#### 1.1.5 `cool-ddl.sql`
+
+- Database schema (tables, constraints, indexes)
+
+#### 1.1.6 `seed-dev.sql`
+
+- Test data or lookup values for local development. 
+
+### 1.2 Environment Variables (**`.env`** file)
 
 We use an **`.env`** file to keep database credentials out of the codebase and GitHub.  
 An **`.env.sample`** file is included in the repo with placeholder values:
@@ -43,10 +66,10 @@ An **`.env.sample`** file is included in the repo with placeholder values:
    MYSQL_APP_PW=REPLACE_ME_APP_PW
    MYSQL_DATABASE=cool_db
 ```
-#### 1.3 Navigate to your project folder and copy the sample file: 
+#### 1.2.1 Navigate to your project folder and copy the sample file: 
 
 >**Note:**
-
+>
 >You must place your **`.env`** file in the **root** directory. 
 
 Example structure:
@@ -75,7 +98,7 @@ copy .env.sample .env
 Copy-Item .env.sample .env
 ```
 
-#### 1.4 Update **`.env`** with your own secure values.
+#### 1.2.2 Update **`.env`** with your own secure values.
 
 >**Note:**
 >
@@ -90,7 +113,7 @@ Copy-Item .env.sample .env
    MYSQL_APP_PW=MySecureAppPW123
    MYSQL_DATABASE=cool_db
 ```
-#### 1.5 Ensure **`.env`** is ignored by Git so it's never committed: 
+#### 1.2.3 Ensure **`.env`** is ignored by Git so it's never committed: 
 
 Open the **`.gitignore`** file:     
 
@@ -108,21 +131,20 @@ Save the **`.gitignore`** file and close the editor.
 > The **`.env`** is a hidden **dotfile** like **`.gitignore`** and has no name before the dot. 
 > This file is used by Docker Compose and needs to be named exactly **`.env`**.
 
-
-### 2. Docker Setup
+## 2. Docker Setup
 
 We'll set up MySQL in Docker. You can do this in two ways: 
 
 - **Option A (Recommended): Docker Compose** - Easiest and most consistent across the team.
-- **Option B: Manual Run Command** - Enter everything in yourself.
+- **Option B: Manual Run Command** - Enter everything yourself.
 
-#### 2.1 Docker Overview
+### 2.1 Docker Overview
 
 - Docker runs software inside **containers**.
 - A container is a lightweight virtual machine. 
 - We're using Docker here so everyone has the **same MySQL setup** 
 
-#### 2.2 Install Docker Desktop: 
+#### 2.1.1 Install Docker Desktop: 
    - [Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
 
    - [Docker for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
@@ -137,11 +159,11 @@ docker --version
 ```
 Docker Desktop must be running **before** trying to run any **`docker-compose`** files in your terminal.
 
-#### 2.3 Working with Docker Compose
+### 2.2 Working with Docker Compose (Recommended - Automated Container Setup)
 
 This project uses a **`docker-compose.yaml`** file.
 
-- The **`docker-compose.yaml`** file must be placed in the **project root folder**. 
+- The **`docker-compose.yaml`** file must be placed in the project **root** folder. 
 
 Example structure:
 ```
@@ -155,7 +177,7 @@ project-root/
     └── seed-dev.sql
 ```
 
-#### 2.1 Using **`docker compose`** to start your container (Recommended):
+#### 2.2.1 Using **`docker compose`** to start your container (Recommended):
 
 Using **Docker Compose** is the easiest and most consistent way to bring up your container. The settings defined in the **`docker-compose.yaml`** ensure that every time you run your container your settings remain the same. This keeps the setup simple and consistent for the whole team.
 
@@ -171,7 +193,7 @@ docker compose up -d
 
 Your container should now be running in Docker Desktop. 
 
-#### 2.2 Connecting to the Database
+#### 2.2.2 Connecting to the Database
 
 >**Note:**
 > If you encounter initialization errors see the **Troubleshooting** section at the end of this guide.
@@ -206,7 +228,7 @@ You should see something that looks like this:
 ```
 Our database **`cool_db`** is showing after connecting to MySQL in the container. 
 
-#### 2.3 Switch to the project database:
+#### 2.2.3 Switch to the project database:
 
 To switch to the project database type:
 
@@ -220,14 +242,14 @@ You can turn off this feature to get a quicker startup with -A
 
 Database changed
 ```
-#### 2.3 List all Tables
+#### 2.2.4 List all Tables
 
 To confirm the tables are being populated run: 
 ```
 SHOW TABLES;
 ```
 
-#### 2.4 Verify the Results
+#### 2.2.5 Verify the Results
 
 You should see a list of all the defined by the DDL scripts (e.g. user_role, app_user, bin, device, etc.)
 
@@ -258,17 +280,48 @@ mysql> SHOW TABLES;
 +----------------------+
 16 rows in set (0.00 sec)
 ```
+When you run a container with Docker Compose it automatically runs everything in the **`init/`** including our **`seed-dev.sql`**. 
 
-### 4. Populating the Database (Manual Inserts)
+To check if the data was inserted, type into your terminal:
+```
+SELECT * FROM user_role;
+SELECT * FROM device_status;
+SELECT * FROM location;
+SELECT * FROM app_user;
+```
+
+Example output: 
+
+```
+mysql> SELECT * FROM user_role;
++--------------+----------------+-------------+-----------+
+| user_role_id | user_role_name | dl_required | is_active |
++--------------+----------------+-------------+-----------+
+|            1 | Admin          |           0 |         1 |
+|            2 | Employee       |           0 |         1 |
+|            3 | Citizen        |           1 |         1 |
++--------------+----------------+-------------+-----------+
+3 rows in set (0.02 sec)
+```
+
+### 2.3 Docker Manual Inserts
  
->#### **Note:**
-> This section provides **sample insert statements** for a few key tables to demonstrate the manual
-> process of adding records. It is not an exhaustive list of all required inserts. For a 
-> **complete dataset covering all tables, see **Section 6 (Automatic Inserts).**
->
-> The commands in this section are the same on Mac, Linux, and Windows since they are run inside of the Docker container.
+ If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
+>**Note:** The exact command format depends on the terminal you are using.
 
-#### 2.2 If using **`docker run`**:
+#### 2.3.1 Using **`docker run`** in Windows (Command Prompt or PowerShell):
+
+> **Note**: You must **change the passwords** in the replacement text in **`MYSQL_ROOT_PW`** AND **`MYSQL_PASSWORD`** before hitting ENTER.
+
+In your terminal paste:
+
+```
+docker run -d --name cool-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! -e MYSQL_DATABASE=cool_db -e MYSQL_USER=cooldev -e MYSQL_PASSWORD=ChangeThisAppPW! -v %cd%\initdb:/docker-entrypoint-initdb.d mysql:8.0
+```
+
+#### 2.3.2 Using **`docker run`** on Mac / Linus / Git Bash on Windwos / WSL:
+
+In your terminal paste: 
 
 ```
 docker run --name cool-mysql \
@@ -281,12 +334,11 @@ docker run --name cool-mysql \
 -d mysql:8.0
 ```
 
-
 When the database container starts, all of the tables defined in the DDL are created, but they are **empty**.
 To actually use the system, you must populate the lookup tables (roles, statues, types, etc.) and add some starter
 records.
 
-#### 4.1 Connect to the Database
+#### 2.3.3 Connect to the Database
 
 In your terminal, type:
 ```
@@ -303,7 +355,7 @@ Switch to the project database:
 
 `USE cool_db;`
 
-#### 4.2 Insert Lookup Data
+#### 2.3.4 Insert Lookup Data
 
 Lookup tables hold the fixed lists that the system depends on (roles, device types, statuses). These **must** be populated first. 
 
@@ -326,7 +378,7 @@ INSERT INTO device_status (device_status_name) VALUES
 ('Lost');
 ```
 
-#### 4.3 Insert a Test User (app_user)
+#### 2.3.5 Insert a Test User (app_user)
 Once the lookups exist, you can add a user. This table depends on **`user_role`**, so make sure the roles were inserted first.  
 
 ```
@@ -343,7 +395,7 @@ VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
 INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
 VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234');
 ```
-#### 4.4 Verify Data
+#### 2.3.6 Verify Rows
 Check that the rows were inserted: 
 
 ```
@@ -352,49 +404,13 @@ SELECT * FROM device_status;
 SELECT * FROM location;
 SELECT * FROM app_user;
 ```
-### 5. Loading Seed Data (Automatic Inserts)
+#### 2.3.7 Loading Seed Data (Automatic Inserts)
 
 > #### **Note:** 
 > This section provides a **seed script** that automatically populates the schema with a consistent baseline dataset across **all tables**. Use this when you want to quickly bring up the database to a usable state without entering data manually.
->
-> The commands in this section are the same on Mac, Linux, and Windows, since they are run inside the Docker container.
 
-#### 5.1 Setup
-- Copy **`seed-dev.sql`** inside the **`./init`** directory (alongside the **`cool-ddl.sql`**). 
-- During container startup, MySQL executes all **`.sql`** files in **`./init`** the **first time** the database is created.
-- This ensures that each environment is provisioned with a consistent, known dataset.
+#### 2.3.8 Verify the Seeded Tables
 
-#### 5.2 Start the Database
-From your project folder open your terminal and type: 
-```
-docker compose up -d
-```
-
-
-#### 5.3 Verify the Seeded Tables
-After the container starts, connect to MySQL.
-
-In your terminal type:
-```
-docker exec -it cool-mysql mysql -u root - p
-```
-- `docker exec` - Tells docker to run a command inside an already running container.
-- `-it` - Combines two flags: 
-   - `-i` - Keeps the session open for interactive input (so you can type commands).
-   - `-t` - Gives you a terminal interface inside the container. 
-- `cool-mysql` - The name of your running container. 
-- `-u root` - Logs into MySQL as the `root` user. 
-- `-p` - Tells MySQL to prompt you for a password (you'll type it in next).
-
-Enter your password: 
-```
-Enter password: 
-```
-Switch to your project database
-
-```
-USE cool_db;
-```
 Check to see if the seed worked by running:
 ```
 SHOW TABLES;
@@ -411,20 +427,10 @@ SELECT * FROM location;
 
 You should see all schema tables plus sample data from the seed file.
 
-#### 5.4 Resetting and Reloading
+## 3. Troubleshooting the Database Initialization
 
-If you need to wipe the database and reload fresh seed data: 
-
-```
-docker compose down -v
-docker compose up -d
-```
-
-This clears all data and re-runs the DDL and seed file.
-
-### 3. Troubleshooting the Database Initialization
-
-#### 3.1 Missing Environment Variables
+### 3.1 Docker Compose 
+#### 3.1.1 Missing Environment Variables
 
 If you see warnings like this when running **`docker compose up -d`**:
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
@@ -439,11 +445,11 @@ This means **`Docker Compose`** could not find your environment variable. Most o
 from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
 
 **Fix:**
-##### 1. **Copy** the template file to create your personal **`.env`**:
+**Copy** the template file to create your personal **`.env`**:
 ```
 cp .env.sample .env
 ```
-#### 3.2 Access Denied for Root User
+#### 3.1.2 Access Denied for Root User
 
 If you see an error like this when trying to connect: 
 ```
@@ -461,14 +467,14 @@ It usually means that your **`.env`** file still contains **placeholder values**
 ```
 MySQL_ROOT_PW=MySecureRootPW123
 ```
-##### 3. **Restart** the container so that the changes take effect. 
+##### 3.1.3 **Restart** the container so that the changes take effect. 
 
 ```
 docker compose down -v
 docker compose up -d
 ```
 
-##### 4. Try connecting again with: 
+##### 3.1.4 Try connecting again with: 
 ```
 docker exec -it cool-mysql mysql -u root -p
 ```
