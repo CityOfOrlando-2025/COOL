@@ -63,7 +63,7 @@ An **`.env.sample`** file is included in the repo with placeholder values:
 ```
    MYSQL_ROOT_PASSWORD=REPLACE_ME_ROOT_PASSWORD
    MYSQL_USER=cooldev
-   MYSQL_APP_PASSWORD=REPLACE_ME_APP_PASSWORD
+   MYSQL_PASSWORD=REPLACE_ME_PASSWORD
    MYSQL_DATABASE=cool_db
 ```
 #### 1.2.1 Navigate to your project folder and copy the sample file: 
@@ -104,13 +104,13 @@ Copy-Item .env.sample .env
 >
 >In your project root folder, locate the newly copied **`.env`** file. 
 >
->Open it with your text editor and **change** the following lines by replacing **`MYSQL_ROOT_PASSWORD`** and **`MYSQL_APP_PASSWORD`** with **your own passwords**. 
+>Open it with your text editor and **change** the following lines by replacing **`MYSQL_ROOT_PASSWORD`** and **`MYSQL_PASSWORD`** with **your own passwords**. 
 
 **`.env`** (example)
 ```
    MYSQL_ROOT_PASSWORD=MySecureRootPW123
    MYSQL_USER=cooldev
-   MYSQL_APP_PASSWORD=MySecureAppPW123
+   MYSQL_PASSWORD=MySecureAppPW123
    MYSQL_DATABASE=cool_db
 ```
 #### 1.2.3 Ensure **`.env`** is ignored by Git so it's never committed: 
@@ -303,23 +303,24 @@ mysql> SELECT * FROM user_role;
 +--------------+----------------+-------------+-----------+
 3 rows in set (0.02 sec)
 ```
-### 2.3 Docker Manual Setup
+### 2.3 Docker Manual Inserts
 
 If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
->**Note:** The exact command format depends on your shell. Instructions for each will be included. 
-
-#### 2.3.1 Start MySQL (no seed files)
+>**Note:** The exact command format depends on the terminal you are using. 
 
 This will create an empty **`cool_db`** so you can load your schema and insert your own data. 
 
->**Note:** You must **change** the placeholder passwords in`MYSQL_ROOT_PASSWORD`** AND **`MYSQL_PASSWORD`**.
+#### 2.3.1 Use **`.env`** and **`docker run`** 
 
-##### 2.3.1.1 Using Windows
+>**Note:** You must add **`MYSQL_PASSWORD`** to your **`.env`** so that **`docker run`** works properly. 
+in Windows (Command Prompt or PowerShell) 
+>**Note:** Replace the example passwords before running.
+
 ```
 docker run -d --name cool-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! -e MYSQL_DATABASE=cool_db mysql:8.0
 ```
 
-##### 2.3.1.2 Using Git Bash / macOS / Linux
+#### 2.3.2 Using **`docker run`** on Git Bash / macOS / Linux
 ```
 docker run -d --name cool-mysql \
   -p 3306:3306 \
@@ -327,20 +328,35 @@ docker run -d --name cool-mysql \
   -e MYSQL_DATABASE=cool_db \
   mysql:8.0
 ```
-#### 2.3.2 Load the Schema (**`cool-ddl.sql`**) Manually
+#### 2.3.3 Load the Schema (**`cool-ddl.sql`**) 
 
 >**Note:** When prompted, enter the root password you set in the **`docker run`** command.
 
-##### 2.3.2.1 Using Windows
+##### 2.3.3.1 Using Windows
 ```
 type initdb\cool-ddl.sql | docker exec -i cool-mysql mysql -u root -p cool_db
 ```
 
-##### 2.3.2.2 Using Git Bash / macOS / Linux
+##### 2.3.3.2 Using Git Bash / macOS / Linux
 ```
 cat initdb/cool-ddl.sql | docker exec -i cool-mysql mysql -u root -p cool_db
 ```
-#### 2.3.3 Add your Own Data (Simple Examples)
+#### 2.3.4 Connect to the Database
+
+```
+docker exec -it cool-mysql mysql -u root -p
+```
+At the MySQL prompt:
+```
+mysql> USE cool_db;
+```
+
+#### 2.3.5 Insert Lookup Data (insert these first)
+Lookup tables must be populated first so foreign keys in core tables have valid targets. 
+These relationships are enforced by the **`cool-ddl.sql`**.
+
+User Roles
+#### 2.3. Add your Own Data (Simple Examples)
 
 Open a MySQL shell:
 ```
@@ -352,16 +368,40 @@ Then type:
 USE cool_db;
 ```
 
-Create one role you can reference later
+Create a **role** you can reference later:
 ```
 INSERT INTO user_role (user_role_name, dl_required, is_active)
 VALUES ('Admin', 0, 1);
 ```
 
+Create a **location**:
+```
+INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
+VALUES ('Callahan Neighborhood Center', '101 N. Parramore Ave Ste. 1713', 'Orlando', 'FL', '32801', '407-246-4442');
+```
 
+Create a **user** and link to your **role** by name:
+```
+INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
+SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', 'salt_here', ur.user_role_id
+FROM user_role ur
+WHERE ur.user_role_name = 'Admin';
+```
 
+Check to make sure your data is populating in the database.
+```
+SHOW TABLES;
+SELECT * FROM user_role;
+SELECT app_user_full_name, email FROM app_user;
+```
 
+#### 2.3.4 Stop and Remove the Database
+If you didn't mount any volumes (we didn't in this tutorial) you can quickly and easily remove the container and discard all the data. Your next run will have no saved data. 
 
+```
+docker stop cool-mysql
+docker rm cool-mysql
+```
 
 ## 3. Troubleshooting the Database Initialization
 
@@ -371,7 +411,7 @@ VALUES ('Admin', 0, 1);
 If you see warnings like this when running **`docker compose up -d`**:
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
 
-> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_APP_PASSWORD" variable is not set. Defaulting to a blank string."
+> time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_PASSWORD" variable is not set. Defaulting to a blank string."
 
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_ROOT_PASSWORD" variable is not set. Defaulting to a blank string."  
 
@@ -446,7 +486,7 @@ docker run --name cool-mysql \
 -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
 -e MYSQL_DATABASE=${MYSQL_DATABASE} \
 -e MYSQL_USER=${MYSQL_USER} \
--e MYSQL_PASSWORD=${MYSQL_APP_PASSWORD} \
+-e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
 -p 3306:3306 \
 -v ./initdb:/docker-entrypoint-initdb.d \
 -d mysql:8.0
