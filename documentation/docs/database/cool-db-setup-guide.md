@@ -303,45 +303,59 @@ mysql> SELECT * FROM user_role;
 +--------------+----------------+-------------+-----------+
 3 rows in set (0.02 sec)
 ```
-### 2.3 Docker Manual Inserts
+### 2.3 Docker Manual Setup
 
 If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
 >**Note:** The exact command format depends on your shell. Instructions for each will be included. 
 
-#### 2.3.1 Choose one of these two options:
+#### 2.3.1 Start MySQL (no seed files)
 
-- ##### 2.3.2 Auto-load schema and seeds (Recommended)   
-&nbsp;- This mounts the **`initdb/`** folder so MySQL runs **`seed-dev.sql`** on first startup.
+This will create an empty **`cool_db`** so you can load your schema and insert your own data. 
 
-- ##### 2.3.3 Start empty    
-&nbsp;- This runs MySQL without seeding. You’ll load the schema and add data yourself.
+>**Note:** You must **change** the placeholder passwords in`MYSQL_ROOT_PASSWORD`** AND **`MYSQL_PASSWORD`**.
 
-#### 2.3.2 Auto-load Schema and Seeds
-
-This option mounts the **`initdb/`** folder so MySQL runs **`cool-ddl.sql`** and **`seed-devl.sql`** on first startup. 
-
->**Note:**
-> You must change your password in **`MYSQL_ROOT_PASSWORD`**
-##### 2.3.2.1 Using Windows
+##### 2.3.1.1 Using Windows
 ```
-docker run -d --name cool-mysql -p 3306:3306 ^
-  -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! ^
-  -e MYSQL_DATABASE=cool_db ^
-  -e MYSQL_USER=cooldev ^
-  -e MYSQL_PASSWORD=ChangeThisAppPW! ^
-  -v "%cd%\initdb:/docker-entrypoint-initdb.d" mysql:8.0
+docker run -d --name cool-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! -e MYSQL_DATABASE=cool_db mysql:8.0
 ```
 
-##### 2.3.2.2 Using Git Bash / macOS / Linux:
+##### 2.3.1.2 Using Git Bash / macOS / Linux
 ```
 docker run -d --name cool-mysql \
   -p 3306:3306 \
   -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! \
   -e MYSQL_DATABASE=cool_db \
-  -e MYSQL_USER=cooldev \
-  -e MYSQL_PASSWORD=ChangeThisAppPW! \
-  -v "$(pwd)/initdb:/docker-entrypoint-initdb.d" \
   mysql:8.0
+```
+#### 2.3.2 Load the Schema (**`cool-ddl.sql`**) Manually
+
+>**Note:** When prompted, enter the root password you set in the **`docker run`** command.
+
+##### 2.3.2.1 Using Windows
+```
+type initdb\cool-ddl.sql | docker exec -i cool-mysql mysql -u root -p cool_db
+```
+
+##### 2.3.2.2 Using Git Bash / macOS / Linux
+```
+cat initdb/cool-ddl.sql | docker exec -i cool-mysql mysql -u root -p cool_db
+```
+#### 2.3.3 Add your Own Data (Simple Examples)
+
+Open a MySQL shell:
+```
+docker exec -it cool-mysql mysql -u root -p
+```
+
+Then type: 
+```
+USE cool_db;
+```
+
+Create one role you can reference later
+```
+INSERT INTO user_role (user_role_name, dl_required, is_active)
+VALUES ('Admin', 0, 1);
 ```
 
 

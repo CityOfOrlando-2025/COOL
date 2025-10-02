@@ -30,4 +30,4 @@ VALUES ('Test Employee', 'employee@example.com', 'hashed_pw_here', 'salt_here', 
 
 -- Test Location
 INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
-VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234');
+VALUES ('Callahan Neighborhood Center', '101 N. Parramore Ave Ste. 1713', 'Orlando', 'FL', '32801', '407-246-4442');
