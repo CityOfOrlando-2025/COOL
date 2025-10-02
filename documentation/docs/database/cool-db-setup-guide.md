@@ -35,8 +35,8 @@ project-root/
 #### 1.1.2`.env.sample`
 
 - A template environment file with placeholder values.
-- Devs will need to replace placeholer passwords with their own passwords with a copy `.env` file.
-- Ensures that secrets (passwords) are not accidently committed publicly to Git. This file makes sure that the correct format is used by teammates.  
+- Devs will need to create a copy of this file named **`.env`** and replace the placeholder passwords with their own passwords.
+- Ensures that secrets (passwords) are not accidentally committed publicly to Git. This file makes sure that the correct format is used by teammates.  
 
 #### 1.1.3 `.gitignore`
 
@@ -136,7 +136,7 @@ Save the **`.gitignore`** file and close the editor.
 
 > **Note:**
 > The **`.env`** is a hidden **dotfile** like **`.gitignore`** and has no name before the dot. 
-> This file is used by Docker Compose and needs to be named exactly **`.env`**.
+> This file is used by **Docker Compose** and needs to be named exactly **`.env`**.
 
 #### 1.2.4 Verify your .env is in .gitignore
 In your terminal type: 
@@ -210,7 +210,7 @@ docker compose up -d
 ```
 
 - This creates and starts the **cool-mysql** container with MySQL running inside it.
-- `up` - Builds and starts the services defined in your **`docker-compose.yml`** file.
+- `up` - Builds and starts the services defined in your **`docker-compose.yaml`** file.
 - `-d` (detached mode) - Runs your services in the background so your terminal stays free instead of locking on logs.
 
 Your container should now be running in Docker Desktop. 
@@ -270,7 +270,7 @@ SHOW TABLES;
 
 #### 2.2.5 Verify the Results
 
-You should see a list of all the defined by the DDL scripts (e.g. user_role, app_user, bin, device, etc.)
+You should see a list of all tables defined by the DDL scripts (e.g. user_role, app_user, bin, device, etc.).
 
 If no tables appear, it means the initialization scripts didn't run correctly. Double-check that your **`.sql`** files are located in the **`initdb/`** folder mapped to **`/docker-entrypoint-initdb.d/`** in your **`docker-compose.yaml`**. 
 
@@ -299,7 +299,7 @@ mysql> SHOW TABLES;
 +----------------------+
 16 rows in set (0.00 sec)
 ```
-When you run a container with Docker Compose it automatically runs everything in the **`initdb/`** including our **`seed-dev.sql`**. 
+When you run a container with **Docker Compose** it automatically runs everything in the **`initdb/`** including our **`seed-dev.sql`**. 
 
 To check if the data was inserted, type into your terminal:
 ```
@@ -333,11 +333,11 @@ This will create an empty **`cool_db`** so you can load your schema and insert y
 Make sure to replace the example passwords in your **`.env`** before running.
 ##### 2.3.1.1 Using Windows
 
-- Command Prompt
+Command Prompt
 ```
 docker run -d --name cool-mysql -p 3306:3306 --env-file .\.env mysql:8.0
 ```
-- PowerShell
+PowerShell
 ```
 docker run -d --name cool-mysql -p 3306:3306 `
   --env-file .\.env `
@@ -351,19 +351,19 @@ docker run -d --name cool-mysql \
   --env-file ./.env \
   mysql:8.0
 ```
-#### 2.3.3 Copy the schema (**`cool-ddl.sql`**) into the Container
+#### 2.3.2 Copy the schema (**`cool-ddl.sql`**) into the Container
 
-##### 2.3.3.1 Using Windows
+##### 2.3.2.1 Using Windows
 ```
 docker cp initdb\cool-ddl.sql cool-mysql:/ddl.sql
 ```
 
-##### 2.3.3.2 Using Git Bash / macOS / Linux
+##### 2.3.2.2 Using Git Bash / macOS / Linux
 ```
 docker cp initdb/cool-ddl.sql cool-mysql:/ddl.sql
 ```
 
-#### 2.3.4 Run the Schema Once with **`SOURCE`**
+#### 2.3.3 Run the Schema Once with **`SOURCE`**
 ```
 docker exec -it cool-mysql mysql -u root -p cool_db
 ```
@@ -414,7 +414,7 @@ mysql> SHOW TABLES;
 16 rows in set (0.00 sec)
 ```
 
-#### 2.3.5 Insert Lookup Data (insert these first)
+#### 2.3.4 Insert Lookup Data (insert these first)
 Lookup tables must be populated first so foreign keys in core tables have valid targets. 
 These relationships are enforced by the **`cool-ddl.sql`**.
 
@@ -448,7 +448,7 @@ INSERT INTO loan_status (loan_status_name)
 VALUES ('Open'), ('Returned'), ('Overdue'), ('Lost');
 ```
 
-#### 2.3.6 Insert a few Core Rows
+#### 2.3.5 Insert Core Entity Data
 - Location
 ```
 INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
@@ -461,20 +461,15 @@ SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', 'salt_here', ur.user_
 FROM user_role ur
 WHERE ur.user_role_name = 'Admin';
 ```
-#### 2.3.7 Verify
+#### 2.3.6 Verify
 
 Check to make sure your data is populating in the database.
 
+**Option 1 - Quick Check** - Use this to confirm tables and rows exist.
 ```
 SHOW TABLES;
 SELECT COUNT(*) AS role_count FROM user_role;
 SELECT app_user_full_name, email FROM app_user LIMIT 5;
-```
-
-```
-SHOW TABLES;
-SELECT * FROM user_role;
-SELECT app_user_full_name, email FROM app_user;
 ```
 Example Output:
 
@@ -487,6 +482,15 @@ mysql> SELECT COUNT(*) AS role_count FROM user_role;
 +------------+
 1 row in set (0.00 sec)
 ```
+
+**Option 2 - Full Inspection** - Use this to see all data and verify content.
+
+```
+SHOW TABLES;
+SELECT * FROM user_role;
+SELECT app_user_full_name, email FROM app_user;
+```
+Example Output:
 ```
 mysql> SELECT app_user_full_name, email FROM app_user LIMIT 5;
 +--------------------+--------------------+
@@ -496,7 +500,7 @@ mysql> SELECT app_user_full_name, email FROM app_user LIMIT 5;
 +--------------------+--------------------+
 1 row in set (0.00 sec)
 ```
-#### 2.3.8 Stop and Remove the Database
+#### 2.3.7 Stop and Remove the Database
 To get out of MySQL type **exit**.
 ```
 mysql>exit
@@ -522,7 +526,7 @@ If you see warnings like this when running **`docker compose up -d`**:
 
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_DATABASE" variable is not set. Defaulting to a blank string."  
 
-This means **Compose** file could not find your environment variable. Most often this happens because the **`.env`** file was never created from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
+This means the **Docker Compose** file could not find your environment variable. Most often this happens because the **`.env`** file was never created from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
 
 **Fix:**
 **Copy** the template file to create your personal **`.env`**:
@@ -549,24 +553,21 @@ It usually means that your **`.env`** file still contains **placeholder values**
 
 **Fix:**
 
-##### 1. Open your local **`.env`** file.
-##### 2. Make sure the **`MYSQL_ROOT_PASSWORD`** entry is updated with your secure password. For example:
+1. Open your local **`.env`** file.
+2. Make sure the **`MYSQL_ROOT_PASSWORD`** entry is updated with your secure password.     
+   For example:
+   ```
+   MYSQL_ROOT_PASSWORD=MySecureRootPW123
+   ```
 
-```
-MySQL_ROOT_PASSWORD=MySecureRootPW123
-```
-##### 3.1.3 **Restart** the container so that the changes take effect. 
-
-```
-docker compose down -v
-docker compose up -d
-```
-
-##### 3.1.4 Try connecting again with: 
-```
-docker exec -it cool-mysql mysql -u root -p
-```
-
-Enter the updated password when prompted. 
-
+3. Restart the container so that the changes take effect.
+   ```
+   docker compose down -v
+   docker compose up -d
+   ```
+4. Try connecting again:
+   ```
+   docker exec -it cool-mysql mysql -u root -p
+   ```    
+5. Enter the updated password when prompted.
 ---
