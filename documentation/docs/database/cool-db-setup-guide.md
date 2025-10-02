@@ -9,19 +9,20 @@ This guide is to help you set up the COOL project database locally using Docker 
 Our project includes a small but important set of files organized in a specific hierarchy. Keeping this structure intact is essential because Docker Compose and MySQL rely on these paths to initialize the database correctly.
 
 ```
-project-root/    
-├── docker-compose.yaml  
-├── .env.sample  
-├── .gitignore  
-└── initdb/  
-    ├── cool-ddl.sql  
+project-root/
+├── docker-compose.yaml
+├── .env
+├── .env.sample
+├── .gitignore
+└── initdb/
+    ├── cool-ddl.sql
     └── seed-dev.sql
 ```
 
 > #### Note on Operating Systems:
 >
 > Once the Docker containers are running, everyone is working inside the same Linux environment. 
-> This means commands such as **`docker compose up -d, docker exec -it ...`**, and SQL queries will be identical across Mac, Linux, and Windows.
+> This means commands such as **`docker compose up -d`**, **`docker exec -it ...`**, and SQL queries will be identical across Mac, Linux, and Windows.
 
 ### 1.1 File and Folder Explanations
 
@@ -29,7 +30,7 @@ project-root/
 
 - Defines the services used in the project (for example, the MySQL container).
 - References the **`initdb/`** folder to automatically load the database schema and seed data when the container is created. 
-- Points to the **`.env`** file for sensitive environment variables (passwords).
+- Automatically reads environment variables (passwords) from the **`.env`** file in the same directory.
 
 #### 1.1.2`.env.sample`
 
@@ -44,7 +45,9 @@ project-root/
 
 #### 1.1.4 `initdb/` folder
 
-- Contains SQL scripts that are automatically run the first time the MySQL container starts.
+- Contains SQL scripts that are automatically run the first time the MySQL container starts.    
+&nbsp;- **`cool-ddl.sql`** - Creates the database schema (lookup tables, core entity tables, and join tables).    
+&nbsp;- **`seed-dev.sql`** - Inserts initial test data for development.
 
 #### 1.1.5 `cool-ddl.sql`
 
@@ -61,10 +64,10 @@ An **`.env.sample`** file is included in the repo with placeholder values:
 
 **`.env.sample`**
 ```
-   MYSQL_ROOT_PASSWORD=REPLACE_ME_ROOT_PASSWORD
-   MYSQL_USER=cooldev
-   MYSQL_PASSWORD=REPLACE_ME_PASSWORD
-   MYSQL_DATABASE=cool_db
+MYSQL_ROOT_PASSWORD=REPLACE_ME_ROOT_PASSWORD
+MYSQL_USER=cooldev
+MYSQL_PASSWORD=REPLACE_ME_PASSWORD
+MYSQL_DATABASE=cool_db
 ```
 #### 1.2.1 Navigate to your project folder and copy the sample file: 
 
@@ -84,19 +87,23 @@ project-root/
     └── seed-dev.sql
 ```
 
-Open your terminal in the project folder and run: 
+##### 1.2.1.1 Using Windows
+
+Command Prompt
 ```
-# Mac / Linus (bash or zsh)
-cp .env.sample .env
-```
-```
-# Windows (Command Prompt)
 copy .env.sample .env
 ```
+
+PowerShell
 ```
-# Windows (PowerShell)
 Copy-Item .env.sample .env
 ```
+##### 1.2.1.2 Using Git Bash / macOS / Linux
+Open your terminal in the project folder and run: 
+```
+cp .env.sample .env
+```
+
 
 #### 1.2.2 Update **`.env`** with your own secure values.
 
@@ -131,6 +138,14 @@ Save the **`.gitignore`** file and close the editor.
 > The **`.env`** is a hidden **dotfile** like **`.gitignore`** and has no name before the dot. 
 > This file is used by Docker Compose and needs to be named exactly **`.env`**.
 
+#### 1.2.4 Verify your .env is in .gitignore
+In your terminal type: 
+```
+git check-ignore .env
+```
+This will output **`.env`** if it's properly ignored.
+
+
 ## 2. Docker Setup
 
 We'll set up MySQL in Docker. You can do this in two ways: 
@@ -144,7 +159,14 @@ We'll set up MySQL in Docker. You can do this in two ways:
 - A container is a lightweight virtual machine. 
 - We're using Docker here so everyone has the **same MySQL setup** 
 
-#### 2.1.1 Install Docker Desktop: 
+#### 2.1.1 Check to see if Docker is Already Installed
+In your terminal type: 
+```
+docker --version
+```
+If you see a version number, Docker is already installed and you can skip to section 2.2
+
+#### 2.1.2 Install Docker Desktop: 
    - [Docker for Windows](https://docs.docker.com/desktop/setup/install/windows-install/)
 
    - [Docker for Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
@@ -157,7 +179,7 @@ In your terminal type:
 ```
 docker --version
 ```
-Docker Desktop must be running **before** trying to run any **`docker-compose`** files in your terminal.
+Docker Desktop must be running **before** trying to run any **Compose** files in your terminal.
 
 ### 2.2 Working with Docker Compose (Recommended - Automated Container Setup)
 
@@ -195,9 +217,6 @@ Your container should now be running in Docker Desktop.
 
 #### 2.2.2 Connecting to the Database
 
->**Note:**
-> If you encounter initialization errors see the **Troubleshooting** section at the end of this guide.
-
 In your terminal, type:
 ```
 docker exec -it cool-mysql mysql -u root -p
@@ -226,7 +245,7 @@ You should see something that looks like this:
 +--------------------+
 5 rows in set (0.00 sec)
 ```
-Our database **`cool_db`** is showing after connecting to MySQL in the container. 
+If you don't see **`cool_db`** in the database list, see section 3.1. 
 
 #### 2.2.3 Switch to the project database:
 
@@ -482,7 +501,7 @@ To get out of MySQL type **exit**.
 ```
 mysql>exit
 ```
-If you didn't mount any volumes (we didn't in this tutorial) you can quickly and easily remove the container and discard all the data. Your next run will have no saved data.
+Since we didn't create named volumes to persist data separately, all data is stored inside the container and will be lost when you run **`docker rm cool-mysql`**.
 
 ```
 docker stop cool-mysql
@@ -503,14 +522,21 @@ If you see warnings like this when running **`docker compose up -d`**:
 
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_DATABASE" variable is not set. Defaulting to a blank string."  
 
-This means **`Docker Compose`** could not find your environment variable. Most often this happens because the **`.env`** file was never created
-from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
+This means **Compose** file could not find your environment variable. Most often this happens because the **`.env`** file was never created from the **`.env.sample`** template, or the values inside **`.env`** are still placeholders. 
 
 **Fix:**
 **Copy** the template file to create your personal **`.env`**:
 ```
 cp .env.sample .env
 ```
+You will now need to shutdown and restart the container. 
+```
+docker compose down -v
+```
+```
+docker compose up -d
+```
+
 #### 3.1.2 Access Denied for Root User
 
 If you see an error like this when trying to connect: 
