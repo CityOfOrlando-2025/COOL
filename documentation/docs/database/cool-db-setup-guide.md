@@ -310,93 +310,179 @@ If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually
 
 This will create an empty **`cool_db`** so you can load your schema and insert your own data. 
 
-#### 2.3.1 Use **`.env`** and **`docker run`** 
+#### 2.3.1 Use your **`.env`** with **`docker run`** 
+Make sure to replace the example passwords in your **`.env`** before running.
+##### 2.3.1.1 Using Windows
 
->**Note:** You must add **`MYSQL_PASSWORD`** to your **`.env`** so that **`docker run`** works properly. 
-in Windows (Command Prompt or PowerShell) 
->**Note:** Replace the example passwords before running.
-
+- Command Prompt
 ```
-docker run -d --name cool-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! -e MYSQL_DATABASE=cool_db mysql:8.0
+docker run -d --name cool-mysql -p 3306:3306 --env-file .\.env mysql:8.0
+```
+- PowerShell
+```
+docker run -d --name cool-mysql -p 3306:3306 `
+  --env-file .\.env `
+  mysql:8.0
 ```
 
-#### 2.3.2 Using **`docker run`** on Git Bash / macOS / Linux
+##### 2.3.1.2 Using Git Bash / macOS / Linux
 ```
 docker run -d --name cool-mysql \
   -p 3306:3306 \
-  -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! \
-  -e MYSQL_DATABASE=cool_db \
+  --env-file ./.env \
   mysql:8.0
 ```
-#### 2.3.3 Load the Schema (**`cool-ddl.sql`**) 
-
->**Note:** When prompted, enter the root password you set in the **`docker run`** command.
+#### 2.3.3 Copy the schema (**`cool-ddl.sql`**) into the Container
 
 ##### 2.3.3.1 Using Windows
 ```
-type initdb\cool-ddl.sql | docker exec -i cool-mysql mysql -u root -p cool_db
+docker cp initdb\cool-ddl.sql cool-mysql:/ddl.sql
 ```
 
 ##### 2.3.3.2 Using Git Bash / macOS / Linux
 ```
-cat initdb/cool-ddl.sql | docker exec -i cool-mysql mysql -u root -p cool_db
+docker cp initdb/cool-ddl.sql cool-mysql:/ddl.sql
 ```
-#### 2.3.4 Connect to the Database
 
+#### 2.3.4 Run the Schema Once with **`SOURCE`**
 ```
-docker exec -it cool-mysql mysql -u root -p
+docker exec -it cool-mysql mysql -u root -p cool_db
 ```
-At the MySQL prompt:
+
+At the **`mysql>`** prompt:
 ```
-mysql> USE cool_db;
+SOURCE /ddl.sql;
+SHOW TABLES;
+```
+
+You should now see your tables.
+
+Example Output:
+```
+Query OK, 0 rows affected (0.04 sec)
+
+Query OK, 0 rows affected (0.03 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+Query OK, 0 rows affected (0.04 sec)
+
+Query OK, 0 rows affected (0.03 sec)
+
+Query OK, 0 rows affected (0.03 sec)
+
+mysql> SHOW TABLES;
++----------------------+
+| Tables_in_cool_db    |
++----------------------+
+| action_log           |
+| app_user             |
+| bin                  |
+| device               |
+| device_condition     |
+| device_status        |
+| device_type          |
+| loan                 |
+| loan_action_type     |
+| loan_log             |
+| loan_status          |
+| location             |
+| transaction_status   |
+| user_action_type     |
+| user_location_access |
+| user_role            |
++----------------------+
+16 rows in set (0.00 sec)
 ```
 
 #### 2.3.5 Insert Lookup Data (insert these first)
 Lookup tables must be populated first so foreign keys in core tables have valid targets. 
 These relationships are enforced by the **`cool-ddl.sql`**.
 
-User Roles
-#### 2.3. Add your Own Data (Simple Examples)
-
-Open a MySQL shell:
-```
-docker exec -it cool-mysql mysql -u root -p
-```
-
-Then type: 
-```
-USE cool_db;
-```
-
-Create a **role** you can reference later:
+- Roles
 ```
 INSERT INTO user_role (user_role_name, dl_required, is_active)
-VALUES ('Admin', 0, 1);
+VALUES ('Admin', 0, 1), ('Employee', 0, 1), ('Citizen', 1, 1);
 ```
 
-Create a **location**:
+- Device Types
+```
+INSERT INTO device_type (device_type_name, is_active)
+VALUES ('Laptop', 1), ('Tablet', 1), ('Hotspot', 1);
+```
+
+- Device Statuses
+```
+INSERT INTO device_status (device_status_name)
+VALUES ('Available'), ('Loaned'), ('Maintenance'), ('Retired'), ('Lost');
+```
+
+- Device Condition
+```
+INSERT INTO device_condition (device_condition_name)
+VALUES ('Excellent'), ('Good'), ('Fair'), ('Poor'), ('Damaged');
+```
+
+- Loan Status
+```
+INSERT INTO loan_status (loan_status_name)
+VALUES ('Open'), ('Returned'), ('Overdue'), ('Lost');
+```
+
+#### 2.3.6 Insert a few Core Rows
+- Location
 ```
 INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
 VALUES ('Callahan Neighborhood Center', '101 N. Parramore Ave Ste. 1713', 'Orlando', 'FL', '32801', '407-246-4442');
 ```
-
-Create a **user** and link to your **role** by name:
+- User, linked to the 'Admin' role by name (to avoid hard-cording IDs)
 ```
 INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
 SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', 'salt_here', ur.user_role_id
 FROM user_role ur
 WHERE ur.user_role_name = 'Admin';
 ```
+#### 2.3.7 Verify
 
 Check to make sure your data is populating in the database.
+
+```
+SHOW TABLES;
+SELECT COUNT(*) AS role_count FROM user_role;
+SELECT app_user_full_name, email FROM app_user LIMIT 5;
+```
+
 ```
 SHOW TABLES;
 SELECT * FROM user_role;
 SELECT app_user_full_name, email FROM app_user;
 ```
+Example Output:
 
-#### 2.3.4 Stop and Remove the Database
-If you didn't mount any volumes (we didn't in this tutorial) you can quickly and easily remove the container and discard all the data. Your next run will have no saved data. 
+```
+mysql> SELECT COUNT(*) AS role_count FROM user_role;
++------------+
+| role_count |
++------------+
+|          3 |
++------------+
+1 row in set (0.00 sec)
+```
+```
+mysql> SELECT app_user_full_name, email FROM app_user LIMIT 5;
++--------------------+--------------------+
+| app_user_full_name | email              |
++--------------------+--------------------+
+| Jane Doe           | jane@workemail.com |
++--------------------+--------------------+
+1 row in set (0.00 sec)
+```
+#### 2.3.8 Stop and Remove the Database
+To get out of MySQL type **exit**.
+```
+mysql>exit
+```
+If you didn't mount any volumes (we didn't in this tutorial) you can quickly and easily remove the container and discard all the data. Your next run will have no saved data.
 
 ```
 docker stop cool-mysql
@@ -458,129 +544,3 @@ docker exec -it cool-mysql mysql -u root -p
 Enter the updated password when prompted. 
 
 ---
-*************************************************************************************************************************
-*************************************************************************************************************************
-*************************************************************************************************************************
-DELETE BELOW THIS LINE AFTER REVIEW
-### 2.3 Docker Manual Inserts
- 
- If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
->**Note:** The exact command format depends on the terminal you are using.
-
-#### 2.3.1 Using **`docker run`** in Windows (Command Prompt or PowerShell):
-
-> **Note**: You must **change the passwords** in the replacement text in **`MYSQL_ROOT_PASSWORD`** AND **`MYSQL_PASSWORD`** before hitting ENTER.
-
-In your terminal paste:
-
-```
-docker run -d --name cool-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=ChangeThisRootPW! -e MYSQL_DATABASE=cool_db -e MYSQL_USER=cooldev -e MYSQL_PASSWORD=ChangeThisAppPW! -v %cd%\initdb:/docker-entrypoint-initdb.d mysql:8.0
-```
-
-#### 2.3.2 Using **`docker run`** on Mac / Linus / Git Bash on Windwos / WSL:
-
-In your terminal paste: 
-
-```
-docker run --name cool-mysql \
--e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \
--e MYSQL_DATABASE=${MYSQL_DATABASE} \
--e MYSQL_USER=${MYSQL_USER} \
--e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
--p 3306:3306 \
--v ./initdb:/docker-entrypoint-initdb.d \
--d mysql:8.0
-```
-
-When the database container starts, all of the tables defined in the DDL are created, but they are **empty**.
-To actually use the system, you must populate the lookup tables (roles, statues, types, etc.) and add some starter
-records.
-
-#### 2.3.3 Connect to the Database
-
-In your terminal, type:
-```
-docker exec -it cool-mysql mysql -u root -p
-```
-
-Enter the **root password** you set in your **`.env`** file (`MYSQL_ROOT_PASSWORD`) 
-
-You should then see the MySQL prompt: 
-
-`mysql>`
-
-Switch to the project database:
-
-`USE cool_db;`
-
-#### 2.3.4 Insert Lookup Data
-
-Lookup tables hold the fixed lists that the system depends on (roles, device types, statuses). These **must** be populated first. 
-
-Example: 
-```
--- User Roles
-INSERT INTO user_role (user_role_name, dl_required, is_active) VALUES
-('Admin', 0, 1),
-('Employee', 0, 1),
-('Citizen', 1, 1);
-```
-
-```
--- Device Status
-INSERT INTO device_status (device_status_name) VALUES
-('Available'),
-('Loaned'),
-('Maintenance'),
-('Retired'),
-('Lost');
-```
-
-#### 2.3.5 Insert a Test User (app_user)
-Once the lookups exist, you can add a user. This table depends on **`user_role`**, so make sure the roles were inserted first.  
-
-```
--- Test Admin User
-INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
-VALUES ('Test Admin', 'admin@example.com', 'hashed_pw_here', 'salt_here', 1);
-```
-- `user_role_id = 1` assumes "Admin" is role ID 1.
-- (_Placeholder values used here for testing. However, in production these should be replaced with securely generated hashes._)
-
-
-```
--- Test Location
-INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
-VALUES ('Downtown Community Center', '123 Main St', 'Orlando', 'FL', '32801', '407-555-1234');
-```
-#### 2.3.6 Verify Rows
-Check that the rows were inserted: 
-
-```
-SELECT * FROM user_role;
-SELECT * FROM device_status;
-SELECT * FROM location;
-SELECT * FROM app_user;
-```
-#### 2.3.7 Loading Seed Data (Automatic Inserts)
-
-> #### **Note:** 
-> This section provides a **seed script** that automatically populates the schema with a consistent baseline dataset across **all tables**. Use this when you want to quickly bring up the database to a usable state without entering data manually.
-
-#### 2.3.8 Verify the Seeded Tables
-
-Check to see if the seed worked by running:
-```
-SHOW TABLES;
-```
-```
-SELECT * FROM user_role;
-```
-```
-SELECT * FROM app_user;
-```
-```
-SELECT * FROM location;
-```
-
-You should see all schema tables plus sample data from the seed file.
