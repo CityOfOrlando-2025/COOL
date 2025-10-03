@@ -454,7 +454,7 @@ VALUES ('Open'), ('Returned'), ('Overdue'), ('Lost');
 INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
 VALUES ('Callahan Neighborhood Center', '101 N. Parramore Ave Ste. 1713', 'Orlando', 'FL', '32801', '407-246-4442');
 ```
-- User, linked to the 'Admin' role by name (to avoid hard-cording IDs)
+- User, linked to the 'Admin' role by name (to avoid hard-coding IDs)
 ```
 INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
 SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', 'salt_here', ur.user_role_id
@@ -465,7 +465,8 @@ WHERE ur.user_role_name = 'Admin';
 
 Check to make sure your data is populating in the database.
 
-**Option 1 - Quick Check** - Use this to confirm tables and rows exist.
+In your terminal type: 
+
 ```
 SHOW TABLES;
 SELECT COUNT(*) AS role_count FROM user_role;
@@ -474,6 +475,28 @@ SELECT app_user_full_name, email FROM app_user LIMIT 5;
 Example Output:
 
 ```
+mysql> SHOW TABLES;
++----------------------+
+| Tables_in_cool_db    |
++----------------------+
+| action_log           |
+| app_user             |
+| bin                  |
+| device               |
+| device_condition     |
+| device_status        |
+| device_type          |
+| loan                 |
+| loan_action_type     |
+| loan_log             |
+| loan_status          |
+| location             |
+| transaction_status   |
+| user_action_type     |
+| user_location_access |
+| user_role            |
++----------------------+
+16 rows in set (0.00 sec)
 mysql> SELECT COUNT(*) AS role_count FROM user_role;
 +------------+
 | role_count |
@@ -481,25 +504,17 @@ mysql> SELECT COUNT(*) AS role_count FROM user_role;
 |          3 |
 +------------+
 1 row in set (0.00 sec)
-```
 
-**Option 2 - Full Inspection** - Use this to see all data and verify content.
-
-```
-SHOW TABLES;
-SELECT * FROM user_role;
-SELECT app_user_full_name, email FROM app_user;
-```
-Example Output:
-```
 mysql> SELECT app_user_full_name, email FROM app_user LIMIT 5;
-+--------------------+--------------------+
-| app_user_full_name | email              |
-+--------------------+--------------------+
-| Jane Doe           | jane@workemail.com |
-+--------------------+--------------------+
-1 row in set (0.00 sec)
++--------------------+----------------------+
+| app_user_full_name | email                |
++--------------------+----------------------+
+| Test Admin         | admin@example.com    |
+| Test Employee      | employee@example.com |
++--------------------+----------------------+
+2 rows in set (0.00 sec)
 ```
+
 #### 2.3.7 Stop and Remove the Database
 To get out of MySQL type **exit**.
 ```
@@ -569,5 +584,5 @@ It usually means that your **`.env`** file still contains **placeholder values**
    ```
    docker exec -it cool-mysql mysql -u root -p
    ```    
-5. Enter the updated password when prompted.
+Enter the updated password when prompted.
 ---

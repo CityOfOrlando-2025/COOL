@@ -48,7 +48,7 @@ CREATE TABLE device_condition (
 -- Defines the lifecycle states for a loan. [LOOKUP]
 CREATE TABLE loan_status (
     loan_status_id INT PRIMARY KEY AUTO_INCREMENT,
-    loan_status_name VARCHAR(50) NOT NULL UNIQUE -- (Open, Returned, Overdue, Lost)
+    loan_status_name VARCHAR(50) NOT NULL UNIQUE -- (Open, Returned, Overdue, Lost, Cancelled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Defines actions specific to a loan transaction. [LOOKUP]
