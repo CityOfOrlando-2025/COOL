@@ -358,4 +358,7 @@ CREATE TABLE user_location_access (
         ON DELETE CASCADE -- if a location is deleted, all associated access entries are also deleted
         ON UPDATE CASCADE -- if a location_id changes, all linked access entries are updated automatically to stay in sync
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
+
+-- Re-enable foreign key checks now that all tables are created
+SET FOREIGN_KEY_CHECKS = 1;
 -- End of DDL Script

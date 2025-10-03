@@ -55,7 +55,11 @@ INSERT INTO loan_status (loan_status_name) VALUES
 
 -- 1.6 User Action Types
 -- Defines the CRUD operations logged in action_log.
-INSERT INTO
+INSERT INTO user_action_type (user_action_type_name, is_active) VALUES
+('CREATE', 1),
+('READ', 1),
+('UPDATE', 1),
+('DELETE', 1),
 
 -- Test Users "Admin" and "Employee"
 INSERT INTO app_user (
