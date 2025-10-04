@@ -29,7 +29,7 @@ CREATE TABLE user_action_type (
 -- Defines the allowed types of devices in the system. [LOOKUP]
 CREATE TABLE device_type (
     device_type_id INT PRIMARY KEY AUTO_INCREMENT, 
-    device_type_name VARCHAR(50) NOT NULL UNIQUE, -- (Mobile Phone, Laptop, Tablet, etc.)
+    device_type_name VARCHAR(50) NOT NULL UNIQUE, -- (Tablet, Laptop, Hotspot)
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = type ACTIVE, 0 = type INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
@@ -87,7 +87,7 @@ CREATE TABLE app_user (
     state CHAR(2), -- Citizen state
     zip_code VARCHAR(10), -- Citizen zip code
     date_of_birth DATE, -- Citizen DOB
-    phone_number VARCHAR(20), -- Citizen phone number
+    contact_number VARCHAR(20), -- Citizen contact number
     
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -108,7 +108,7 @@ CREATE TABLE location (
     city VARCHAR(100), 
     state CHAR(2), 
     zip_code VARCHAR(10),
-    contact_phone VARCHAR(20),
+    contact_number VARCHAR(20),
     
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
