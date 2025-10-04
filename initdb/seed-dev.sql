@@ -15,27 +15,27 @@ USE cool_db;
 -- They must be populated first since the core entity tables depend on them.
 -- ==================================================
 
--- =================================================
+-- ------------------------------------------------
 -- 1.1 User Roles
--- =================================================
+-- ------------------------------------------------
 -- Defines the three types of users in the system: Admin, Employee, Citizen.
 INSERT INTO user_role (user_role_name, dl_required, is_active) VALUES
 ('Admin', 0, 1),    -- (no DL required)
 ('Employee', 0, 1), -- (no DL required) 
 ('Citizen', 1, 1);  -- (DL required)
 
--- =================================================
+-- ------------------------------------------------
 -- 1.2 Device Types
--- =================================================
+-- ------------------------------------------------
 -- Defines the categories of devices available for loan.
 INSERT INTO device_type (device_type_name, is_active) VALUES
 ('Tablet', 1),
 ('Laptop', 1),
 ('Hotspot', 1);
 
--- =================================================
+-- ------------------------------------------------
 -- 1.3 Device Statuses
--- =================================================
+-- ------------------------------------------------
 -- Defines the current availability/status of devices.
 INSERT INTO device_status (device_status_name) VALUES
 ('Available'),
@@ -44,9 +44,9 @@ INSERT INTO device_status (device_status_name) VALUES
 ('Retired'),
 ('Lost');
 
--- =================================================
+-- ------------------------------------------------
 -- 1.4 Device Conditions
--- =================================================
+-- ------------------------------------------------
 -- Defines the physical conition of devices.
 INSERT INTO device_condition (device_condition_name) VALUES
 ('Excellent'),
@@ -55,9 +55,9 @@ INSERT INTO device_condition (device_condition_name) VALUES
 ('Poor'),
 ('Damaged');
 
--- =================================================
+-- ------------------------------------------------
 -- 1.5 Loan Statuses
--- =================================================
+-- ------------------------------------------------
 -- Defines the lifecycle states for loan transactions.
 INSERT INTO loan_status (loan_status_name) VALUES
 ('Open'),        -- Currently loaned out
@@ -66,9 +66,9 @@ INSERT INTO loan_status (loan_status_name) VALUES
 ('Lost'),        -- Reported lost
 ('Cancelled');   -- Loan cancelled before pickup
 
--- ================================================
+-- ------------------------------------------------
 -- 1.6 User Action Types
--- =================================================
+-- ------------------------------------------------
 -- Defines the CRUD operations logged in action_log.
 INSERT INTO user_action_type (user_action_type_name, is_active) VALUES
 ('CREATE', 1),
@@ -76,9 +76,9 @@ INSERT INTO user_action_type (user_action_type_name, is_active) VALUES
 ('UPDATE', 1),
 ('DELETE', 1);
 
--- ==================================================
+-- ------------------------------------------------
 -- 1.7 Loan Action Types
--- ==================================================
+-- ------------------------------------------------
 -- Defines the specific actions that can occur during a loan.
 INSERT INTO loan_action_type (loan_action_name, is_active) VALUES
 ('Checkout', 1), -- Device checked out to citizen
