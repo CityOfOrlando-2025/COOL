@@ -134,7 +134,7 @@ VALUES (
     2 -- Employee role
 );
 
--- Test user (borrower with full contact info)
+-- Citizen user (borrower with full contact info)
 INSERT INTO app_user (
     app_user_full_name,
     email,
@@ -164,6 +164,11 @@ VALUES (
     '407-123-4567'
 );
 
+-- ------------------------------------------------
+-- 2.2 Locations
+-- ------------------------------------------------
+-- Community center where devices are stored and loaned
+
 -- Test Location
 INSERT INTO location (
     location_name, 
@@ -181,3 +186,17 @@ VALUES (
     '32801', 
     '407-246-4442'
 );
+
+-- =================================================
+-- END OF SEED DATA 
+-- =================================================
+-- This seed file provides:
+--  All required lookup table values
+--  One test user per role (Admin, Employee, Citizen)
+--  One test location for device storage and loans
+
+-- Password hashes here are only placeholders. 
+-- Actual hashed passwords should be handled at the application level. 
+
+-- Follow the insert order (lookups first, then core entities, then relationships) when adding additional test data.
+-- =================================================

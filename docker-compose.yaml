@@ -16,9 +16,12 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
-    # Mount initialization scripts (DDL, seeds, etc.)
+    # Mount initialization scripts and persist data
     volumes:
-      - ./initdb:/docker-entrypoint-initdb.d
-
+      # Persistent data storage for MYSQL
+      - db_data:/var/lib/mysql 
+      # Initialize schema on first run
+      - ./initdb:/docker-entrypoint-initdb.d 
+# Declares the named volume for MySQL data persistence
 volumes:
-  db_data:
+  db_data: 

@@ -9,7 +9,9 @@
 -- Prevents "table doesn't exist" errors during initial setup
 SET FOREIGN_KEY_CHECKS = 0; 
 
+-- ===================================================
 -- 1. LOOKUP TABLES
+-- ===================================================
 
 -- Defines user roles and their attributes. [LOOKUP]
 CREATE TABLE user_role (
@@ -67,7 +69,9 @@ CREATE TABLE transaction_status (
     transaction_status_name VARCHAR(50) NOT NULL UNIQUE  -- Success, Failure, Pending
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
+-- ===================================================
 -- 2. CORE ENTITY TABLES
+-- ===================================================
 
 -- Stores user account information and links to the roles table. [CORE ENTITY]
 CREATE TABLE app_user (
@@ -75,7 +79,6 @@ CREATE TABLE app_user (
     app_user_full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
-    password_salt VARBINARY(64) NOT NULL, -- per-user salt for hashing passwords
     -- Ensures every user has a role, a user cannot exist in the system without one
     user_role_id INT NOT NULL,
 
@@ -338,10 +341,11 @@ CREATE TABLE action_log (
         ON UPDATE CASCADE -- if a device_id changes, all linked log entries are updated automatically to stay in sync
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
--- removed CHECK constraint to handle NULLs in the three *_record_id fields, this can be enforced at the application level.
 
+
+-- ==================================================
 -- 3. JOIN TABLES
-
+-- ==================================================
 -- Many-to-many join table for employee location access permissions. [JOIN TABLE]
 CREATE TABLE user_location_access (
     app_user_id BIGINT NOT NULL, -- an access entry must be associated with a user
@@ -361,4 +365,8 @@ CREATE TABLE user_location_access (
 
 -- Re-enable foreign key checks now that all tables are created
 SET FOREIGN_KEY_CHECKS = 1;
+
 -- End of DDL Script
+
+-- Notes: 
+-- Null handling for *_record_id fields should be enforced at the application level.

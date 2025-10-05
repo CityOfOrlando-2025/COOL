@@ -29,7 +29,8 @@ project-root/
 #### 1.1.1 `docker-compose.yaml`
 
 - Defines the services used in the project (for example, the MySQL container).
-- References the **`initdb/`** folder to automatically load the database schema and seed data when the container is created. 
+- References the **`initdb/`** folder to automatically load the database schema and seed data the first time the container is created (when the database volume is empty).
+- Configures persistent data storage so your database content survives container restarts and removals. 
 - Automatically reads environment variables (passwords) from the **`.env`** file in the same directory.
 
 #### 1.1.2`.env.sample`
@@ -45,9 +46,9 @@ project-root/
 
 #### 1.1.4 `initdb/` folder
 
-- Contains SQL scripts that are automatically run the first time the MySQL container starts.    
-&nbsp;- **`cool-ddl.sql`** - Creates the database schema (lookup tables, core entity tables, and join tables).    
-&nbsp;- **`seed-dev.sql`** - Inserts initial test data for development.
+- Contains SQL scripts that are automatically run **only** when the database volume is **empty** (typically the first time you run **`docker compose up -d`**).
+- **`cool-ddl.sql`** - Creates the database schema (lookup tables, core entity tables, and join tables).    
+- **`seed-dev.sql`** - Inserts initial test data for development.
 
 #### 1.1.5 `cool-ddl.sql`
 
@@ -147,11 +148,7 @@ This will output **`.env`** if it's properly ignored.
 
 
 ## 2. Docker Setup
-
-We'll set up MySQL in Docker. You can do this in two ways: 
-
-- **Option A (Recommended): Docker Compose** - Easiest and most consistent across the team.
-- **Option B: Manual Run Command** - Enter everything yourself.
+Well set up MySQL in Docker using **Docker Compose**, which provides and automated and consistent setup across the entire team.
 
 ### 2.1 Docker Overview
 
@@ -299,7 +296,7 @@ mysql> SHOW TABLES;
 +----------------------+
 16 rows in set (0.00 sec)
 ```
-When you run a container with **Docker Compose** it automatically runs everything in the **`initdb/`** including our **`seed-dev.sql`**. 
+When you **first** run the container with **Docker Compose** it automatically runs everything in the **`initdb/`** including our **`seed-dev.sql`**. These scripts create the database structure and insert the initial test data.
 
 To check if the data was inserted, type into your terminal:
 ```
@@ -322,210 +319,38 @@ mysql> SELECT * FROM user_role;
 +--------------+----------------+-------------+-----------+
 3 rows in set (0.02 sec)
 ```
-### 2.3 Docker Manual Inserts
+#### 2.2.6 Data Persistence
 
-If you don't want to use **`docker-compose.yaml`**, you can start MySQL manually with **`docker run`**. 
->**Note:** The exact command format depends on the terminal you are using. 
+>**Note:**
+>This project uses **persistent storage**. Your data will remain saved even if you stop or remove the container.
 
-This will create an empty **`cool_db`** so you can load your schema and insert your own data. 
+**What This Means**    
+When you use Docker Compose, the database files are stored inside a **persistent volume** on your computer. This volume is separate from the container, so your database survives normal shutdowns and restarts.
 
-#### 2.3.1 Use your **`.env`** with **`docker run`** 
-Make sure to replace the example passwords in your **`.env`** before running.
-##### 2.3.1.1 Using Windows
+**Your data will still be there if you:**    
+- Run **`docker compose stop`**    
+- Run **`docker compose down`** (removes the container but keeps the data)    
+- Restart Docker Desktop    
+- Restart your computer
 
-Command Prompt
-```
-docker run -d --name cool-mysql -p 3306:3306 --env-file .\.env mysql:8.0
-```
-PowerShell
-```
-docker run -d --name cool-mysql -p 3306:3306 `
-  --env-file .\.env `
-  mysql:8.0
-```
+**How Initialization Scripts Work**
+The SQL scripts in the **`initdb/`** folder (**`cool-ddl.sql`** and **`seed-dev.sql`**) are only executed **once** during the first time the database is created. 
 
-##### 2.3.1.2 Using Git Bash / macOS / Linux
-```
-docker run -d --name cool-mysql \
-  -p 3306:3306 \
-  --env-file ./.env \
-  mysql:8.0
-```
-#### 2.3.2 Copy the schema (**`cool-ddl.sql`**) into the Container
+After that, MySQL uses the saved data in the persistent volume instead of re-running the scripts.
 
-##### 2.3.2.1 Using Windows
-```
-docker cp initdb\cool-ddl.sql cool-mysql:/ddl.sql
-```
+**Initialization scripts only run when**:    
+- The database volume is completely empty (for example, the very first time you run **`docker compose up -d`**)
 
-##### 2.3.2.2 Using Git Bash / macOS / Linux
+#### 2.2.7 Resetting the Database (Fresh Start)
+If you need to completely wipe the database and start over (for example to rerun the initialization scripts or reload the test data), remove the existing volume by typing into your terminal: 
 ```
-docker cp initdb/cool-ddl.sql cool-mysql:/ddl.sql
+docker compose down -v 
+docker compose up -d
 ```
+This command deletes the old volume, recreates a new one, and re-runs the initialization scripts automatically.
 
-#### 2.3.3 Run the Schema Once with **`SOURCE`**
-```
-docker exec -it cool-mysql mysql -u root -p cool_db
-```
-
-At the **`mysql>`** prompt:
-```
-SOURCE /ddl.sql;
-SHOW TABLES;
-```
-
-You should now see your tables.
-
-Example Output:
-```
-Query OK, 0 rows affected (0.04 sec)
-
-Query OK, 0 rows affected (0.03 sec)
-
-Query OK, 0 rows affected (0.04 sec)
-
-Query OK, 0 rows affected (0.04 sec)
-
-Query OK, 0 rows affected (0.03 sec)
-
-Query OK, 0 rows affected (0.03 sec)
-
-mysql> SHOW TABLES;
-+----------------------+
-| Tables_in_cool_db    |
-+----------------------+
-| action_log           |
-| app_user             |
-| bin                  |
-| device               |
-| device_condition     |
-| device_status        |
-| device_type          |
-| loan                 |
-| loan_action_type     |
-| loan_log             |
-| loan_status          |
-| location             |
-| transaction_status   |
-| user_action_type     |
-| user_location_access |
-| user_role            |
-+----------------------+
-16 rows in set (0.00 sec)
-```
-
-#### 2.3.4 Insert Lookup Data (insert these first)
-Lookup tables must be populated first so foreign keys in core tables have valid targets. 
-These relationships are enforced by the **`cool-ddl.sql`**.
-
-- Roles
-```
-INSERT INTO user_role (user_role_name, dl_required, is_active)
-VALUES ('Admin', 0, 1), ('Employee', 0, 1), ('Citizen', 1, 1);
-```
-
-- Device Types
-```
-INSERT INTO device_type (device_type_name, is_active)
-VALUES ('Laptop', 1), ('Tablet', 1), ('Hotspot', 1);
-```
-
-- Device Statuses
-```
-INSERT INTO device_status (device_status_name)
-VALUES ('Available'), ('Loaned'), ('Maintenance'), ('Retired'), ('Lost');
-```
-
-- Device Condition
-```
-INSERT INTO device_condition (device_condition_name)
-VALUES ('Excellent'), ('Good'), ('Fair'), ('Poor'), ('Damaged');
-```
-
-- Loan Status
-```
-INSERT INTO loan_status (loan_status_name)
-VALUES ('Open'), ('Returned'), ('Overdue'), ('Lost');
-```
-
-#### 2.3.5 Insert Core Entity Data
-- Location
-```
-INSERT INTO location (location_name, street_address, city, state, zip_code, contact_phone)
-VALUES ('Callahan Neighborhood Center', '101 N. Parramore Ave Ste. 1713', 'Orlando', 'FL', '32801', '407-246-4442');
-```
-- User, linked to the 'Admin' role by name (to avoid hard-coding IDs)
-```
-INSERT INTO app_user (app_user_full_name, email, password_hash, user_role_id)
-SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', ur.user_role_id
-FROM user_role ur
-WHERE ur.user_role_name = 'Admin';
-```
-#### 2.3.6 Verify
-
-Check to make sure your data is populating in the database.
-
-In your terminal type: 
-
-```
-SHOW TABLES;
-SELECT COUNT(*) AS role_count FROM user_role;
-SELECT app_user_full_name, email FROM app_user LIMIT 5;
-```
-Example Output:
-
-```
-mysql> SHOW TABLES;
-+----------------------+
-| Tables_in_cool_db    |
-+----------------------+
-| action_log           |
-| app_user             |
-| bin                  |
-| device               |
-| device_condition     |
-| device_status        |
-| device_type          |
-| loan                 |
-| loan_action_type     |
-| loan_log             |
-| loan_status          |
-| location             |
-| transaction_status   |
-| user_action_type     |
-| user_location_access |
-| user_role            |
-+----------------------+
-16 rows in set (0.00 sec)
-mysql> SELECT COUNT(*) AS role_count FROM user_role;
-+------------+
-| role_count |
-+------------+
-|          3 |
-+------------+
-1 row in set (0.00 sec)
-
-mysql> SELECT app_user_full_name, email FROM app_user LIMIT 5;
-+--------------------+----------------------+
-| app_user_full_name | email                |
-+--------------------+----------------------+
-| Test Admin         | admin@example.com    |
-| Test Employee      | employee@example.com |
-+--------------------+----------------------+
-2 rows in set (0.00 sec)
-```
-
-#### 2.3.7 Stop and Remove the Database
-To get out of MySQL type **exit**.
-```
-mysql>exit
-```
-Since we didn't create named volumes to persist data separately, all data is stored inside the container and will be lost when you run **`docker rm cool-mysql`**.
-
-```
-docker stop cool-mysql
-docker rm cool-mysql
-```
+>**Tip:**
+> Use this only when you want to clear **all data** and rebuild your database from scratch.
 
 ## 3. Troubleshooting the Database Initialization
 
@@ -549,6 +374,8 @@ This means the **Docker Compose** file could not find your environment variable.
 cp .env.sample .env
 ```
 You will now need to shutdown and restart the container. 
+
+>**Warning**: The **`-v`** flag deletes all database data. Only use this if you want to completely reset.
 ```
 docker compose down -v
 ```
@@ -575,7 +402,7 @@ It usually means that your **`.env`** file still contains **placeholder values**
    MYSQL_ROOT_PASSWORD=MySecureRootPW123
    ```
 
-3. Restart the container so that the changes take effect.
+3. Remove the container and volume (this deletes all data), then restart:
    ```
    docker compose down -v
    docker compose up -d
