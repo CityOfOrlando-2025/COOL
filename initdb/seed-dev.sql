@@ -98,7 +98,7 @@ INSERT INTO transaction_status (transaction_status_name) VALUES
 -- SECTION 2: CORE ENTITY TABLES
 -- ==================================================
 -- These tables store the primary business data. 
--- They depend on lookkup tables for foreign key references.
+-- They depend on lookup tables for foreign key references.
 -- ==================================================
 
 -- ------------------------------------------------

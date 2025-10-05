@@ -58,6 +58,18 @@ project-root/
 
 - Test data or lookup values for local development. 
 
+>**`Note`**:
+> When you first run **`docker compose up -d`**, Docker automatically loads **`seed-dev.sql`**. 
+>The **seed script** should only be executed once.
+> Because columns like **`email`** and **`app_user`** are **UNIQUE**, re-running the seed script without resetting the database will cause deplicate-key errors.
+
+To start fresh and rerun the seed data, open your terminal and type:
+```
+docker compose down -v
+docker compose up -d
+```
+This wipes your old volume and re-initializes the database cleanly.
+
 ### 1.2 Environment Variables (**`.env`** file)
 
 We use an **`.env`** file to keep database credentials out of the codebase and GitHub.  
@@ -148,7 +160,7 @@ This will output **`.env`** if it's properly ignored.
 
 
 ## 2. Docker Setup
-Well set up MySQL in Docker using **Docker Compose**, which provides and automated and consistent setup across the entire team.
+We'll set up MySQL in Docker using **Docker Compose**, which provides and automated and consistent setup across the entire team.
 
 ### 2.1 Docker Overview
 
@@ -324,7 +336,7 @@ mysql> SELECT * FROM user_role;
 >**Note:**
 >This project uses **persistent storage**. Your data will remain saved even if you stop or remove the container.
 
-**What This Means**    
+**What this means**    
 When you use Docker Compose, the database files are stored inside a **persistent volume** on your computer. This volume is separate from the container, so your database survives normal shutdowns and restarts.
 
 **Your data will still be there if you:**    
@@ -333,10 +345,33 @@ When you use Docker Compose, the database files are stored inside a **persistent
 - Restart Docker Desktop    
 - Restart your computer
 
+**Confirm volume still Exists:**
+Enter into your terminal:
+```
+docker volume ls
+```
+You should see a volume named **cool_db_data**
+
+Example Output: 
+```
+> docker compose up -d
+[+] Running 2/2
+ ✔ Volume "cool_db_data"  Created                                                              0.0s
+ ✔ Container cool-mysql   Started                                                              0.4s
+
+> docker volume ls
+DRIVER    VOLUME NAME
+local     cool_db_data
+local     jenkins_home
+local     minikube
+```
+
 **How Initialization Scripts Work**
 The SQL scripts in the **`initdb/`** folder (**`cool-ddl.sql`** and **`seed-dev.sql`**) are only executed **once** during the first time the database is created. 
 
 After that, MySQL uses the saved data in the persistent volume instead of re-running the scripts.
+
+To view
 
 **Initialization scripts only run when**:    
 - The database volume is completely empty (for example, the very first time you run **`docker compose up -d`**)
