@@ -445,6 +445,7 @@ It usually means that your **`.env`** file still contains **placeholder values**
 4. Try connecting again:
    ```
    docker exec -it cool-mysql mysql -u root -p
-   ```    
-Enter the updated password when prompted.
+   ```
+5. Enter the updated password when prompted.
+
 ---
