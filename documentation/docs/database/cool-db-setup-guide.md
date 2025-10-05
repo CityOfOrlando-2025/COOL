@@ -345,7 +345,7 @@ When you use Docker Compose, the database files are stored inside a **persistent
 - Restart Docker Desktop    
 - Restart your computer
 
-**Confirm volume still Exists:**
+**Confirm volume still Exists:**    
 Enter into your terminal:
 ```
 docker volume ls
@@ -370,8 +370,6 @@ local     minikube
 The SQL scripts in the **`initdb/`** folder (**`cool-ddl.sql`** and **`seed-dev.sql`**) are only executed **once** during the first time the database is created. 
 
 After that, MySQL uses the saved data in the persistent volume instead of re-running the scripts.
-
-To view
 
 **Initialization scripts only run when**:    
 - The database volume is completely empty (for example, the very first time you run **`docker compose up -d`**)
