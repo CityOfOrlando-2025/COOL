@@ -85,9 +85,9 @@ INSERT INTO loan_action_type (loan_action_name, is_active) VALUES
 ('Return', 1), -- Device returned by citizen
 ('Status_Change', 1); -- Manual status update (e.g., marked lost)
 
--- ==================================================
+-- ------------------------------------------------
 -- 1.8 Transaction Statuses
--- ==================================================
+-- ------------------------------------------------
 -- Defines the outcome of logged actions
 INSERT INTO transaction_status (transaction_status_name) VALUES
 ('Success'), -- Action completed successfully
@@ -101,44 +101,44 @@ INSERT INTO transaction_status (transaction_status_name) VALUES
 -- They depend on lookkup tables for foreign key references.
 -- ==================================================
 
+-- ------------------------------------------------
+-- 2.1 Users
+-- ------------------------------------------------
+-- Test users for each role type
 
--- Test Users "Admin" and "Employee"
+-- Admin user 
 INSERT INTO app_user (
     app_user_full_name, 
     email, 
     password_hash, 
-    password_salt, 
     user_role_id
 )
 VALUES (
     'Test Admin', 
     'admin@workemail.com', 
     'hashed_pw_here', 
-    'salt_here', 
     1 -- Admin role
 );
 
+-- Employee user
 INSERT INTO app_user (
     app_user_full_name, 
     email, 
     password_hash, 
-    password_salt, 
     user_role_id
 )
 VALUES (
     'Test Employee', 
     'employee@workemail.com', 
     'hashed_pw_here', 
-    'salt_here', 
     2 -- Employee role
 );
 
--- Test Citizen with full details
+-- Test user (borrower with full contact info)
 INSERT INTO app_user (
     app_user_full_name,
     email,
     password_hash,
-    password_salt,
     user_role_id,
     dl_num,
     dl_state,
@@ -153,7 +153,6 @@ VALUES (
     'Test Citizen',
     'testcitizen@personalemail.com',
     'hashed_pw_here',
-    'salt_here',
     3, -- Citizen role
     'D1234567',
     'FL',

@@ -456,8 +456,8 @@ VALUES ('Callahan Neighborhood Center', '101 N. Parramore Ave Ste. 1713', 'Orlan
 ```
 - User, linked to the 'Admin' role by name (to avoid hard-coding IDs)
 ```
-INSERT INTO app_user (app_user_full_name, email, password_hash, password_salt, user_role_id)
-SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', 'salt_here', ur.user_role_id
+INSERT INTO app_user (app_user_full_name, email, password_hash, user_role_id)
+SELECT 'Jane Doe', 'jane@workemail.com', 'hashed_pw_here', ur.user_role_id
 FROM user_role ur
 WHERE ur.user_role_name = 'Admin';
 ```
