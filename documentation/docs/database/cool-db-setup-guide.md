@@ -346,7 +346,8 @@ When you use Docker Compose, the database files are stored inside a **persistent
 - Restart your computer
 
 **Confirm volume still Exists:**    
-Make sure you've exited the MySQL prompt **`mysql>`** before entering any docker commands. 
+
+>**Note:** Make sure you've exited the MySQL prompt **`mysql>`** before entering any docker commands. 
 
 Enter into your terminal:
 ```
@@ -356,16 +357,9 @@ You should see a volume named **cool_db_data**
 
 Example Output: 
 ```
-> docker compose up -d
-[+] Running 2/2
- ✔ Volume "cool_db_data"  Created                                                              0.0s
- ✔ Container cool-mysql   Started                                                              0.4s
-
 > docker volume ls
 DRIVER    VOLUME NAME
 local     cool_db_data
-local     jenkins_home
-local     minikube
 ```
 
 **How Initialization Scripts Work**
@@ -448,7 +442,7 @@ It usually means that your **`.env`** file still contains **placeholder values**
    ```
 5. Enter the updated password when prompted.
 
-### 4.1 Stuck in MySQL prompt **`mysql>`**
+### 4.1 Stuck in **`mysql>`** prompt 
 
 This will happen at least once. 
 
@@ -469,5 +463,5 @@ or
 ```
 mysql>quit
 ```
-- 
+
 ---
