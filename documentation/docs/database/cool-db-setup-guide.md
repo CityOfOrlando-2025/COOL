@@ -225,7 +225,7 @@ Your container should now be running in Docker Desktop.
 
 **2.2.2 Connecting to the Database**
 
-In your terminal, type:
+In your terminal type:
 ```
 docker exec -it cool-mysql mysql -u root -p
 ```
@@ -256,7 +256,7 @@ You should see something that looks like this:
 +--------------------+
 5 rows in set (0.00 sec)
 ```
-If you don't see **`cool_db`** in the database list, see section 3.1. 
+If you don't see **`cool_db`** in the database list, see section 4.1. 
 
 **2.2.3 Switch to the project database**
 
@@ -369,45 +369,25 @@ mysql> SELECT * FROM app_user;
 +-------------+--------------------+-------------------------------+----------------+--------------+----------+----------+----------------+---------+-------+----------+---------------+----------------+---------------------+---------------------+
 3 rows in set (0.00 sec)
 ```
-### 2.3 Resetting your database (Clean Slate)
 
-There are changes we'll make during testing and development that will require you to restart your database as a fresh build.
+### 2.3 Understanding Data Persistence 
 
-These can be:
+>**Note:** This project uses **persistent storage**. Your data will remain even if you stop or remove the container.
 
-- Changes made to the schema, **`cool-ddl.sql`**    
-- You added  or updated seed testing data in **`seed-dev.sql`**    
-- You need to test with fresh data    
-- The database entered an unexpected or broken state
-- You're finished working and want to clean up Docker environment
+**2.3.1 What this means**    
+When you use Docker Compose, the database files are stored inside a **persistent volume** on your computer. This volume is separate from the container, so your database survives normal shutdowns and restarts.
 
-**2.3.1 Understanding Data Persistence**   
-
-Before we reset, it's important to talk about why a simple **`docker compose down`** won't give you a clean slate. 
-
-**This project uses persistent storage** meaning that your database files are saved in a Docker **volume** that exists separately from the container itself.
-
-Think of it like this:
-
-- A **container** is the running MySQL program (temporary)
-- Your **volume** is the actual database files on your computer (permanent)
-
-**Your data survives when you:**
+**Your data will still be there if you:**
 
 - Run **`docker compose stop`**
 - Run **`docker compose down`** (removes the container but keeps the volume)
 - Restart Docker Desktop
 - Restart your computer
 
-**Why this matters for resetting:**    
-The initialization scripts **`cool-ddl.sql`** and **`seed-dev.sql`** only run when the volume is **completely empty**. If you just remove the container with **`docker compose down`**, the volume still has your old data, so the scripts won't run again. 
+**2.3.2 Confirm your Volume Exists:**    
+>**Note:** Make sure you've exited the **`mysql>`** prompt before entering any docker commands. 
 
-**To completely reset, you must delete the volume.**
-
-**Confirm your Volume Exists:**    
->**Note:** Make sure you've exited the MySQL prompt **`mysql`** before entering any docker commands. 
-
-Enter into your terminal:
+In your terminal type:
 ```
 docker volume ls
 ```
@@ -421,17 +401,79 @@ DRIVER    VOLUME NAME
 local     cool_db_data
 ```
 
-The next section will cover how to cleanly reset your database. 
+**2.3.3 How Initialization Scripts Work**    
+The SQL scripts in the **`initdb/`** folder (**`cool-ddl.sql`** and **`seed-dev.sql`**) are only executed **once** during the first time the database is created.
+
+After that, MySQL uses the saved data in the persistent volume instead of re-running the scripts. 
+
+**Initialization scripts only run when:**
+
+- The database volume is completely empty (for example, when we first ran **`docker compose up -d`**)
+
+## 3. Database Operations
+
+This section covers common tasks you'll perform during development such as stopping containers when you're done working, restarting them, and resetting your database. 
+
+### 3.1 Stopping and Restarting Containers
+
+When you're done working for the day, you can stop your containers to free up system resources. 
+
+**3.1.1 Stopping containers**
+
+To stop the containers while keeping all your data, run this command in your terminal: 
+```
+docker compose stop
+```
+
+Expected Output:
+```
+>docker compose stop
+[+] Stopping 1/1
+ ✔ Container cool-mysql  Stopped  
+```
+
+This preserves your database volume and all data. 
+
+**3.1.2 Restarting Containers**
+
+To restart your stopped containers, run this command in your terminal: 
+```
+docker compose start
+```
+
+Expected Output:
+```
+>docker compose start
+[+] Running 1/1
+ ✔ Container cool-mysql  Started  
+```
+
+Your data will still be there and you can pick up right where you left off.
+
+### 3.2 Resetting Your Database (Clean Slate)
+
+There are changes we'll make during testing and development that will require you to restart your database as a fresh build.
+
+These can be:
+
+- Changes made to the schema, **`cool-ddl.sql`**    
+- You added  or updated seed testing data in **`seed-dev.sql`**    
+- You need to test with fresh data    
+- The database entered an unexpected or broken state
+- You're finished working and want to clean up Docker environment
+
 >**Important:** This process will **DELETE ALL DATA** in your database volume. 
 
-**2.3.2 Stop and Remove Containers and Volumes**
+**3.2.1 Stop and Remove Containers and Volumes**
 
-In your terminal type:
+In your terminal type: 
 ```
 docker compose down -v
 ```
-- **`down`** - This stops and removes containers created by **`docker compose up`**
-- **`-v`** - This removes the associated named volume (**`cool_db_data`**), permanently deleting all stored MySQL data.
+
+- **`down`** stops and removes containers created by **`docker compose up`**
+
+- **`-v`** removes the associated named volume (**`cool_db_data`**), permanently deleting all stored MySQL data. 
 
 Expected Output:
 ```
@@ -442,9 +484,9 @@ Expected Output:
  ✔ Volume cool_db_data   Removed                                                0.0s
 ```
 
-**2.3.3 Rebuild everything from your initialization scripts**
+**3.2.2 Rebuild everything from your initialization scripts**
 
-Once the volume is deleted, you can start over with a fresh build. 
+Once the volume is deleted you can start over with a fresh build. 
 
 In your terminal type:
 ```
@@ -468,7 +510,7 @@ Expected Output:
 
 ```
 
-**2.3.4 Verify your Database is Clean**
+**3.2.3 Verify your Database is Clean**
 
 In your terminal type: 
 ```
@@ -515,9 +557,9 @@ mysql> SHOW TABLES;
 16 rows in set (0.00 sec)
 ```
 
-## 3. Troubleshooting the Database Initialization
+## 4. Troubleshooting the Database Initialization
 
-### 3.1 Missing Environment Variables
+### 4.1 Missing Environment Variables
 
 If you see warnings like this when running **`docker compose up -d`**:
 > time="2025-09-25T14:37:18-04:00" level=warning msg="The "MYSQL_USER" variable is not set. Defaulting to a blank string."
@@ -545,7 +587,7 @@ docker compose down -v
 docker compose up -d
 ```
 
-**3.2 Access Denied for Root User**
+### 4.2 Access Denied for Root User
 
 If you see an error like this when trying to connect: 
 ```
@@ -582,7 +624,7 @@ In your terminal type:
 
 Enter the updated password when prompted.
 
-### 3.3 Stuck in **`mysql>`** prompt 
+### 4.3 Stuck in **`mysql>`** prompt 
 
 This will happen at least once. 
 
@@ -603,5 +645,10 @@ or
 ```
 mysql>quit
 ```
+
+## 5. A work in progress
+
+This guide will likely continue to grow as the database evolves. If anything is unclear or if there's a topic you'd like me to cover please let me know. 
+
 
 ---
