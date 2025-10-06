@@ -208,7 +208,7 @@ project-root/
     └── seed-dev.sql
 ```
 
-#### 2.2.1 Using **`docker compose`** to start your container (Recommended):
+#### 2.2.1 Using **`docker compose`** to start your container:
 
 Using **Docker Compose** is the easiest and most consistent way to bring up your container. The settings defined in the **`docker-compose.yaml`** ensure that every time you run your container your settings remain the same. This keeps the setup simple and consistent for the whole team.
 
