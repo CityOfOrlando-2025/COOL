@@ -189,7 +189,7 @@ docker --version
 ```
 Docker Desktop must be running **before** trying to run any **Compose** files in your terminal.
 
-### 2.2 Working with Docker Compose (Recommended - Automated Container Setup)
+### 2.2 Working with Docker Compose
 
 This project uses a **`docker-compose.yaml`** file.
 
@@ -333,44 +333,6 @@ mysql> SELECT * FROM user_role;
 +--------------+----------------+-------------+-----------+
 3 rows in set (0.02 sec)
 ```
-**2.2.6 Data Persistence**
-
->**Note:**
->This project uses **persistent storage**. Your data will remain saved even if you stop or remove the container.
-
-**What this means**    
-When you use Docker Compose, the database files are stored inside a **persistent volume** on your computer. This volume is separate from the container, so your database survives normal shutdowns and restarts.
-
-**Your data will still be there if you:**    
-- Run **`docker compose stop`**    
-- Run **`docker compose down`** (removes the container but keeps the data)    
-- Restart Docker Desktop    
-- Restart your computer
-
-**Confirm volume still Exists:**    
-
->**Note:** Make sure you've exited the MySQL prompt **`mysql>`** before entering any docker commands. 
-
-Enter into your terminal:
-```
-docker volume ls
-```
-You should see a volume named **cool_db_data**
-
-Example Output: 
-```
-> docker volume ls
-DRIVER    VOLUME NAME
-local     cool_db_data
-```
-
-**How Initialization Scripts Work**
-The SQL scripts in the **`initdb/`** folder (**`cool-ddl.sql`** and **`seed-dev.sql`**) are only executed **once** during the first time the database is created. 
-
-After that, MySQL uses the saved data in the persistent volume instead of re-running the scripts.
-
-**Initialization scripts only run when**:    
-- The database volume is completely empty (for example, the very first time you run **`docker compose up -d`**)
 
 ### 2.3 Resetting your database (Clean Slate)
 
@@ -384,9 +346,50 @@ These can be:
 - The database entered an unexpected or broken state
 - You're finished working and want to clean up Docker environment
 
+**2.3.1 Understanding Data Persistence**   
+
+Before we reset, it's important to talk about why a simple **`docker compose down`** won't give you a clean slate. 
+
+**This project uses persistent storage** meaning that your database files are saved in a Docker **volume** that exists separately from the container itself.
+
+Think of it like this:
+
+- A **container** is the running MySQL program (temporary)
+- Your **volume** is the actual database files on your computer (permanent)
+
+**Your data survives when you:**
+
+- Run **`docker compose stop`**
+- Run **`docker compose down`** (removes the container but keeps the volume)
+- Restart Docker Desktop
+- Restart your computer
+
+**Why this matters for resetting:**    
+The initialization scripts **`cool-ddl.sql`** and **`seed-dev.sql`** only run when the volume is **completely empty**. If you just remove the container with **`docker compose down`**, the volume still has your old data, so the scripts won't run again. 
+
+**To completely reset, you must delete the volume.**
+
+**Confirm your Volume Exists:**    
+>**Note:** Make sure you've exited the MySQL prompt **`mysql`** before entering any docker commands. 
+
+Enter into your terminal:
+```
+docker volume ls
+```
+
+You should see a volume named **cool_db_data**
+
+Example Output: 
+```
+> docker volume ls
+DRIVER    VOLUME NAME
+local     cool_db_data
+```
+
+The next section will cover how to cleanly reset your database. 
 >**Important:** This process will **DELETE ALL DATA** in your database volume. 
 
-**2.3.1 Stop and Remove Containers and Volumes**
+**2.3.2 Stop and Remove Containers and Volumes**
 
 In your terminal type:
 ```
@@ -404,7 +407,7 @@ Expected Output:
  ✔ Volume cool_db_data   Removed                                                0.0s
 ```
 
-**2.3.2 Rebuild everything from your initialization scripts**
+**2.3.3 Rebuild everything from your initialization scripts**
 
 Once the volume is deleted, you can start over with a fresh build. 
 
@@ -430,7 +433,7 @@ Expected Output:
 
 ```
 
-**2.3.3 Verify your Database is Clean**
+**2.3.4 Verify your Database is Clean**
 
 In your terminal type: 
 ```
