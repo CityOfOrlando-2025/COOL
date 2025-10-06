@@ -346,6 +346,8 @@ When you use Docker Compose, the database files are stored inside a **persistent
 - Restart your computer
 
 **Confirm volume still Exists:**    
+Make sure you've exited the MySQL prompt **`mysql>`** before entering any docker commands. 
+
 Enter into your terminal:
 ```
 docker volume ls
@@ -446,4 +448,26 @@ It usually means that your **`.env`** file still contains **placeholder values**
    ```
 5. Enter the updated password when prompted.
 
+### 4.1 Stuck in MySQL prompt **`mysql>`**
+
+This will happen at least once. 
+
+**Symptoms:**    
+- You see **`mysql>`** or **`->`** at the start of each line
+- Docker commands won't work
+- You get syntax errors on normal terminal commands
+
+**What's happening:**
+You're still inside of the MySQL command-line client, not your regular terminal. MySQL only understands SQL commands, not Docker or system commands.
+
+**Solution**:    
+- If you see **`mysql>`** just exit / quit:
+```
+mysql>exit
+```
+or 
+```
+mysql>quit
+```
+- 
 ---
