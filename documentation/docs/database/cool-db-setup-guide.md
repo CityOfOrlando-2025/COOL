@@ -320,7 +320,7 @@ SELECT * FROM location;
 SELECT * FROM app_user;
 ```
 
-Example output: 
+Example outputs: 
 
 ```
 mysql> SELECT * FROM user_role;
@@ -334,6 +334,41 @@ mysql> SELECT * FROM user_role;
 3 rows in set (0.02 sec)
 ```
 
+```
+mysql> select * from device_status;
++------------------+--------------------+
+| device_status_id | device_status_name |
++------------------+--------------------+
+|                1 | Available          |
+|                2 | Loaned             |
+|                5 | Lost               |
+|                3 | Maintenance        |
+|                4 | Retired            |
++------------------+--------------------+
+5 rows in set (0.00 sec)
+```
+
+```
+mysql> SELECT * FROM location;
++-------------+------------------------------+--------------------------------+---------+-------+----------+----------------+---------------------+---------------------+
+| location_id | location_name                | street_address                 | city    | state | zip_code | contact_number | created_at          | updated_at          |
++-------------+------------------------------+--------------------------------+---------+-------+----------+----------------+---------------------+---------------------+
+|           1 | Callahan Neighborhood Center | 101 N. Parramore Ave Ste. 1713 | Orlando | FL    | 32801    | 407-246-4442   | 2025-10-06 05:42:04 | 2025-10-06 05:42:04 |
++-------------+------------------------------+--------------------------------+---------+-------+----------+----------------+---------------------+---------------------+
+1 row in set (0.00 sec)
+```
+
+```
+mysql> SELECT * FROM app_user;
++-------------+--------------------+-------------------------------+----------------+--------------+----------+----------+----------------+---------+-------+----------+---------------+----------------+---------------------+---------------------+
+| app_user_id | app_user_full_name | email                         | password_hash  | user_role_id | dl_num   | dl_state | street_address | city    | state | zip_code | date_of_birth | contact_number | created_at          | updated_at          |
++-------------+--------------------+-------------------------------+----------------+--------------+----------+----------+----------------+---------+-------+----------+---------------+----------------+---------------------+---------------------+
+|           1 | Test Admin         | admin@workemail.com           | hashed_pw_here |            1 | NULL     | NULL     | NULL           | NULL    | NULL  | NULL     | NULL          | NULL           | 2025-10-06 05:42:04 | 2025-10-06 05:42:04 |
+|           2 | Test Employee      | employee@workemail.com        | hashed_pw_here |            2 | NULL     | NULL     | NULL           | NULL    | NULL  | NULL     | NULL          | NULL           | 2025-10-06 05:42:04 | 2025-10-06 05:42:04 |
+|           3 | Test Citizen       | testcitizen@personalemail.com | hashed_pw_here |            3 | D1234567 | FL       | 123 Main St    | Orlando | FL    | 32801    | 1990-01-01    | 407-123-4567   | 2025-10-06 05:42:04 | 2025-10-06 05:42:04 |
++-------------+--------------------+-------------------------------+----------------+--------------+----------+----------+----------------+---------+-------+----------+---------------+----------------+---------------------+---------------------+
+3 rows in set (0.00 sec)
+```
 ### 2.3 Resetting your database (Clean Slate)
 
 There are changes we'll make during testing and development that will require you to restart your database as a fresh build.
