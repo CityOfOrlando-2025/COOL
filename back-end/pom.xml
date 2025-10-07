@@ -68,15 +68,28 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!-- Spring Boot Maven Plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-            </plugin>
-        </plugins>
-    </build>
+<build>
+    <sourceDirectory>${project.basedir}/java</sourceDirectory>
+    <resources>
+        <resource>
+            <directory>${project.basedir}/resources</directory>
+            <includes>
+                <include>**/*.properties</include>
+                <include>**/*.yml</include>
+            </includes>
+        </resource>
+    </resources>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>3.2.4</version>
+            <configuration>
+                <mainClass>com.example.prototypesetup.PrototypeSetupApplication</mainClass>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
 
 </project>
