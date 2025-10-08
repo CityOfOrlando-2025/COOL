@@ -1,8 +1,8 @@
-# Device CRUD
+# Device API
 
 The device CRUD is made for the purpose of managing devices in the overall system. It allows for the system to perform all basic functions towards device objects, each containing a type and status alongside an ID so the system can differentiate each one. Most of it is not supposed to be accessed by average users, only employees will have direct access to manage the device database directly.
 
-## Tutorials
+### Background Information
 
 The device objects have three parts to them, an ID, a status, and a type. The ID is there so that the system can differentiate between each device, it is the only unique part of each device. Conversely status is used to determine whether the device can be loaded out, isn’t able to be loaned out, or already loaned out. And type is used to describe what the device is, but unlike ID can be the same as any other device and is not used outside of information. Users will not directly be able to affect any of these, with ID and type being locked behind the system not for them to touch, the only one they will be able to affect indirectly is status, being able to change the status of them by withdrawing or returning.
 
@@ -16,9 +16,11 @@ Additionally full CRUD functionality has been programmed, allowing for more dire
 
 This function returns all devices in the database.
 
+```
 GET /api/my-devices/device
+```
 
-#### Response
+**Response**
 
 Status: 200 OK
 
@@ -80,9 +82,11 @@ Status: 500 Internal Server Error
 
 Adds a device to the database
 
+```
 POST /api/my-devices/device
+```
 
-#### Request
+**Request**
 
 ```javascript
 {
@@ -104,7 +108,7 @@ POST /api/my-devices/device
 }
 ```
 
-#### Response
+**Response**
 
 Status: 200 OK
 
@@ -130,9 +134,11 @@ Status: 400 Bad Request
 
 Allows the user to change a device’s type and status.
 
+```
 PUT /api/my-devices/device/{deviceId}
+```
 
-#### Request
+**Request**
 ```javascript
 {
 
@@ -153,7 +159,7 @@ PUT /api/my-devices/device/{deviceId}
 }
 ```
 
-#### Response
+**Response**
 
 Status: 200 OK
 
@@ -179,9 +185,11 @@ Status: 400 Bad Request
 
 Allows for the deletion of a device from the database.
 
+```
 DELETE /api/my-devices/device/{deviceId}
+```
 
-#### Response
+**Response**
 
 Status: 200 OK
 

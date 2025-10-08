@@ -1,4 +1,4 @@
-#  Role Management API Function: 
+#  Role Management API 
 When a new user registers for an account, their role_name is automatically set to "employee." 
 
 Only users with the admin role have permission to change another user's role_name using the user's role_id number. 
@@ -11,7 +11,7 @@ Only users with the admin role have permission to change another user's role_nam
 This function allows the admin to retrieve every role available in the system. 
 <br>
 
-        GET https://Website.com/api/user_role
+        GET /api/user_role
 ```
     Response:
     success: 200 OK
@@ -50,7 +50,7 @@ This function allows the admin to retrieve every role available in the system.
 This function allows an admin to update the role properties in the system.
 <br>
 
-     PATCH https://website.com/api/user_role
+     PATCH /api/user_role
 
 ```
     Request:
@@ -82,7 +82,7 @@ This function allows an admin to update the role properties in the system.
 ### Create Role Funtionality
 This function lets the admin add a new role to the system. 
 
-    POST https://website. com/api/user_role
+    POST /api/user_role
 
 
 ```
@@ -125,7 +125,7 @@ This function allows the admin to delete roles in the system.
 
 <u>**NOTE**: Core Roles ("Admin", and "Employee") cannot be deleted.</u>
 
-        DELETE https://website. com/api/user_role
+        DELETE /api/user_role
 
 ```
     Request:
