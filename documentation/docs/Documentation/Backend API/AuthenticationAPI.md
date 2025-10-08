@@ -1,13 +1,13 @@
-# Login API:
+# Authentication API
 Enables users to log in and out of the system. 
 
 ---
 
-## Login Function:
+## Login Function
 Users must provide a username and password to log in. Failed logins return error messages. Only registered users, employee and admin, can log in.
 
 ```javascript
-    POST https://website.com/api/user/login
+    POST /api/user/login
 ```
 
 ```javascript
@@ -58,11 +58,11 @@ Required fields:
 
 ---
 
-## Logout Function:
+## Logout Function
 Allows a logged-in user to log out of the system. Once logged out, the user will no longer have access until they log in again.
 
 ```javascript
-    POST https://website.com/api/user/logout
+    POST /api/user/logout
 ```
 
 ```javascript

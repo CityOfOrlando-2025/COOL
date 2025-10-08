@@ -1,4 +1,4 @@
-# Loan API Function
+# Loan API 
 
 The Loan API manages the lending and returning of devices within the system.  
 
@@ -12,10 +12,11 @@ This API ensures accountability and maintains a clear history of each device loa
 
 ## Create Loan
 This function allows an authorized user to create a new loan record in the system.  
-**POST https://website.com/api/loans**
-
+```
+POST /api/loans
+```
 **Request:**
-```json
+```javascript
 {
   "citizen_id": number,
   "employee_id": number,
@@ -31,7 +32,7 @@ This function allows an authorized user to create a new loan record in the syste
 }
 ```
 **Request Example:**
-```json
+```javascript
 {
   "citizen_id": 101,
   "employee_id": 3,
@@ -47,7 +48,7 @@ This function allows an authorized user to create a new loan record in the syste
 }
 ```
 **Response:**
-```json
+```javascript
 success: 201 created
 {
   "status": 201,
@@ -56,10 +57,12 @@ success: 201 created
 ```
 ## Get All Loans
 This function allows an authorized user to retrieve every loan record in the system.    
-**GET** https://website.com/api/loans
+```
+GET /api/loans
+```
 
 **Response:** 
-```json
+```javascript
 "success" 200 OK
 {
   "status": 200,
@@ -69,10 +72,10 @@ This function allows an authorized user to retrieve every loan record in the sys
 
 ## Get Loan by ID
 This function allows an authorized user to retrieve a specific loan record by its ID number.  
-**GET** https://website.com/api/loans{loan_id}
+**GET** /api/loans{loan_id}
 
 **Response:**
-```json
+```javascript
 success: 200 OK
 {
   "status": 200,
@@ -81,10 +84,12 @@ success: 200 OK
 ```
 ## Replace Loan
 This function allows an authorized user to replace all details of an existing loan record.  
-**PUT** https://website.com/api/loans/{loan_id}
+```
+PUT /api/loans/{loan_id}
+```
 
 **Request:**
-```json
+```javascript
 {
   "citizen_id": number,
   "employee_id": number,
@@ -104,7 +109,7 @@ This function allows an authorized user to replace all details of an existing lo
 ```
 
 **Request Example:**
-```json
+```javascript
 {
   "citizen_id": 101,
   "employee_id": 3,
@@ -123,7 +128,7 @@ This function allows an authorized user to replace all details of an existing lo
 }
 ```
 **Response:**
-```json
+```javascript
 success: 200 OK
 {
   "status": 200,
@@ -132,10 +137,11 @@ success: 200 OK
 ```
 ## Update Loan
 This function allows an authorized user to update or more fields of a loan record.  
-**PATCH** https://website.com/api/loans/{loan_id}
-
+```
+PATCH /api/loans/{loan_id}
+```
 **Request:**
-```json
+```javascript
 {
   "returned_at": "YYYY-MM-DD",
   "return_condition": number,
@@ -147,7 +153,7 @@ This function allows an authorized user to update or more fields of a loan recor
 }
 ```
 **Request Example:**
-```json
+```javascript
 {
   "returned_at": "2025-09-20",
   "return_condition": 1,
@@ -157,7 +163,7 @@ This function allows an authorized user to update or more fields of a loan recor
 }
 ```
 **Response:**
-```json
+```javascript
 success: 200 OK
 {
   "status": 200,
@@ -167,10 +173,11 @@ success: 200 OK
 
 ## Delete Loan
 This function allows an authorized user to delete a loan record from the system.
-**DELETE**https://website.com/api/loans/{loan_id}
-
+```
+DELETE /api/loans/{loan_id}
+```
 **Response**
-```json
+```javascript
 success: 204 No Content
 {
   "status": 204,
