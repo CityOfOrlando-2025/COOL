@@ -10,100 +10,19 @@ Relationships between entities were established to reflect real-world interactio
 
 The diagram below illustrates how the entities interact and how data flows through the system:
 
-![alt text](./Management_images/MD1_images/ProjectGraph.png)
+![alt text](../../../MD1_images/ProjectGraph.png)
 
 Using this database structure, the API is able to map each table to a corresponding Java entity using Hibernate (JPA). These entities serve as the foundation for repositories, services, and controllers, allowing the application to perform CRUD operations on the data. The following sections will guide you through setting up the project environment, configuring dependencies, and preparing the application for development and testing.
 
 
 ## 1. Database Setup
-The database stores all information about locations, users, and roles for the Location Management API. It uses a normalized schema with foreign key relationships to prevent redundant data and ensure scalability.
+For the initial database configuration, we followed the structure and conventions outlined in `[COOL Database Setup Guide (Dev Testing)]` created by Nova Robb. That document provides detailed SQL table creation scripts, relationships, and sample data for the core entities.
 
-### Schema Overview
-- **Location**: Stores location details (`location_id`, `location_name`, `address`).  
-- **AppUser**: Stores user information (`user_id`, `username`, `email`).  
-- **Role**: Stores user roles (`role_id`, `role_name`).  
-- **User_Location**: Join table linking users to multiple locations.  
-
+In this section, we build upon that foundation by referencing the same schema and focusing on how our implementation integrates these tables into our Spring Boot application for API testing and validation.
 ### Requirements
 - MySQL 8.0+  
 - A database named `tech_loan_system` (or update `application.properties` with your DB name). 
-- Configure connection in `application.properties`:
-
-### Example Configuration (application.properties)
-```properties
-spring.datasource.url=jdbc:mysql://localhost:3306/tech_loan_system
-spring.datasource.username=root
-spring.datasource.password=yourpassword
-spring.jpa.hibernate.ddl-auto=update
-```
-It should be noted for the `spring.datasource.password=yourpassword` be sure to use your own password you use for your MYSQL root.
-
-
-```sql
--- Location Table
-CREATE TABLE location (
-    location_id INT AUTO_INCREMENT PRIMARY KEY,
-    location_name VARCHAR(100) NOT NULL UNIQUE,
-    address VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Role Table
-CREATE TABLE role (
-    role_id INT AUTO_INCREMENT PRIMARY KEY,
-    role_name VARCHAR(50) NOT NULL UNIQUE,
-    dl_flag BOOLEAN DEFAULT 0,
-    other_perm_flag BOOLEAN DEFAULT 0
-);
-
--- AppUser Table
-CREATE TABLE app_user (
-    user_id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    role_id INT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (role_id) REFERENCES role(role_id)
-);
-
--- User_Location Join Table
-CREATE TABLE user_location (
-    user_location_id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    location_id INT NOT NULL,
-    assigned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES app_user(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (location_id) REFERENCES location(location_id) ON DELETE CASCADE,
-    UNIQUE(user_id, location_id)
-);
-```
-### Insert Sample Data (Optional)
-```sql
--- Roles
-INSERT INTO role (role_name, dl_flag, other_perm_flag) VALUES
-('Admin', 0, 1),
-('Employee', 0, 0),
-('Citizen', 1, 0);
-
--- Users
-INSERT INTO app_user (username, password, email, role_id) VALUES
-('admin1', 'adminPass123', 'admin1@orlando.gov', 1),
-('employee1', 'empPass123', 'employee1@orlando.gov', 2),
-('citizen1', 'citizenPass123', 'citizen1@email.com', 3);
-
--- Locations
-INSERT INTO location (location_name, address) VALUES
-('Downtown Community Center', '123 Main St, Orlando, FL'),
-('East Side Center', '456 Oak Ave, Orlando, FL');
-
--- Assign employee to location
-INSERT INTO user_location (user_id, location_id) VALUES (2, 1);
-
-```
-
-
-
+- Configure connection in `application.properties`.
 
 
 ## 2. Entities with Hibernate
@@ -124,7 +43,7 @@ We chose Hibernate (via JPA annotations) because it:
 - Handles relationships (One-to-Many, Many-to-Many) through annotations instead of manual join queries.
 - Plays well with Spring Boot’s dependency injection and repository pattern.
 
-![alt text](./Management_images/MD1_images/FolderSetup.png)
+![alt text](../../../MD1_images/FolderSetup.png)
 
 ### 2.3 Why this structure?
 
@@ -324,10 +243,6 @@ public class UserLocation {
 
 ```
 
-
-
-
-
 ## 3. Create pom file
 
 ### 3.1 Why pom.xml?
@@ -425,16 +340,29 @@ In short, `pom.xml` acts as a blueprint for the project setup, ensuring smooth c
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!-- Spring Boot Maven Plugin -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
-            </plugin>
-        </plugins>
-    </build>
+<build>
+    <sourceDirectory>${project.basedir}/java</sourceDirectory>
+    <resources>
+        <resource>
+            <directory>${project.basedir}/resources</directory>
+            <includes>
+                <include>**/*.properties</include>
+                <include>**/*.yml</include>
+            </includes>
+        </resource>
+    </resources>
+    <plugins>
+        <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <version>3.2.4</version>
+            <configuration>
+                <mainClass>com.example.prototypesetup.PrototypeSetupApplication</mainClass>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
+
 
 </project>
 
@@ -448,9 +376,6 @@ You can trigger this by running:
 ```bash
 mvn clean install
 ```
-
-
-
 
 ## 4. Repository Layer (Spring Data JPA)
 
@@ -541,8 +466,6 @@ public interface UserLocationRepository extends JpaRepository<UserLocation, Long
 With repositories in place, the next step is to build the **Service Layer**, which will use these repositories to implement business logic.
 
 
-
-
 ## 5. Creating the Hibernate File
 The Hibernate (JPA) configuration file is stored in src/main/resources/application.properties. This file acts as the central configuration hub for database connectivity and ORM behavior in the Spring Boot application. By keeping all database connection details here, we gain flexibility — switching from one database system (e.g., MySQL) to another (e.g., PostgreSQL) only requires adjusting this configuration rather than rewriting business logic or entity classes.
 
@@ -556,7 +479,7 @@ Below is the example configuration:`application.properties`
 # Database connection
 spring.datasource.url=jdbc:mysql://localhost:3306/tech_loan_system
 spring.datasource.username=root
-spring.datasource.password=F@110utD05
+spring.datasource.password=Password
 spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 
 # Hibernate (JPA) settings
@@ -585,7 +508,6 @@ Tip: For security, credentials like spring.datasource.password should not be com
 Spring Boot eliminates the need to manually configure and start an application server. Instead, it provides a built-in launcher through a main class. This class automatically bootstraps the entire application, including the Hibernate configuration defined earlier.
 
 Our entry point is the PrototypeSetupApplication class:
-
 
 
 `PrototypeSetupApplication`
@@ -663,8 +585,6 @@ This confirms that Spring Boot is:
 1. Successfully launching the embedded server.
 2. Able to route HTTP requests through a controller.
 3. Properly configured with annotations like @RestController and @GetMapping.
-
-
 
 
 -----
@@ -1035,11 +955,10 @@ public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
 }
 ```
 
-
 ## 8 Complete Folder with all classesd and files
 The image below shows the complete folder structure of the project with all classes and files in place. This provides a quick visual reference for where each component lives (entities, repositories, services, controllers, configuration, and resources).
 
-![alt text](./Management_images/MD1_images/CompleteFolder.png)
+![alt text](../../../MD1_images/CompleteFolder.png)
 
 ### Key points to note:
 - **`src/main/java/com/example/prototypesetup/entity:`**  Contains all JPA entity classes.
