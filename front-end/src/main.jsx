@@ -2,14 +2,17 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import { ThemeProvider, CssBaseline } from "@mui/material";
+import { ThemeProvider } from "@mui/material";
+import theme from "./theme/theme.js"
+import { BrowserRouter } from "react-router-dom";
+
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-    <CssBaseline /> {/* Global reset for all components */}
+      <BrowserRouter>
       <App />
-    </ThemeProvider >
-      
+      </BrowserRouter>
+    </ThemeProvider > 
   </StrictMode>
 );
