@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userId;
+    private Long app_user_id;
 
     @Column(nullable = false, unique = true, length = 50)
     private String username;
@@ -37,8 +37,8 @@ public class AppUser {
     private Set<Location> locations = new HashSet<>();
 
     // Getters and setters
-    public Long getUserId() { return userId; }
-    public void setUserId(Long userId) { this.userId = userId; }
+    public Long getUserId() { return app_user_id; }
+    public void setUserId(Long userId) { this.app_user_id = userId; }
 
     public String getUsername() { return username; }
     public void setUsername(String username) { this.username = username; }

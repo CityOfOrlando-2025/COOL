@@ -7,11 +7,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/auth")
 public class AuthController {
 
     @Autowired
     private AppUserRepository appUserRepository;
+
+    @GetMapping("/test/{username}")
+    public ResponseEntity<?> testUser(@PathVariable("username") String username) {
+        try {
+            AppUser user = appUserRepository.findByUsername(username);
+            if (user == null) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error: " + e.getMessage());
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
@@ -26,7 +39,7 @@ public class AuthController {
             return ResponseEntity.status(401).body(new ErrorResponse("Invalid username or password"));
         }
 
-        UserInfo userInfo = new UserInfo(user.getUserId(), user.getRole().getRoleId(), user.getRole().getRoleName());
+        UserInfo userInfo = new UserInfo(user.getUserId(), user.getUsername(), user.getRole().getRoleId());
         LoginSuccessResponse response = new LoginSuccessResponse("Login successful", userInfo);
 
         return ResponseEntity.ok(response);
@@ -50,17 +63,17 @@ public class AuthController {
 
     public static class UserInfo {
         private final Long user_id;
+        private final String name;
         private final Long role_id;
-        private final String role_name;
 
-        public UserInfo(Long user_id, Long role_id, String role_name) {
+        public UserInfo(Long user_id, String name, Long role_id) {
             this.user_id = user_id;
+            this.name = name;
             this.role_id = role_id;
-            this.role_name = role_name;
         }
         public Long getUser_id() { return user_id; }
+        public String getName() { return name; }
         public Long getRole_id() { return role_id; }
-        public String getRole_name() { return role_name; }
     }
 
     public static class LoginSuccessResponse {
