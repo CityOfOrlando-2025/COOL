@@ -3,16 +3,20 @@ package com.example.prototypesetup.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "role")
+@Table(name = "user_role")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_role_id")
     private Long roleId;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "user_role_name", nullable = false, unique = true, length = 50)
     private String roleName;
 
-    private boolean dlFlag;          // requires Driver’s License?
+    @Column(name = "dl_required")
+    private boolean dlFlag;          // requires Driver's License
+    
+    @Column(name = "is_active")
     private boolean otherPermFlag;   // extra permissions
 
     // Getters and setters

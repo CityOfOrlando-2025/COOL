@@ -13,13 +13,15 @@ public class AuthController {
     @Autowired
     private AppUserRepository appUserRepository;
 
-    @GetMapping("/test/{username}")
-    public ResponseEntity<?> testUser(@PathVariable("username") String username) {
+    @GetMapping("/test/{email}")
+    public ResponseEntity<?> testUser(@PathVariable("email") String email) {
         try {
-            AppUser user = appUserRepository.findByUsername(username);
+            AppUser user = appUserRepository.findByEmail(email);
+
             if (user == null) {
                 return ResponseEntity.status(404).body("User not found");
             }
+            
             return ResponseEntity.ok(user);
         } catch (Exception e) {
             return ResponseEntity.status(500).body("Error: " + e.getMessage());
@@ -27,30 +29,38 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        String username = loginRequest.getUsername();
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {        
+        String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
 
-        AppUser user = appUserRepository.findByUsername(username);
+        AppUser user = appUserRepository.findByEmail(email);
+        
         if (user == null) {
             return ResponseEntity.status(404).body(new ErrorResponse("Account not found."));
         }
-        else if (!user.getPassword().equals(password)) {
-            return ResponseEntity.status(401).body(new ErrorResponse("Invalid username or password"));
+
+        String dbPassword = user.getPassword();
+        
+        if (!password.equals(dbPassword)) {
+            return ResponseEntity.status(401).body(new ErrorResponse("Invalid password"));
         }
 
-        UserInfo userInfo = new UserInfo(user.getUserId(), user.getUsername(), user.getRole().getRoleId());
+        Long userId = user.getUserId();
+        String dbEmail = user.getEmail();
+        String userRole = user.getRole().getRoleName();
+
+        UserInfo userInfo = new UserInfo(userId, dbEmail, userRole);
         LoginSuccessResponse response = new LoginSuccessResponse("Login successful", userInfo);
 
         return ResponseEntity.ok(response);
     }
 
     public static class LoginRequest {
-        private String username;
+        private String email;
         private String password;
 
-        public String getUsername() { return username; }
-        public void setUsername(String username) { this.username = username; }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
     }
@@ -64,16 +74,16 @@ public class AuthController {
     public static class UserInfo {
         private final Long user_id;
         private final String name;
-        private final Long role_id;
+        private final String user_role;
 
-        public UserInfo(Long user_id, String name, Long role_id) {
+        public UserInfo(Long user_id, String name, String user_role) {
             this.user_id = user_id;
             this.name = name;
-            this.role_id = role_id;
+            this.user_role = user_role;
         }
         public Long getUser_id() { return user_id; }
         public String getName() { return name; }
-        public Long getRole_id() { return role_id; }
+        public String getUser_role() { return user_role; }
     }
 
     public static class LoginSuccessResponse {
