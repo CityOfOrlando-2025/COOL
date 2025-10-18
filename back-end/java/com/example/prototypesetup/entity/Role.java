@@ -3,16 +3,22 @@ package com.example.prototypesetup.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "role")
+@Table(name = "user_role")
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_role_id")
     private Long roleId;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(name = "user_role_name", nullable = false, unique = true, length = 50)
     private String roleName;
 
-    private boolean dlFlag;          // requires Driver’s License?
+    @Column(name = "dl_required", nullable = false) // requires Driver’s License?
+    private boolean dlRequired;
+
+    @Column(name = "is_active", nullable = false)
+    private boolean isActive;
+
     private boolean otherPermFlag;   // extra permissions
 
     // Getters and setters
@@ -22,8 +28,12 @@ public class Role {
     public String getRoleName() { return roleName; }
     public void setRoleName(String roleName) { this.roleName = roleName; }
 
-    public boolean isDlFlag() { return dlFlag; }
-    public void setDlFlag(boolean dlFlag) { this.dlFlag = dlFlag; }
+
+    public boolean getDlRequired() { return dlRequired; }
+    public void setDlRequired(boolean dlRequired) { this.dlRequired = dlRequired; }
+
+    public boolean getIsActive() { return isActive; }
+    public void setIsActive(boolean isActive) { this.isActive = isActive; }
 
     public boolean isOtherPermFlag() { return otherPermFlag; }
     public void setOtherPermFlag(boolean otherPermFlag) { this.otherPermFlag = otherPermFlag; }
