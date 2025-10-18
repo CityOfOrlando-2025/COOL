@@ -68,7 +68,7 @@ const StyledButton = styled(MUIButton)(({ theme, varianttype }) => ({
       backgroundColor: theme.palette.primary.main,
       color: "#fff",
     },
-    width: "200px",
+    width: "100%",
     height: "40px",
     borderRadius: "10px",
   }),
