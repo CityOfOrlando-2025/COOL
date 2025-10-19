@@ -76,7 +76,7 @@ CREATE TABLE transaction_status (
 -- Stores user account information and links to the roles table. [CORE ENTITY]
 CREATE TABLE app_user (
     app_user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    app_user_full_name VARCHAR(100) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     -- Ensures every user has a role, a user cannot exist in the system without one
@@ -85,7 +85,7 @@ CREATE TABLE app_user (
     -- Citizen-specific fields (nullable if role does not require DL)
     dl_num VARCHAR(50), -- (nullable unless role.dl_required = 1)
     dl_state CHAR(2), -- Citizen DL state
-    street_address VARCHAR(255), -- Citizen address
+    address VARCHAR(255), -- Citizen address
     city VARCHAR(100), -- Citizen city
     state CHAR(2), -- Citizen state
     zip_code VARCHAR(10), -- Citizen zip code
@@ -107,7 +107,7 @@ CREATE TABLE app_user (
 CREATE TABLE location (
     location_id INT PRIMARY KEY AUTO_INCREMENT,
     location_name VARCHAR(100) NOT NULL,
-    street_address VARCHAR(255), 
+    address VARCHAR(255), 
     city VARCHAR(100), 
     state CHAR(2), 
     zip_code VARCHAR(10),
