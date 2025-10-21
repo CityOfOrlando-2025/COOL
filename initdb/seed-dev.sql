@@ -181,7 +181,7 @@ VALUES
 -- ------------------------------------------------
 -- 2.5 Bin-Device Relationships
 -- -------------------------------------------------
--- NOTE: After testing MVP 1, change to subquery to dynamically link devices to bins 
+-- NOTE: After testing MVP 1, change to subquery dynamically linked devices to bins 
 INSERT INTO bin_device (bin_id, device_id) 
 VALUES
 (1, 1),  -- BIN-0001 holds Lenovo Tablet Series A
@@ -195,11 +195,6 @@ VALUES
 -- =================================================
 -- END OF SEED DATA 
 -- =================================================
--- This seed file provides:
---  All required lookup table values
---  One test user per role (Admin, Employee, Citizen)
---  One test location for device storage and loans
-
 -- Password hashes here are only placeholders. 
 -- Actual hashed passwords should be handled at the application level. 
 
