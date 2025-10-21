@@ -178,6 +178,20 @@ VALUES
 ('Samsung Tablet Series C',   1, 'TAB-003', 4, 2, 3),  -- Retired Tablet
 ('Verizon Hotspot Series B', 3,'HOT-002', 1, 2, 3),  -- Available Hotspot
 
+-- ------------------------------------------------
+-- 2.5 Bin-Device Relationships
+-- -------------------------------------------------
+-- NOTE: After testing MVP 1, change to subquery to dynamically link devices to bins 
+INSERT INTO bin_device (bin_id, device_id) 
+VALUES
+(1, 1),  -- BIN-0001 holds Lenovo Tablet Series A
+(1, 2),  -- BIN-0001 holds Dell Laptop Series A
+(2, 3),  -- BIN-0002 holds Lenovo Tablet Series B
+(2, 8),  -- BIN-0002 holds Verizon Hotspot Series B
+(3, 4),  -- BIN-0003 holds Dell Laptop Series B (Maintenance)
+(4, 7),  -- BIN-0004 holds Samsung Tablet Series C (Retired)
+(5, 5);  -- BIN-0005 holds Verizon Hotspot Series A
+
 -- =================================================
 -- END OF SEED DATA 
 -- =================================================
@@ -190,4 +204,8 @@ VALUES
 -- Actual hashed passwords should be handled at the application level. 
 
 -- Follow the insert order (lookups first, then core entities, then relationships) when adding additional test data.
+
+-- MVP 2 
+-- Goals are to have subqueries for foreign keys to avoid hardcoding IDs
+-- Add more test users, locations, devices, and loans as needed for testing.
 -- =================================================
