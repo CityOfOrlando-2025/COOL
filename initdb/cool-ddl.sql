@@ -95,6 +95,7 @@ CREATE TABLE app_user (
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE, -- (TRUE = active user, FALSE = deactivated user) Used for soft deletes (employees on leave/quitting/rehires) and account suspensions
 
     -- Enforce referential integrity with user_role table
     CONSTRAINT fk_app_user_role 
@@ -151,7 +152,8 @@ CREATE TABLE device (
     CONSTRAINT fk_device_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
         ON DELETE RESTRICT -- prevents deletion of a location if devices are assigned to it
-        ON UPDATE NO ACTION -- location_id should rarely change, handle at application level
+        ON UPDATE NO ACTION, -- location_id should rarely change, handle at application level
+
     CONSTRAINT fk_device_creator
         FOREIGN KEY (created_by_user_id) REFERENCES app_user(app_user_id)
         
