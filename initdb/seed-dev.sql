@@ -107,7 +107,7 @@ INSERT INTO transaction_status (transaction_status_name) VALUES
 -- Test users for each role type
 
 -- Admin users
-INSERT INTO app_user (app_user_full_name, email, password_hash, user_role_id)
+INSERT INTO app_user (full_name, email, password_hash, user_role_id)
 VALUES 
     ('Dev Admin', 'dev@workemail.com', 'hashed_pw_here', 1), -- Dev Admin role (1)
     ('Mgr Admin', 'admin@workemail.com', 'hashed_pw_here', 1), -- Mgr Admin role (1)
@@ -115,7 +115,7 @@ VALUES
     ('Second Employee', 'emp2@workemail.com', 'hashed_pw_here', 2); -- Employee role (2)
 
 -- Citizen user (borrowers with full contact info)
-INSERT INTO app_user (app_user_full_name, email, password_hash, user_role_id, dl_num, dl_state, street_address, city, state, zip_code, date_of_birth, contact_number)
+INSERT INTO app_user (full_name, email, password_hash, user_role_id, dl_num, dl_state, address, city, state, zip_code, date_of_birth, contact_number)
 VALUES 
     ('Alex Martinez', 'alex.martinez@personalemail.com', 'hashed_pw_here', 3, 'D1234567', 'FL', '500 W Livingston St', 'Orlando', 'FL', '32801', '1992-03-14', '407-555-1010'), -- Citizen role (3)
     ('Jamie Nguyen', 'jamie.nguyen@personalemail.com', 'hashed_pw_here', 3, 'D2345678', 'FL', '701 N Econlockhatchee Trl', 'Orlando', 'FL', '32825', '1994-07-22', '407-555-2020'), 
@@ -131,7 +131,7 @@ VALUES
 -- Community center where devices are stored and loaned
 
 -- Test Location
-INSERT INTO location (location_name, street_address, city, state, zip_code, contact_number)
+INSERT INTO location (location_name, address, city, state, zip_code, contact_number)
 VALUES 
     ('Callahan Neighborhood Center', '101 N Parramore Ave Suite 1713', 'Orlando', 'FL', '32801', '407-246-4442'),
     ('Hankins Park Neighborhood Center', '1340 Lake Park Ct', 'Orlando', 'FL', '32805', '407-246-4455'),
