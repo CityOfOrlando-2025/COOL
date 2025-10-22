@@ -176,7 +176,7 @@ VALUES
 ('Verizon Hotspot Series A', 3, 'HOT-001', 1, 1, 4),  -- Available Hotspot
 ('Dell Laptop Series C',      2, 'LAP-003', 2, 2, 4),  -- Loaned Laptop
 ('Samsung Tablet Series C',   1, 'TAB-003', 4, 2, 3),  -- Retired Tablet
-('Verizon Hotspot Series B', 3,'HOT-002', 1, 2, 3),  -- Available Hotspot
+('Verizon Hotspot Series B', 3,'HOT-002', 1, 2, 3);  -- Available Hotspot
 
 -- ------------------------------------------------
 -- 2.5 Bin-Device Relationships
