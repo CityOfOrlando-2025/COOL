@@ -120,7 +120,7 @@ VALUES
     ('Alex Martinez', 'alex.martinez@personalemail.com', 'hashed_pw_here', 3, 'D1234567', 'FL', '500 W Livingston St', 'Orlando', 'FL', '32801', '1992-03-14', '407-555-1010'), -- Citizen role (3)
     ('Jamie Nguyen', 'jamie.nguyen@personalemail.com', 'hashed_pw_here', 3, 'D2345678', 'FL', '701 N Econlockhatchee Trl', 'Orlando', 'FL', '32825', '1994-07-22', '407-555-2020'), 
     ('Taylor Johnson', 'taylor.johnson@personalemail.com', 'hashed_pw_here', 3, 'D3456789', 'FL', '12350 Narcoossee Rd', 'Orlando', 'FL', '32832', '1990-11-05', '407-555-3030'),   
-    ('Casey Rivera', 'casey.rivera@personalemail.com', 'hashed_pw_here', 3, 'D4567890', 'FL', '3255 Pleasant Hill Rd', 'Kissimmee', 'FL', '34746', '1996-05-18', '407-555-4040');   
+    ('Casey Rivera', 'casey.rivera@personalemail.com', 'hashed_pw_here', 3, 'D4567890', 'FL', '3255 Pleasant Hill Rd', 'Kissimmee', 'FL', '34746', '1996-05-18', '407-555-4040'),   
     ('Morgan Reyes', 'morgan.reyes@personalemail.com', 'hashed_pw_here', 3, 'D5678901', 'FL', '4000 Central Florida Blvd', 'Orlando', 'FL', '32816', '1998-09-10', '407-555-5050'),
    -- Under 18 (not eligible to borrow)
     ('Riley Carter', 'riley.carter@personalemail.com', 'hashed_pw_here', 3, 'D6789012', 'FL', '500 W Livingston St', 'Orlando', 'FL', '32801', '2010-04-15', '407-555-6060');
