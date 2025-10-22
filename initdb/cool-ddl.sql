@@ -17,7 +17,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE user_role (
     user_role_id INT PRIMARY KEY AUTO_INCREMENT, 
     user_role_name VARCHAR(50) NOT NULL UNIQUE, -- Admin, Employee, Citizen
-    dl_required BOOLEAN NOT NULL, -- (1 = dl REQUIRED, 0 = dl NOT REQUIRED)
+    dl_required BOOLEAN NOT NULL DEFAULT 0, -- (1 = dl REQUIRED, 0 = dl NOT REQUIRED)
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = role ACTIVE, 0 = role INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
@@ -93,8 +93,8 @@ CREATE TABLE app_user (
     contact_number VARCHAR(20), -- Citizen contact number
     
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     -- Enforce referential integrity with user_role table
     CONSTRAINT fk_app_user_role 
@@ -114,8 +114,8 @@ CREATE TABLE location (
     contact_number VARCHAR(20),
     
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Stores information about each physical device that can be loaned. [CORE ENTITY]
@@ -135,8 +135,8 @@ CREATE TABLE device (
     created_by_user_id BIGINT NOT NULL, -- a device must have a creator (employee)
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_device_type 
         FOREIGN KEY (device_type_id) REFERENCES device_type(device_type_id)
@@ -173,8 +173,8 @@ CREATE TABLE bin (
     location_id INT NOT NULL, -- a bin must be associated with a location
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_bin_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
@@ -214,8 +214,8 @@ CREATE TABLE loan (
     notes TEXT, -- optional notes about the loan
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_loan_bin
         FOREIGN KEY (bin_id) REFERENCES bin(bin_id)
@@ -305,7 +305,7 @@ CREATE TABLE action_log (
     api_endpoint VARCHAR(500), -- can be NULL if action is not API-based
     action_details TEXT, -- additional context about the action
     
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- TIMESTAMP automatically records when the action occurred
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- TIMESTAMP automatically records when the action occurred
 
     CONSTRAINT fk_actionlog_user
         FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
