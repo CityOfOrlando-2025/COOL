@@ -138,7 +138,11 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
+*/site
+*/documentation_venv
 
-*/documentation_venv/
+# Environment files (do not commit passwords)
+.env
 
-*target/
+# Keep the template version
+!.env.sample
