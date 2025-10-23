@@ -35,7 +35,7 @@ erDiagram
         %% [LOOKUP] Allowed types of devices in the system
         INT device_type_id PK
        
-        VARCHAR(50) device_type_name "Tablet, Laptop, Hotspot (NOT NULL UNIQUE)"
+        VARCHAR(50) device_type_name "Tablet, Laptop, Hotspot" (NOT NULL UNIQUE)"
         BOOLEAN is_active "(DEFAULT TRUE)"
     }
 
