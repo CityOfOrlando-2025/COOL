@@ -17,7 +17,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 CREATE TABLE user_role (
     user_role_id INT PRIMARY KEY AUTO_INCREMENT, 
     user_role_name VARCHAR(50) NOT NULL UNIQUE, -- Admin, Employee, Citizen
-    dl_required BOOLEAN NOT NULL, -- (1 = dl REQUIRED, 0 = dl NOT REQUIRED)
+    dl_required BOOLEAN NOT NULL DEFAULT 0, -- (1 = dl REQUIRED, 0 = dl NOT REQUIRED)
     is_active BOOLEAN NOT NULL DEFAULT TRUE -- (1 = role ACTIVE, 0 = role INACTIVE)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
@@ -76,7 +76,7 @@ CREATE TABLE transaction_status (
 -- Stores user account information and links to the roles table. [CORE ENTITY]
 CREATE TABLE app_user (
     app_user_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    app_user_full_name VARCHAR(100) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     -- Ensures every user has a role, a user cannot exist in the system without one
@@ -85,7 +85,7 @@ CREATE TABLE app_user (
     -- Citizen-specific fields (nullable if role does not require DL)
     dl_num VARCHAR(50), -- (nullable unless role.dl_required = 1)
     dl_state CHAR(2), -- Citizen DL state
-    street_address VARCHAR(255), -- Citizen address
+    address VARCHAR(255), -- Citizen address
     city VARCHAR(100), -- Citizen city
     state CHAR(2), -- Citizen state
     zip_code VARCHAR(10), -- Citizen zip code
@@ -95,27 +95,28 @@ CREATE TABLE app_user (
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE, -- (TRUE = active user, FALSE = deactivated user) Used for soft deletes (employees on leave/quitting/rehires) and account suspensions
 
     -- Enforce referential integrity with user_role table
     CONSTRAINT fk_app_user_role 
         FOREIGN KEY (user_role_id) REFERENCES user_role(user_role_id)
         ON DELETE RESTRICT -- prevents deletion of a role if users are assigned to it
-        ON UPDATE CASCADE -- if a role_id changes, all linked users are updated automatically to stay in sync
+        ON UPDATE NO ACTION -- role ids are immutable
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Stores all community center locations. [CORE ENTITY]
 CREATE TABLE location (
     location_id INT PRIMARY KEY AUTO_INCREMENT,
     location_name VARCHAR(100) NOT NULL,
-    street_address VARCHAR(255), 
+    address VARCHAR(255), 
     city VARCHAR(100), 
     state CHAR(2), 
     zip_code VARCHAR(10),
     contact_number VARCHAR(20),
     
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Stores information about each physical device that can be loaned. [CORE ENTITY]
@@ -135,8 +136,8 @@ CREATE TABLE device (
     created_by_user_id BIGINT NOT NULL, -- a device must have a creator (employee)
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_device_type 
         FOREIGN KEY (device_type_id) REFERENCES device_type(device_type_id)
@@ -151,7 +152,7 @@ CREATE TABLE device (
     CONSTRAINT fk_device_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
         ON DELETE RESTRICT -- prevents deletion of a location if devices are assigned to it
-        ON UPDATE CASCADE, -- if a location_id changes, all linked devices are updated automatically to stay in sync
+        ON UPDATE NO ACTION, -- location_id should rarely change, handle at application level
 
     CONSTRAINT fk_device_creator
         FOREIGN KEY (created_by_user_id) REFERENCES app_user(app_user_id)
@@ -159,9 +160,8 @@ CREATE TABLE device (
         -- a creator_user_id must always reference a valid employee user
         -- for auditing purposes, prevents deletion of an employee if they created devices (preserves the audit trail, no orphaned records, no lost accountability)
         -- to retire a user, set their role to inactive instead of deleting them. 
-        ON DELETE RESTRICT 
-
-        ON UPDATE CASCADE -- if a user_id changes, all linked devices are updated automatically to stay in sync
+        ON DELETE RESTRICT -- prevents deletion of an employee if they created devices (preserves the audit trail, no orphaned records, no lost accountability)
+        ON UPDATE NO ACTION -- created_by_user_id is a surrogate key
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Stores information about storage bins for organizing devices at locations. [CORE ENTITY]
@@ -173,18 +173,18 @@ CREATE TABLE bin (
     location_id INT NOT NULL, -- a bin must be associated with a location
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_bin_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
         ON DELETE RESTRICT -- prevents deletion of a location if bins are assigned to it
-        ON UPDATE CASCADE, -- if a location_id changes, all linked bins are updated automatically to stay in sync (to avoid orphaned bins)
+        ON UPDATE NO ACTION -- location_id should rarely change, handle at application level
 
     CONSTRAINT fk_bin_creator
         FOREIGN KEY (created_by_user_id) REFERENCES app_user(app_user_id)
         ON DELETE RESTRICT -- prevents deletion of an employee if they created bins (preserves the audit trail, no orphaned records, no lost accountability)
-        ON UPDATE CASCADE -- if a user_id changes, all linked bins are updated automatically to stay in sync
+        ON UPDATE NO ACTION -- user_id is a surrogate key
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 -- Tracks each loan transaction, linking a device to a citizen and employee. [CORE ENTITY]
@@ -214,8 +214,8 @@ CREATE TABLE loan (
     notes TEXT, -- optional notes about the loan
 
     -- Auto-updates timestamp whenever the row is modified (on update CURRENT_TIMESTAMP)
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_loan_bin
         FOREIGN KEY (bin_id) REFERENCES bin(bin_id)
@@ -230,12 +230,12 @@ CREATE TABLE loan (
     CONSTRAINT fk_loan_citizen
         FOREIGN KEY (citizen_id) REFERENCES app_user(app_user_id)       
         ON DELETE RESTRICT -- prevents deletion of a citizen if loans are associated with them
-        ON UPDATE CASCADE, -- if a user_id changes, all linked loans are updated automatically to stay in sync
+        ON UPDATE NO ACTION, -- citizen_id should rarely change, handle at application level
 
     CONSTRAINT fk_loan_employee
         FOREIGN KEY (employee_id) REFERENCES app_user(app_user_id)      
         ON DELETE RESTRICT -- prevents deletion of an employee if loans are associated with them
-        ON UPDATE CASCADE, -- if a user_id changes, all linked loans are updated automatically to stay in sync
+        ON UPDATE NO ACTION, -- employee_id should rarely change, handle at application level
 
     CONSTRAINT fk_loan_loan_condition
         FOREIGN KEY (loan_condition_id) REFERENCES device_condition(device_condition_id)
@@ -262,12 +262,11 @@ CREATE TABLE loan_log (
     CONSTRAINT fk_loanlog_loan 
         FOREIGN KEY (loan_id) REFERENCES loan(loan_id)
         ON DELETE CASCADE -- if a loan is deleted, all associated log entries are also deleted
-        ON UPDATE CASCADE, -- if a loan_id changes, all linked log entries are updated automatically to stay in sync
-
+        ON UPDATE NO ACTION, -- loan_id is immutable
     CONSTRAINT fk_loanlog_user
         FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
         ON DELETE RESTRICT -- prevents deletion of a user if log entries are associated with them
-        ON UPDATE CASCADE, -- if a user_id changes, all linked log entries are updated automatically to stay in sync
+        ON UPDATE NO ACTION, -- user IDs are primary keys
 
     CONSTRAINT fk_loanlog_action_type
         FOREIGN KEY (loan_action_type_id) REFERENCES loan_action_type(loan_action_type_id)
@@ -305,12 +304,12 @@ CREATE TABLE action_log (
     api_endpoint VARCHAR(500), -- can be NULL if action is not API-based
     action_details TEXT, -- additional context about the action
     
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- TIMESTAMP automatically records when the action occurred
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, -- TIMESTAMP automatically records when the action occurred
 
     CONSTRAINT fk_actionlog_user
         FOREIGN KEY (app_user_id) REFERENCES app_user(app_user_id)
         ON DELETE RESTRICT -- prevents deletion of a user if log entries are associated with them
-        ON UPDATE CASCADE, -- if a user_id changes, all linked log entries are updated automatically to stay in sync
+        ON UPDATE NO ACTION, -- core entity does not cascade
 
     CONSTRAINT fk_actionlog_action_type
         FOREIGN KEY (user_action_type_id) REFERENCES user_action_type(user_action_type_id)
@@ -321,17 +320,16 @@ CREATE TABLE action_log (
     CONSTRAINT fk_actionlog_user_record
         FOREIGN KEY (user_record_id) REFERENCES app_user(app_user_id)
         ON DELETE SET NULL -- if a user is deleted, set user_record_id to NULL
-        ON UPDATE CASCADE, -- if a user_id changes, all linked log entries are updated automatically to stay in sync
+        ON UPDATE NO ACTION, -- references are immutable
 
     CONSTRAINT fk_actionlog_loan_record
         FOREIGN KEY (loan_record_id) REFERENCES loan(loan_id)
         ON DELETE SET NULL -- if a loan is deleted, set loan_record_id to NULL
-        ON UPDATE CASCADE, -- if a loan_id changes, all linked log entries are updated automatically to stay in sync
-
+        ON UPDATE NO ACTION, -- loan IDs are immutable
     CONSTRAINT fk_actionlog_device_record
         FOREIGN KEY (device_record_id) REFERENCES device(device_id)     
         ON DELETE SET NULL -- if a device is deleted, set device_record_id to NULL
-        ON UPDATE CASCADE -- if a device_id changes, all linked log entries are updated automatically to stay in sync
+        ON UPDATE NO ACTION -- device IDs are immutable
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- MySQL's transactional storage engine to support foreign keys and transactions (required for Hibernate and FKs)
 
 
