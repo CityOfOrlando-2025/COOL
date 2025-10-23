@@ -107,7 +107,7 @@ INSERT INTO transaction_status (transaction_status_name) VALUES
 -- Test users for each role type
 
 -- Admin users
-INSERT INTO app_user (app_user_full_name, email, password_hash, user_role_id)
+INSERT INTO app_user (full_name, email, password_hash, user_role_id)
 VALUES 
     ('Dev Admin', 'dev@workemail.com', 'hashed_pw_here', 1), -- Dev Admin role (1)
     ('Mgr Admin', 'admin@workemail.com', 'hashed_pw_here', 1), -- Mgr Admin role (1)
@@ -115,12 +115,12 @@ VALUES
     ('Second Employee', 'emp2@workemail.com', 'hashed_pw_here', 2); -- Employee role (2)
 
 -- Citizen user (borrowers with full contact info)
-INSERT INTO app_user (app_user_full_name, email, password_hash, user_role_id, dl_num, dl_state, street_address, city, state, zip_code, date_of_birth, contact_number)
+INSERT INTO app_user (full_name, email, password_hash, user_role_id, dl_num, dl_state, address, city, state, zip_code, date_of_birth, contact_number)
 VALUES 
     ('Alex Martinez', 'alex.martinez@personalemail.com', 'hashed_pw_here', 3, 'D1234567', 'FL', '500 W Livingston St', 'Orlando', 'FL', '32801', '1992-03-14', '407-555-1010'), -- Citizen role (3)
     ('Jamie Nguyen', 'jamie.nguyen@personalemail.com', 'hashed_pw_here', 3, 'D2345678', 'FL', '701 N Econlockhatchee Trl', 'Orlando', 'FL', '32825', '1994-07-22', '407-555-2020'), 
     ('Taylor Johnson', 'taylor.johnson@personalemail.com', 'hashed_pw_here', 3, 'D3456789', 'FL', '12350 Narcoossee Rd', 'Orlando', 'FL', '32832', '1990-11-05', '407-555-3030'),   
-    ('Casey Rivera', 'casey.rivera@personalemail.com', 'hashed_pw_here', 3, 'D4567890', 'FL', '3255 Pleasant Hill Rd', 'Kissimmee', 'FL', '34746', '1996-05-18', '407-555-4040');   
+    ('Casey Rivera', 'casey.rivera@personalemail.com', 'hashed_pw_here', 3, 'D4567890', 'FL', '3255 Pleasant Hill Rd', 'Kissimmee', 'FL', '34746', '1996-05-18', '407-555-4040'),   
     ('Morgan Reyes', 'morgan.reyes@personalemail.com', 'hashed_pw_here', 3, 'D5678901', 'FL', '4000 Central Florida Blvd', 'Orlando', 'FL', '32816', '1998-09-10', '407-555-5050'),
    -- Under 18 (not eligible to borrow)
     ('Riley Carter', 'riley.carter@personalemail.com', 'hashed_pw_here', 3, 'D6789012', 'FL', '500 W Livingston St', 'Orlando', 'FL', '32801', '2010-04-15', '407-555-6060');
@@ -131,7 +131,7 @@ VALUES
 -- Community center where devices are stored and loaned
 
 -- Test Location
-INSERT INTO location (location_name, street_address, city, state, zip_code, contact_number)
+INSERT INTO location (location_name, address, city, state, zip_code, contact_number)
 VALUES 
     ('Callahan Neighborhood Center', '101 N Parramore Ave Suite 1713', 'Orlando', 'FL', '32801', '407-246-4442'),
     ('Hankins Park Neighborhood Center', '1340 Lake Park Ct', 'Orlando', 'FL', '32805', '407-246-4455'),
@@ -176,18 +176,31 @@ VALUES
 ('Verizon Hotspot Series A', 3, 'HOT-001', 1, 1, 4),  -- Available Hotspot
 ('Dell Laptop Series C',      2, 'LAP-003', 2, 2, 4),  -- Loaned Laptop
 ('Samsung Tablet Series C',   1, 'TAB-003', 4, 2, 3),  -- Retired Tablet
-('Verizon Hotspot Series B', 3,'HOT-002', 1, 2, 3),  -- Available Hotspot
+('Verizon Hotspot Series B', 3,'HOT-002', 1, 2, 3);  -- Available Hotspot
+
+-- ------------------------------------------------
+-- 2.5 Bin-Device Relationships
+-- -------------------------------------------------
+-- NOTE: After testing MVP 1, change to subquery dynamically linked devices to bins 
+INSERT INTO bin_device (bin_id, device_id) 
+VALUES
+(1, 1),  -- BIN-0001 holds Lenovo Tablet Series A
+(1, 2),  -- BIN-0001 holds Dell Laptop Series A
+(2, 3),  -- BIN-0002 holds Lenovo Tablet Series B
+(2, 8),  -- BIN-0002 holds Verizon Hotspot Series B
+(3, 4),  -- BIN-0003 holds Dell Laptop Series B (Maintenance)
+(4, 7),  -- BIN-0004 holds Samsung Tablet Series C (Retired)
+(5, 5);  -- BIN-0005 holds Verizon Hotspot Series A
 
 -- =================================================
 -- END OF SEED DATA 
 -- =================================================
--- This seed file provides:
---  All required lookup table values
---  One test user per role (Admin, Employee, Citizen)
---  One test location for device storage and loans
-
 -- Password hashes here are only placeholders. 
 -- Actual hashed passwords should be handled at the application level. 
 
 -- Follow the insert order (lookups first, then core entities, then relationships) when adding additional test data.
+
+-- MVP 2 
+-- Goals are to have subqueries for foreign keys to avoid hardcoding IDs
+-- Add more test users, locations, devices, and loans as needed for testing.
 -- =================================================
