@@ -30,29 +30,59 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {        
-        String email = loginRequest.getEmail();
-        String password = loginRequest.getPassword();
+        try {
+            String email = loginRequest.getEmail();
+            String password = loginRequest.getPassword();
 
-        AppUser user = appUserRepository.findByEmail(email);
-        
-        if (user == null) {
-            return ResponseEntity.status(404).body(new ErrorResponse("Account not found."));
+            AppUser user = appUserRepository.findByEmail(email);
+            
+            if (user == null) {
+                return ResponseEntity.status(404).body(new ErrorResponse("Account not found."));
+            }
+
+            String dbPassword = user.getPassword();
+            
+            if (!password.equals(dbPassword)) {
+                return ResponseEntity.status(401).body(new ErrorResponse("Invalid password"));
+            }
+
+            Long userId = user.getUserId();
+            String dbEmail = user.getEmail();
+            String userRole = user.getRole().getRoleName();
+
+            UserInfo userInfo = new UserInfo(userId, dbEmail, userRole);
+            SuccessResponse response = new SuccessResponse("Login successful", userInfo);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
+    }
 
-        String dbPassword = user.getPassword();
-        
-        if (!password.equals(dbPassword)) {
-            return ResponseEntity.status(401).body(new ErrorResponse("Invalid password"));
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestBody LogoutRequest logoutRequest) {
+        try {
+            String email = logoutRequest.getEmail();
+
+            // Check if user exists, might change to check active session
+            AppUser user = appUserRepository.findByEmail(email);
+            
+            if (user == null) {
+                return ResponseEntity.status(401).body(new ErrorResponse("User not logged in"));
+            }
+
+            // Add session termination
+            Long userId = user.getUserId();
+            String dbEmail = user.getEmail();
+            String userRole = user.getRole().getRoleName();
+            
+            UserInfo userInfo = new UserInfo(userId, dbEmail, userRole);
+            SuccessResponse response = new SuccessResponse("Logout successful", userInfo);
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
-
-        Long userId = user.getUserId();
-        String dbEmail = user.getEmail();
-        String userRole = user.getRole().getRoleName();
-
-        UserInfo userInfo = new UserInfo(userId, dbEmail, userRole);
-        LoginSuccessResponse response = new LoginSuccessResponse("Login successful", userInfo);
-
-        return ResponseEntity.ok(response);
     }
 
     public static class LoginRequest {
@@ -63,6 +93,13 @@ public class AuthController {
         public void setEmail(String email) { this.email = email; }
         public String getPassword() { return password; }
         public void setPassword(String password) { this.password = password; }
+    }
+
+    public static class LogoutRequest {
+        private String email;
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
     }
 
     public static class ErrorResponse {
@@ -86,14 +123,15 @@ public class AuthController {
         public String getUser_role() { return user_role; }
     }
 
-    public static class LoginSuccessResponse {
+    public static class SuccessResponse {
         private final String message;
         private final UserInfo user;
 
-        public LoginSuccessResponse(String message, UserInfo user) {
+        public SuccessResponse(String message, UserInfo user) {
             this.message = message;
             this.user = user;
         }
+
         public String getMessage() { return message; }
         public UserInfo getUser() { return user; }
     }
