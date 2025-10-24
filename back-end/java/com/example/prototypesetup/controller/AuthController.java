@@ -13,21 +13,6 @@ public class AuthController {
     @Autowired
     private AppUserRepository appUserRepository;
 
-    @GetMapping("/test/{email}")
-    public ResponseEntity<?> testUser(@PathVariable("email") String email) {
-        try {
-            AppUser user = appUserRepository.findByEmail(email);
-
-            if (user == null) {
-                return ResponseEntity.status(404).body("User not found");
-            }
-            
-            return ResponseEntity.ok(user);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Error: " + e.getMessage());
-        }
-    }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {        
         try {
@@ -75,7 +60,7 @@ public class AuthController {
             Long userId = user.getUserId();
             String dbEmail = user.getEmail();
             String userRole = user.getRole().getRoleName();
-            
+
             UserInfo userInfo = new UserInfo(userId, dbEmail, userRole);
             SuccessResponse response = new SuccessResponse("Logout successful", userInfo);
             return ResponseEntity.ok(response);
