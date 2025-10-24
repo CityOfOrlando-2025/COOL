@@ -179,7 +179,7 @@ CREATE TABLE bin (
     CONSTRAINT fk_bin_location
         FOREIGN KEY (location_id) REFERENCES location(location_id)
         ON DELETE RESTRICT -- prevents deletion of a location if bins are assigned to it
-        ON UPDATE NO ACTION -- location_id should rarely change, handle at application level
+        ON UPDATE NO ACTION, -- location_id should rarely change, handle at application level
 
     CONSTRAINT fk_bin_creator
         FOREIGN KEY (created_by_user_id) REFERENCES app_user(app_user_id)
