@@ -1,5 +1,4 @@
 import { AppBar, Toolbar, IconButton, Box, Link } from "@mui/material";
-import Button from "./Button";
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
 
