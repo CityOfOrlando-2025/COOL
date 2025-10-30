@@ -1,8 +1,9 @@
 import React from 'react'
+import DeviceAvailabilityTable from '../components/DeviceAvailabilityTable'
 
 const DeviceAvailabilityPage = () => {
   return (
-    <div>DeviceAvailabilityPage</div>
+    <DeviceAvailabilityTable />
   )
 }
 
