@@ -63,27 +63,27 @@ public class Loan {
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "bin_id", insertable = false, updatable = false)
     private Bin bin;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "loan_status_id", insertable = false, updatable = false)
     private LoanStatus loanStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "citizen_id", insertable = false, updatable = false)
     private AppUser citizen;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "employee_id", insertable = false, updatable = false)
     private AppUser employee;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "loan_condition_id", insertable = false, updatable = false)
     private DeviceCondition loanCondition;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "return_condition_id", insertable = false, updatable = false)
     private DeviceCondition returnCondition;
 
