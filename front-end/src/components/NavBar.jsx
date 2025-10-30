@@ -1,30 +1,80 @@
 import { AppBar, Toolbar, IconButton, Box, Link } from "@mui/material";
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import AccountCircleOutlined from "@mui/icons-material/AccountCircleOutlined";
+import { useAuth } from "../context/MockAuth";
+import { useLocation } from "react-router-dom";
 
-export const NavBar = () => {
-  return (
-    <>
-      {/* Main NavBar */}
-      <AppBar position="static">
-        <Toolbar>
-          <Box
-            component="img"
+const NavBar = () => {
+  const { user } = useAuth();
+  const role = user?.role || "Citizen";
+  const location = useLocation();
+
+  // ✅ Show top bar on landing *and* sign-in pages
+  const showTopBar =
+    location.pathname === "/" || location.pathname === "/signIn";
+
+  // ✅ Function to return navbar layout based on role
+  const renderNavbar = () => {
+    // 🌆 For Employees or Admins
+    if (role !== "Citizen") {
+      return (
+        <AppBar
+          position="static"
+          elevation={0}
+          sx={{ backgroundColor: "#0072CE" }}
+        >
+          <Toolbar
             sx={{
-              padding: "40px",
-              width: 500,
-              margin: "auto",
+              display: "flex",
+              justifyContent: "space-between",
             }}
-            alt="Your logo."
-            src={"./src/assets/fullCityLogo.png"}
-          />
-        </Toolbar>
-      </AppBar>
+          >
+            <Box
+              component="img"
+              sx={{
+                padding: "30px",
+                width: 150,
+              }}
+              alt="Fountain Logo"
+              src={"./src/assets/fountainLogo2.png"}
+            />
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-evenly",
+                paddingRight: "30px",
+                width: 150,
+              }}
+            >
+              <IconButton>
+                <SettingsOutlined
+                  sx={{
+                    color: "white",
+                    fontSize: "6rem",
+                  }}
+                />
+              </IconButton>
+              <IconButton>
+                <AccountCircleOutlined
+                  sx={{
+                    color: "white",
+                    fontSize: "6rem",
+                  }}
+                />
+              </IconButton>
+            </Box>
+          </Toolbar>
+        </AppBar>
+      );
+    }
 
-      <br />
-
-      {/* NavBar with "Help" and "Login" links */}
-      <AppBar position="static">
+    // 🧍 For Citizens
+    return (
+      <AppBar
+        position="static"
+        elevation={0}
+        sx={{ backgroundColor: "#0072CE" }}
+      >
         <Toolbar
           sx={{
             display: "flex",
@@ -37,7 +87,7 @@ export const NavBar = () => {
               padding: "30px",
               width: 150,
             }}
-            alt="Your logo."
+            alt="Fountain Logo"
             src={"./src/assets/fountainLogo2.png"}
           />
           <Box
@@ -50,7 +100,6 @@ export const NavBar = () => {
           >
             <Link
               component="button"
-              href="#"
               color="inherit"
               underline="hover"
               sx={{
@@ -62,7 +111,6 @@ export const NavBar = () => {
             </Link>
             <Link
               component="button"
-              href="#"
               color="inherit"
               underline="hover"
               sx={{
@@ -75,53 +123,35 @@ export const NavBar = () => {
           </Box>
         </Toolbar>
       </AppBar>
+    );
+  };
 
-      <br />
-
-      {/* Nav bar with "Settings" and "User" icons */}
-      <AppBar position="static">
-        <Toolbar
-          sx={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
+  return (
+    <>
+      {/* 🏙️ Show full logo on Landing + SignIn pages */}
+      {showTopBar && (
+        <AppBar
+          position="static"
+          elevation={0}
+          sx={{ backgroundColor: "#0072CE" }}
         >
-          <Box
-            component="img"
-            sx={{
-              padding: "30px",
-              width: 150,
-            }}
-            alt="Your logo."
-            src={"./src/assets/fountainLogo2.png"}
-          />
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-evenly",
-              paddingRight: "30px",
-              width: 150,
-            }}
-          >
-            <IconButton>
-              <SettingsOutlined
-                sx={{
-                  color: "white",
-                  fontSize: "xxx-large",
-                }}
-              ></SettingsOutlined>
-            </IconButton>
-            <IconButton>
-              <AccountCircleOutlined
-                sx={{
-                  color: "white",
-                  fontSize: "xxx-large",
-                }}
-              ></AccountCircleOutlined>
-            </IconButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
+          <Toolbar>
+            <Box
+              component="img"
+              sx={{
+                padding: "40px",
+                width: 500,
+                margin: "auto",
+              }}
+              alt="City of Orlando Logo"
+              src={"./src/assets/fullCityLogo.png"}
+            />
+          </Toolbar>
+        </AppBar>
+      )}
+
+      {/* 🔄 Show role-based navbar for all other pages */}
+      {!showTopBar && renderNavbar()}
     </>
   );
 };
