@@ -7,9 +7,9 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   Box,
 } from "@mui/material";
+import Button from "./Button";
 import { devices } from "../data/mockData";
 import { useAuth } from "../context/MockAuth";
 
@@ -23,29 +23,13 @@ const DeviceTable = () => {
       return (
         <Box sx={{ display: "flex", gap: 1 }}>
           <Button
-            variant="contained"
-            size="small"
-            sx={{
-              textTransform: "none",
-              backgroundColor: "#FFFFFF",
-              color: "#002D72",
-              fontWeight: 600,
-              "&:hover": { backgroundColor: "#A7D4FF" },
-            }}
+            varianttype="check"
             onClick={() => console.log("Check In:", device.name)}
           >
             Check In
           </Button>
           <Button
-            variant="contained"
-            size="small"
-            sx={{
-              textTransform: "none",
-              backgroundColor: "#FFFFFF",
-              color: "#002D72",
-              fontWeight: 600,
-              "&:hover": { backgroundColor: "#A7D4FF" },
-            }}
+            varianttype="check"
             onClick={() => console.log("Check Out:", device.name)}
           >
             Check Out
@@ -57,10 +41,7 @@ const DeviceTable = () => {
     // Default for Citizen
     return (
       <Button
-        variant="contained"
-        color="primary"
-        size="small"
-        sx={{ textTransform: "none" }}
+        varianttype="view"
         onClick={() => console.log("Viewing info for", device.name)}
       >
         View Information
