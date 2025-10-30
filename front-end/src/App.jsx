@@ -4,10 +4,12 @@ import SignInPage from "./pages/SignInPage";
 import DevicePage from "./pages/DeviceAvailabilityPage";
 import NearestPage from "./pages/NearestCenterPage";
 import { Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar";
 
 function App() {
   return (
     <>
+      <NavBar />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/signIn" element={<SignInPage />} />
