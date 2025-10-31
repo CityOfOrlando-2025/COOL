@@ -23,13 +23,13 @@ public class UserLocationAccessController {
     @Autowired
     private LocationRepository locationRepository;
 
-    // ✅ GET all user-location links
+    // GET all user-location links
     @GetMapping
     public List<UserLocationAccess> getAll() {
         return userLocationAccessRepository.findAll();
     }
 
-    // ✅ GET specific user-location link
+    // GET specific user-location link
    @GetMapping("/{userId}/{locationId}")
 public ResponseEntity<UserLocationAccess> getById(
         @PathVariable("userId") Long userId,
@@ -45,13 +45,13 @@ public ResponseEntity<UserLocationAccess> getById(
 }
 
 
-    // ✅ DTO for POST
+    // DTO for POST
     public static class UserLocationCreateRequest {
         public Long userId;
         public Integer locationId;
     }
 
-    // ✅ POST - Create new link
+    // POST - Create new link
     @PostMapping
     public ResponseEntity<UserLocationAccess> create(@RequestBody UserLocationCreateRequest request) {
         if (request.userId == null || request.locationId == null) {
@@ -77,7 +77,7 @@ public ResponseEntity<UserLocationAccess> getById(
                 .body(userLocationAccessRepository.save(newAccess));
     }
 
-    // ✅ PUT - Update relationship (change linked user or location)
+    // PUT - Update relationship (change linked user or location)
     public static class UserLocationUpdateRequest {
         public Long newUserId;
         public Integer newLocationId;
@@ -112,7 +112,7 @@ public ResponseEntity<UserLocationAccess> getById(
         return ResponseEntity.ok(updated);
     }
 
-    /// ✅ DELETE - Remove access link
+    /// DELETE - Remove access link
 @DeleteMapping("/{userId}/{locationId}")
 public ResponseEntity<Void> delete(
         @PathVariable("userId") Long userId,

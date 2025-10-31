@@ -14,6 +14,8 @@ import java.util.List;
 @RequestMapping("/api/devices")
 public class DeviceController {
 
+//Class setup / Autowired fields
+
     @Autowired
     private DeviceRepository deviceRepository;
 
