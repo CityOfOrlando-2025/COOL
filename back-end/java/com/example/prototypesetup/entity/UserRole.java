@@ -1,9 +1,14 @@
 package com.example.prototypesetup.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
-@Table(name = "user_role") // matches your SQL table
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "user_role")
 public class UserRole {
 
     @Id
@@ -19,17 +24,4 @@ public class UserRole {
 
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
-
-    // Getters and setters
-    public Long getRoleId() { return roleId; }
-    public void setRoleId(Long roleId) { this.roleId = roleId; }
-
-    public String getRoleName() { return roleName; }
-    public void setRoleName(String roleName) { this.roleName = roleName; }
-
-    public boolean isDlRequired() { return dlRequired; }
-    public void setDlRequired(boolean dlRequired) { this.dlRequired = dlRequired; }
-
-    public boolean isActive() { return isActive; }
-    public void setActive(boolean active) { isActive = active; }
 }

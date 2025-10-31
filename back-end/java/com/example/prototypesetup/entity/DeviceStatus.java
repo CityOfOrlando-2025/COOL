@@ -2,8 +2,10 @@ package com.example.prototypesetup.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,6 +18,6 @@ public class DeviceStatus {
     @Column(name = "device_status_id")
     private Integer deviceStatusId;
 
-    @Column(name = "status_name", nullable = false)
+    @Column(name = "status_name", nullable = false, unique = true, length = 100)
     private String statusName;
 }

@@ -1,6 +1,6 @@
 package com.example.prototypesetup.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -17,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Table(name = "app_user")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class AppUser {
 
     @Id
@@ -24,8 +25,11 @@ public class AppUser {
     @Column(name = "app_user_id")
     private Long userId;
 
-    @Column(name = "app_user_full_name", nullable = false, length = 100)
+    @Column(name = "full_name", nullable = false, length = 100)
     private String fullName;
+
+    @Column(name = "app_user_full_name", nullable = false, length = 100)
+    private String appUserFullName;
 
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -37,7 +41,6 @@ public class AppUser {
     @JoinColumn(name = "user_role_id", nullable = false)
     private UserRole role;
 
-    // Citizen-specific fields
     @Column(name = "dl_num", length = 50)
     private String dlNum;
 
@@ -70,13 +73,12 @@ public class AppUser {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @ManyToMany
-    @JoinTable(
-        name = "user_location",
-        joinColumns = @JoinColumn(name = "user_id"),
-        inverseJoinColumns = @JoinColumn(name = "location_id")
-    )
-    
-    @JsonBackReference
-    private Set<Location> locations = new HashSet<>();
+    // Relation with UserLocationAccess
+    @OneToMany(mappedBy = "appUser", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<UserLocationAccess> locationAccess = new HashSet<>();
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+        this.appUserFullName = fullName; // sync the second column
+    }
 }

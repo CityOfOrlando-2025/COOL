@@ -1,6 +1,7 @@
 package com.example.prototypesetup.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -16,6 +17,7 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 @Table(name = "location")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Location {
 
       @Id
@@ -23,13 +25,13 @@ public class Location {
     @Column(name = "location_id")
     private Integer locationId;
 
-    @Column(name = "location_name", nullable = false)
+    @Column(name = "location_name", nullable = false, length = 150)
     private String locationName;
 
-    @Column(name = "street_address")
+    @Column(name = "street_address", length = 255)
     private String streetAddress;
 
-    @Column(name = "city")
+    @Column(name = "city", length = 100)
     private String city;
 
     @Column(name = "state", length = 2)
@@ -41,7 +43,7 @@ public class Location {
     @Column(name = "contact_number", length = 20)
     private String contactNumber;
 
-       @CreationTimestamp
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
@@ -49,9 +51,8 @@ public class Location {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Prevent infinite recursion when serializing
-    @ManyToMany(mappedBy = "locations")
+    // Relation with AppUser via UserLocationAccess
+    @OneToMany(mappedBy = "location", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private Set<AppUser> users = new HashSet<>();
-
+    private Set<UserLocationAccess> userAccessList = new HashSet<>();
 }

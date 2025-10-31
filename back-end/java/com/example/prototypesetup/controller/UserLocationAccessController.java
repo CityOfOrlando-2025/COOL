@@ -1,25 +1,21 @@
 package com.example.prototypesetup.controller;
 
-import com.example.prototypesetup.entity.AppUser;
-import com.example.prototypesetup.entity.Location;
-import com.example.prototypesetup.entity.UserLocationAccess;
-import com.example.prototypesetup.entity.UserLocationAccessId;
-import com.example.prototypesetup.repository.AppUserRepository;
-import com.example.prototypesetup.repository.LocationRepository;
-import com.example.prototypesetup.repository.UserLocationAccessRepository;
+import com.example.prototypesetup.entity.*;
+import com.example.prototypesetup.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Optional;
-
+import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user-locations-access")
 public class UserLocationAccessController {
 
     @Autowired
-    private UserLocationAccessRepository userLocationRepository;
+    private UserLocationAccessRepository userLocationAccessRepository;
 
     @Autowired
     private AppUserRepository appUserRepository;
@@ -30,100 +26,107 @@ public class UserLocationAccessController {
     // GET all user-location links
     @GetMapping
     public List<UserLocationAccess> getAll() {
-        return userLocationRepository.findAll();
+        return userLocationAccessRepository.findAll();
     }
 
-    // GET one by ID
-   // GET one by ID
-    @GetMapping("/{userId}/{locationId}")
-    public ResponseEntity<UserLocationAccess> getById(
+    // GET specific user-location link
+   @GetMapping("/{userId}/{locationId}")
+public ResponseEntity<UserLocationAccess> getById(
         @PathVariable("userId") Long userId,
         @PathVariable("locationId") Integer locationId) {
 
     UserLocationAccessId id = new UserLocationAccessId(userId, locationId);
-    return userLocationRepository.findById(id)
+    return userLocationAccessRepository.findById(id)
             .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
-    }
+            .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "User-location access not found for User ID " + userId + " and Location ID " + locationId
+            ));
+}
 
-    // DTO for create request
+
+    // DTO for POST
     public static class UserLocationCreateRequest {
-    public Long userId;
-    public Integer locationId;
+        public Long userId;
+        public Integer locationId;
     }
 
-    // POST
+    // POST - Create new link
     @PostMapping
     public ResponseEntity<UserLocationAccess> create(@RequestBody UserLocationCreateRequest request) {
-    AppUser user = appUserRepository.findById(request.userId).orElse(null);
-    Location location = locationRepository.findById(request.locationId).orElse(null);
+        if (request.userId == null || request.locationId == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both userId and locationId are required.");
+        }
 
-    if (user == null || location == null) {
-        return ResponseEntity.badRequest().build();
+        AppUser user = appUserRepository.findById(request.userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid User ID."));
+        Location location = locationRepository.findById(request.locationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Location ID."));
+
+        UserLocationAccessId id = new UserLocationAccessId(request.userId, request.locationId);
+        if (userLocationAccessRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Access link already exists for this user and location.");
+        }
+
+        UserLocationAccess newAccess = UserLocationAccess.builder()
+                .appUser(user)
+                .location(location)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(userLocationAccessRepository.save(newAccess));
     }
 
-    UserLocationAccess ul = new UserLocationAccess();
-    ul.setAppUser(user);
-    ul.setLocation(location);
-
-    return ResponseEntity.ok(userLocationRepository.save(ul));
-    }
-
-    // DTO for update request
+    // PUT - Update relationship (change linked user or location)
     public static class UserLocationUpdateRequest {
-    public Long newUserId;
-    public Integer newLocationId;
+        public Long newUserId;
+        public Integer newLocationId;
     }
 
-    // UPDATE (reassign user or location)
     @PutMapping("/{userId}/{locationId}")
     public ResponseEntity<UserLocationAccess> update(
-        @PathVariable("userId") Long userId,
-        @PathVariable("locationId") Integer locationId,
-        @RequestBody UserLocationUpdateRequest request) {
+            @PathVariable Long userId,
+            @PathVariable Integer locationId,
+            @RequestBody UserLocationUpdateRequest request) {
 
-    UserLocationAccessId oldId = new UserLocationAccessId(userId, locationId);
-    Optional<UserLocationAccess> optionalUL = userLocationRepository.findById(oldId);
+        UserLocationAccessId oldId = new UserLocationAccessId(userId, locationId);
+        UserLocationAccess existing = userLocationAccessRepository.findById(oldId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "UserLocationAccess not found."));
 
-    //if not found = return 404
-    if (!optionalUL.isPresent()) {
-        return ResponseEntity.notFound().build();
+        if (request.newUserId != null) {
+            AppUser newUser = appUserRepository.findById(request.newUserId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid new User ID."));
+            existing.setAppUser(newUser);
+        }
+
+        if (request.newLocationId != null) {
+            Location newLocation = locationRepository.findById(request.newLocationId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid new Location ID."));
+            existing.setLocation(newLocation);
+        }
+
+        // Delete old composite key record and create a new one if IDs changed
+        userLocationAccessRepository.deleteById(oldId);
+        UserLocationAccess updated = userLocationAccessRepository.save(existing);
+
+        return ResponseEntity.ok(updated);
     }
 
-    // update existing
-    UserLocationAccess ul = optionalUL.get();
-
-    if (request.newUserId != null) {
-        AppUser newUser = appUserRepository.findById(request.newUserId).orElse(null);
-        if (newUser == null) return ResponseEntity.badRequest().build();
-        ul.setAppUser(newUser);
-    }
-
-    if (request.newLocationId != null) {
-        Location newLocation = locationRepository.findById(request.newLocationId).orElse(null);
-        if (newLocation == null) return ResponseEntity.badRequest().build();
-        ul.setLocation(newLocation);
-    }
-
-    // save and return updated relationship
-    UserLocationAccess updated = userLocationRepository.save(ul);
-    return ResponseEntity.ok(updated);
-    }
-
-     // DELETE link
-    @DeleteMapping("/{userId}/{locationId}")
-    public ResponseEntity<Void> deleteUserLocation(
+    /// DELETE - Remove access link
+@DeleteMapping("/{userId}/{locationId}")
+public ResponseEntity<Void> delete(
         @PathVariable("userId") Long userId,
         @PathVariable("locationId") Integer locationId) {
 
     UserLocationAccessId id = new UserLocationAccessId(userId, locationId);
 
-    if (userLocationRepository.existsById(id)) {
-        userLocationRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
-    } else {
-        return ResponseEntity.notFound().build();
-        }
+    if (!userLocationAccessRepository.existsById(id)) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                "User-location access not found for User ID " + userId + " and Location ID " + locationId);
     }
+
+    userLocationAccessRepository.deleteById(id);
+    return ResponseEntity.noContent().build();
+}
 
 }

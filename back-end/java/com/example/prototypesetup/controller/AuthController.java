@@ -1,3 +1,4 @@
+
 package com.example.prototypesetup.controller;
 
 import com.example.prototypesetup.entity.AppUser;
@@ -121,3 +122,4 @@ public class AuthController {
         public UserInfo getUser() { return user; }
     }
 }
+    
