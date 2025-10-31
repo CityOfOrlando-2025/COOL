@@ -196,12 +196,27 @@ public class LoanController {
             }
 
             Loan loan = loanOpt.get();
-            if (request.getReturnedAt() != null) loan.setReturnedAt(Timestamp.valueOf(request.getReturnedAt().atStartOfDay()));
             
-            if (request.getReturnConditionId() != null) {
-                DeviceCondition returnCondition = new DeviceCondition();
-                returnCondition.setDeviceConditionId(request.getReturnConditionId());
-                loan.setReturnCondition(returnCondition);
+            if (request.getLoanStatusId() != null) {
+                Optional<LoanStatus> statusOpt = loanStatusRepository.findById(request.getLoanStatusId());
+                if (statusOpt.isPresent()) {
+                    loan.setLoanStatus(statusOpt.get());
+                } else {
+                    return ResponseEntity.status(400).body(new ErrorResponse("Invalid loan status ID"));
+                }
+            }
+            
+            if (request.getReturnedAt() != null) {
+                loan.setReturnedAt(Timestamp.valueOf(request.getReturnedAt().atStartOfDay()));
+            }
+            
+            if (request.getReturnCondition() != null) {
+                Optional<DeviceCondition> returnConditionOpt = deviceConditionRepository.findById(request.getReturnCondition());
+                if (returnConditionOpt.isPresent()) {
+                    loan.setReturnCondition(returnConditionOpt.get());
+                } else {
+                    return ResponseEntity.status(400).body(new ErrorResponse("Invalid return condition ID"));
+                }
             }
             
             if (request.getReturnConditionNotes() != null) loan.setReturnConditionNotes(request.getReturnConditionNotes());
@@ -209,10 +224,12 @@ public class LoanController {
             if (request.getAllAccessoriesReturned() != null) loan.setAllAccessoriesReturned(request.getAllAccessoriesReturned());
             if (request.getMissingAccessories() != null) loan.setMissingAccessories(request.getMissingAccessories());
             if (request.getNotes() != null) loan.setNotes(request.getNotes());
+            
             loan.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            loanRepository.save(loan);
-            return ResponseEntity.ok(new SuccessResponse("Loan updated successfully"));
+            Loan savedLoan = loanRepository.save(loan);
+            LoanResponseDTO responseDTO = new LoanResponseDTO(savedLoan);
+            return ResponseEntity.ok(new SuccessResponse("Loan updated successfully", responseDTO));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
@@ -263,18 +280,21 @@ public class LoanController {
     }
 
     public static class UpdateLoanRequest {
+        private Integer loanStatusId;
         private java.time.LocalDate returnedAt;
-        private Integer returnConditionId;
+        private Integer returnCondition;
         private String returnConditionNotes;
         private BigDecimal damageFee;
         private Boolean allAccessoriesReturned;
         private String missingAccessories;
         private String notes;
 
+        public Integer getLoanStatusId() { return loanStatusId; }
+        public void setLoanStatusId(Integer loanStatusId) { this.loanStatusId = loanStatusId; }
         public java.time.LocalDate getReturnedAt() { return returnedAt; }
         public void setReturnedAt(java.time.LocalDate returnedAt) { this.returnedAt = returnedAt; }
-        public Integer getReturnConditionId() { return returnConditionId; }
-        public void setReturnConditionId(Integer returnConditionId) { this.returnConditionId = returnConditionId; }
+        public Integer getReturnCondition() { return returnCondition; }
+        public void setReturnCondition(Integer returnCondition) { this.returnCondition = returnCondition; }
         public String getReturnConditionNotes() { return returnConditionNotes; }
         public void setReturnConditionNotes(String returnConditionNotes) { this.returnConditionNotes = returnConditionNotes; }
         public BigDecimal getDamageFee() { return damageFee; }
@@ -340,14 +360,17 @@ public class LoanController {
         private Integer loan_id;
         private Integer bin_id;
         private Integer loan_status_id;
+        private String loan_status_name;
         private Long citizen_id;
         private Long employee_id;
         private String start_at;
         private String due_at;
         private String returned_at;
         private Integer loan_condition_id;
+        private String loan_condition_name;
         private String loan_condition_notes;
         private Integer return_condition_id;
+        private String return_condition_name;
         private String return_condition_notes;
         private BigDecimal damage_fee;
         private Boolean all_accessories_returned;
@@ -360,14 +383,17 @@ public class LoanController {
             this.loan_id = loan.getLoanId();
             this.bin_id = loan.getBinId();
             this.loan_status_id = loan.getLoanStatusId();
+            this.loan_status_name = loan.getLoanStatus() != null ? loan.getLoanStatus().getLoanStatusName() : null;
             this.citizen_id = loan.getCitizenId();
             this.employee_id = loan.getEmployeeId();
             this.start_at = loan.getStartAt() != null ? loan.getStartAt().toString() : null;
             this.due_at = loan.getDueAt() != null ? loan.getDueAt().toString() : null;
             this.returned_at = loan.getReturnedAt() != null ? loan.getReturnedAt().toString() : null;
             this.loan_condition_id = loan.getLoanConditionId();
+            this.loan_condition_name = loan.getLoanCondition() != null ? loan.getLoanCondition().getDeviceConditionName() : null;
             this.loan_condition_notes = loan.getLoanConditionNotes();
             this.return_condition_id = loan.getReturnConditionId();
+            this.return_condition_name = loan.getReturnCondition() != null ? loan.getReturnCondition().getDeviceConditionName() : null;
             this.return_condition_notes = loan.getReturnConditionNotes();
             this.damage_fee = loan.getDamageFee();
             this.all_accessories_returned = loan.getAllAccessoriesReturned();
@@ -380,14 +406,17 @@ public class LoanController {
         public Integer getLoan_id() { return loan_id; }
         public Integer getBin_id() { return bin_id; }
         public Integer getLoan_status_id() { return loan_status_id; }
+        public String getLoan_status_name() { return loan_status_name; }
         public Long getCitizen_id() { return citizen_id; }
         public Long getEmployee_id() { return employee_id; }
         public String getStart_at() { return start_at; }
         public String getDue_at() { return due_at; }
         public String getReturned_at() { return returned_at; }
         public Integer getLoan_condition_id() { return loan_condition_id; }
+        public String getLoan_condition_name() { return loan_condition_name; }
         public String getLoan_condition_notes() { return loan_condition_notes; }
         public Integer getReturn_condition_id() { return return_condition_id; }
+        public String getReturn_condition_name() { return return_condition_name; }
         public String getReturn_condition_notes() { return return_condition_notes; }
         public BigDecimal getDamage_fee() { return damage_fee; }
         public Boolean getAll_accessories_returned() { return all_accessories_returned; }
