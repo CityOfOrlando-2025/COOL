@@ -3,6 +3,7 @@ package com.example.prototypesetup.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "loan")
@@ -12,17 +13,21 @@ public class Loan {
     @Column(name = "loan_id")
     private Integer loanId;
 
-    @Column(name = "bin_id", nullable = false)
-    private Integer binId;
+    @ManyToOne
+    @JoinColumn(name = "bin_id", nullable = false)
+    private Bin bin;
 
-    @Column(name = "loan_status_id", nullable = false)
-    private Integer loanStatusId;
+    @ManyToOne
+    @JoinColumn(name = "loan_status_id", nullable = false)
+    private LoanStatus loanStatus;
 
-    @Column(name = "citizen_id", nullable = false)
-    private Long citizenId;
+    @ManyToOne
+    @JoinColumn(name = "citizen_id", nullable = false)
+    private AppUser citizen;
 
-    @Column(name = "employee_id", nullable = false)
-    private Long employeeId;
+    @ManyToOne
+    @JoinColumn(name = "employee_id", nullable = false)
+    private AppUser employee;
 
     @Column(name = "start_at", nullable = false)
     private Timestamp startAt;
@@ -33,14 +38,16 @@ public class Loan {
     @Column(name = "returned_at")
     private Timestamp returnedAt;
 
-    @Column(name = "loan_condition_id", nullable = false)
-    private Integer loanConditionId;
+    @ManyToOne
+    @JoinColumn(name = "loan_condition_id", nullable = false)
+    private DeviceCondition loanCondition;
 
     @Column(name = "loan_condition_notes", columnDefinition = "TEXT")
     private String loanConditionNotes;
 
-    @Column(name = "return_condition_id")
-    private Integer returnConditionId;
+    @ManyToOne
+    @JoinColumn(name = "return_condition_id")
+    private DeviceCondition returnCondition;
 
     @Column(name = "return_condition_notes", columnDefinition = "TEXT")
     private String returnConditionNotes;
@@ -62,48 +69,12 @@ public class Loan {
 
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
-
-    @ManyToOne
-    @JoinColumn(name = "bin_id", insertable = false, updatable = false)
-    private Bin bin;
-
-    @ManyToOne
-    @JoinColumn(name = "loan_status_id", insertable = false, updatable = false)
-    private LoanStatus loanStatus;
-
-    @ManyToOne
-    @JoinColumn(name = "citizen_id", insertable = false, updatable = false)
-    private AppUser citizen;
-
-    @ManyToOne
-    @JoinColumn(name = "employee_id", insertable = false, updatable = false)
-    private AppUser employee;
-
-    @ManyToOne
-    @JoinColumn(name = "loan_condition_id", insertable = false, updatable = false)
-    private DeviceCondition loanCondition;
-
-    @ManyToOne
-    @JoinColumn(name = "return_condition_id", insertable = false, updatable = false)
-    private DeviceCondition returnCondition;
-
+    
 
     public Loan() {}
 
     public Integer getLoanId() { return loanId; }
     public void setLoanId(Integer loanId) { this.loanId = loanId; }
-
-    public Integer getBinId() { return binId; }
-    public void setBinId(Integer binId) { this.binId = binId; }
-
-    public Integer getLoanStatusId() { return loanStatusId; }
-    public void setLoanStatusId(Integer loanStatusId) { this.loanStatusId = loanStatusId; }
-
-    public Long getCitizenId() { return citizenId; }
-    public void setCitizenId(Long citizenId) { this.citizenId = citizenId; }
-
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
 
     public Timestamp getStartAt() { return startAt; }
     public void setStartAt(Timestamp startAt) { this.startAt = startAt; }
@@ -114,14 +85,8 @@ public class Loan {
     public Timestamp getReturnedAt() { return returnedAt; }
     public void setReturnedAt(Timestamp returnedAt) { this.returnedAt = returnedAt; }
 
-    public Integer getLoanConditionId() { return loanConditionId; }
-    public void setLoanConditionId(Integer loanConditionId) { this.loanConditionId = loanConditionId; }
-
     public String getLoanConditionNotes() { return loanConditionNotes; }
     public void setLoanConditionNotes(String loanConditionNotes) { this.loanConditionNotes = loanConditionNotes; }
-
-    public Integer getReturnConditionId() { return returnConditionId; }
-    public void setReturnConditionId(Integer returnConditionId) { this.returnConditionId = returnConditionId; }
 
     public String getReturnConditionNotes() { return returnConditionNotes; }
     public void setReturnConditionNotes(String returnConditionNotes) { this.returnConditionNotes = returnConditionNotes; }
@@ -161,4 +126,28 @@ public class Loan {
 
     public DeviceCondition getReturnCondition() { return returnCondition; }
     public void setReturnCondition(DeviceCondition returnCondition) { this.returnCondition = returnCondition; }
+
+    public String getStartAtFormatted() {
+        return startAt != null ? startAt.toLocalDateTime().toLocalDate().toString() : null;
+    }
+
+    public String getDueAtFormatted() {
+        return dueAt != null ? dueAt.toLocalDateTime().toLocalDate().toString() : null;
+    }
+
+    public String getReturnedAtFormatted() {
+        return returnedAt != null ? returnedAt.toLocalDateTime().toLocalDate().toString() : null;
+    }
+
+    public Integer getBinId() { return bin != null ? bin.getBinId() : null; }
+
+    public Integer getLoanStatusId() { return loanStatus != null ? loanStatus.getLoanStatusId() : null; }
+
+    public Long getCitizenId() { return citizen != null ? citizen.getUserId() : null; }
+
+    public Long getEmployeeId() { return employee != null ? employee.getUserId() : null; }
+
+    public Integer getLoanConditionId() { return loanCondition != null ? loanCondition.getDeviceConditionId() : null; }
+
+    public Integer getReturnConditionId() { return returnCondition != null ? returnCondition.getDeviceConditionId() : null; }
 }

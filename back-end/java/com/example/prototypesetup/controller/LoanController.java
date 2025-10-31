@@ -1,6 +1,6 @@
 package com.example.prototypesetup.controller;
 
-import com.example.prototypesetup.entity.Loan;
+import com.example.prototypesetup.entity.*;
 import com.example.prototypesetup.repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +10,7 @@ import java.sql.Timestamp;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/loans")
@@ -21,21 +22,45 @@ public class LoanController {
     @PostMapping
     public ResponseEntity<?> createLoan(@RequestBody CreateLoanRequest request) {
         try {
+            if (request.getCitizenId() == null || request.getEmployeeId() == null || 
+                request.getDeviceId() == null || request.getStatusId() == null ||
+                request.getDueAt() == null || request.getLoanCondition() == null ||
+                request.getAllAccessoriesReturned() == null) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Missing required fields"));
+            }
+
             Loan loan = new Loan();
-            loan.setCitizenId(request.getCitizenId());
-            loan.setEmployeeId(request.getEmployeeId());
-            loan.setBinId(request.getDeviceId());
-            loan.setLoanStatusId(request.getStatusId());
+            Bin bin = new Bin();
+            bin.setBinId(request.getDeviceId());
+            loan.setBin(bin);
+            
+            LoanStatus loanStatus = new LoanStatus();
+            loanStatus.setLoanStatusId(request.getStatusId());
+            loan.setLoanStatus(loanStatus);
+            
+            AppUser citizen = new AppUser();
+            citizen.setUserId(request.getCitizenId());
+            loan.setCitizen(citizen);
+            
+            AppUser employee = new AppUser();
+            employee.setUserId(request.getEmployeeId());
+            loan.setEmployee(employee);
+            
+            DeviceCondition loanCondition = new DeviceCondition();
+            loanCondition.setDeviceConditionId(request.getLoanCondition());
+            loan.setLoanCondition(loanCondition);
+
             loan.setStartAt(new Timestamp(System.currentTimeMillis()));
             loan.setDueAt(Timestamp.valueOf(request.getDueAt().atStartOfDay()));
-            loan.setLoanConditionId(request.getLoanCondition());
             loan.setLoanConditionNotes(request.getLoanConditionNotes());
             loan.setAllAccessoriesReturned(request.getAllAccessoriesReturned());
             loan.setMissingAccessories(request.getMissingAccessories());
             loan.setNotes(request.getNotes());
+            loan.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+            loan.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            loanRepository.save(loan);
-            return ResponseEntity.status(201).body(new SuccessResponse("Loan created successfully"));
+            Loan savedLoan = loanRepository.save(loan);
+            return ResponseEntity.status(201).body(new SuccessResponse("Loan created successfully", savedLoan));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
@@ -45,7 +70,10 @@ public class LoanController {
     public ResponseEntity<?> getAllLoans() {
         try {
             List<Loan> loans = loanRepository.findAll();
-            return ResponseEntity.ok(new SuccessResponse("Loans retrieved successfully", loans));
+            List<LoanResponseDTO> responseDTOs = loans.stream()
+                    .map(LoanResponseDTO::new)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(new SuccessResponse("Loans retrieved successfully", responseDTOs));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
@@ -54,12 +82,14 @@ public class LoanController {
     @GetMapping("/{loan_id}")
     public ResponseEntity<?> getLoanById(@PathVariable("loan_id") Integer loan_id) {
         try {
-            Optional<Loan> loanOpt = loanRepository.findById(loan_id);
-            if (!loanOpt.isPresent()) {
+            Optional<Loan> loans = loanRepository.findById(loan_id);
+            if (!loans.isPresent()) {
                 return ResponseEntity.status(404).body(new ErrorResponse("Loan not found"));
             }
-            Loan loan = loanOpt.get();
-            return ResponseEntity.ok(new SuccessResponse("Loan retrieved successfully", loan));
+            Loan loan = loans.get();
+            
+            LoanResponseDTO responseDTO = new LoanResponseDTO(loan);
+            return ResponseEntity.ok(new SuccessResponse("Loan retrieved successfully", responseDTO));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
@@ -74,20 +104,44 @@ public class LoanController {
             }
 
             Loan loan = loanOpt.get();
-            loan.setCitizenId(request.getCitizenId());
-            loan.setEmployeeId(request.getEmployeeId());
-            loan.setBinId(request.getDeviceId());
-            loan.setLoanStatusId(request.getStatusId());
+            
+            AppUser citizen = new AppUser();
+            citizen.setUserId(request.getCitizenId());
+            loan.setCitizen(citizen);
+            
+            AppUser employee = new AppUser();
+            employee.setUserId(request.getEmployeeId());
+            loan.setEmployee(employee);
+            
+            Bin bin = new Bin();
+            bin.setBinId(request.getDeviceId());
+            loan.setBin(bin);
+            
+            LoanStatus loanStatus = new LoanStatus();
+            loanStatus.setLoanStatusId(request.getStatusId());
+            loan.setLoanStatus(loanStatus);
+            
+            DeviceCondition loanCondition = new DeviceCondition();
+            loanCondition.setDeviceConditionId(request.getLoanCondition());
+            loan.setLoanCondition(loanCondition);
+            
+            if (request.getReturnCondition() != null) {
+                DeviceCondition returnCondition = new DeviceCondition();
+                returnCondition.setDeviceConditionId(request.getReturnCondition());
+                loan.setReturnCondition(returnCondition);
+            } else {
+                loan.setReturnCondition(null);
+            }
+
             loan.setStartAt(Timestamp.valueOf(request.getStartAt().atStartOfDay()));
             loan.setDueAt(Timestamp.valueOf(request.getDueAt().atStartOfDay()));
-            loan.setLoanConditionId(request.getLoanCondition());
             loan.setLoanConditionNotes(request.getLoanConditionNotes());
-            loan.setReturnConditionId(request.getReturnCondition());
             loan.setReturnConditionNotes(request.getReturnConditionNotes());
             loan.setDamageFee(request.getDamageFee());
             loan.setAllAccessoriesReturned(request.getAllAccessoriesReturned());
             loan.setMissingAccessories(request.getMissingAccessories());
             loan.setNotes(request.getNotes());
+            loan.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             loanRepository.save(loan);
             return ResponseEntity.ok(new SuccessResponse("Loan replaced successfully"));
@@ -106,12 +160,19 @@ public class LoanController {
 
             Loan loan = loanOpt.get();
             if (request.getReturnedAt() != null) loan.setReturnedAt(Timestamp.valueOf(request.getReturnedAt().atStartOfDay()));
-            if (request.getReturnCondition() != null) loan.setReturnConditionId(request.getReturnCondition());
+            
+            if (request.getReturnCondition() != null) {
+                DeviceCondition returnCondition = new DeviceCondition();
+                returnCondition.setDeviceConditionId(request.getReturnCondition());
+                loan.setReturnCondition(returnCondition);
+            }
+            
             if (request.getReturnConditionNotes() != null) loan.setReturnConditionNotes(request.getReturnConditionNotes());
             if (request.getDamageFee() != null) loan.setDamageFee(request.getDamageFee());
             if (request.getAllAccessoriesReturned() != null) loan.setAllAccessoriesReturned(request.getAllAccessoriesReturned());
             if (request.getMissingAccessories() != null) loan.setMissingAccessories(request.getMissingAccessories());
             if (request.getNotes() != null) loan.setNotes(request.getNotes());
+            loan.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
             loanRepository.save(loan);
             return ResponseEntity.ok(new SuccessResponse("Loan updated successfully"));
@@ -239,6 +300,49 @@ public class LoanController {
         public void setMissingAccessories(String missingAccessories) { this.missingAccessories = missingAccessories; }
         public String getNotes() { return notes; }
         public void setNotes(String notes) { this.notes = notes; }
+    }
+
+    public static class LoanResponseDTO {
+        private Integer loan_id;
+        private Long citizen_id;
+        private Long employee_id;
+        private Integer device_id;
+        private Integer status_id;
+        private String start_at;
+        private String due_at;
+        private Integer loan_condition;
+        private String loan_condition_notes;
+        private Boolean all_accessories_returned;
+        private String missing_accessories;
+        private String notes;
+
+        public LoanResponseDTO(Loan loan) {
+            this.loan_id = loan.getLoanId();
+            this.citizen_id = loan.getCitizenId();
+            this.employee_id = loan.getEmployeeId();
+            this.device_id = loan.getBinId();
+            this.status_id = loan.getLoanStatusId();
+            this.start_at = loan.getStartAtFormatted();
+            this.due_at = loan.getDueAtFormatted();
+            this.loan_condition = loan.getLoanConditionId();
+            this.loan_condition_notes = loan.getLoanConditionNotes();
+            this.all_accessories_returned = loan.getAllAccessoriesReturned();
+            this.missing_accessories = loan.getMissingAccessories();
+            this.notes = loan.getNotes();
+        }
+
+        public Integer getLoan_id() { return loan_id; }
+        public Long getCitizen_id() { return citizen_id; }
+        public Long getEmployee_id() { return employee_id; }
+        public Integer getDevice_id() { return device_id; }
+        public Integer getStatus_id() { return status_id; }
+        public String getStart_at() { return start_at; }
+        public String getDue_at() { return due_at; }
+        public Integer getLoan_condition() { return loan_condition; }
+        public String getLoan_condition_notes() { return loan_condition_notes; }
+        public Boolean getAll_accessories_returned() { return all_accessories_returned; }
+        public String getMissing_accessories() { return missing_accessories; }
+        public String getNotes() { return notes; }
     }
 
     public static class ErrorResponse {
