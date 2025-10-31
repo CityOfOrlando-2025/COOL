@@ -3,7 +3,6 @@ package com.example.prototypesetup.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "loan")
@@ -69,7 +68,6 @@ public class Loan {
 
     @Column(name = "updated_at", nullable = false)
     private Timestamp updatedAt;
-    
 
     public Loan() {}
 
