@@ -8,14 +8,33 @@ import {
   TableRow,
   Paper,
   Box,
+  Typography, // 🟢 ADDED (needed for "No information available")
 } from "@mui/material";
 import Button from "./Button";
 import { devices } from "../data/mockData";
 import { useAuth } from "../context/MockAuth";
 
-const DeviceTable = () => {
-  const { user } = useAuth(); // 👈 get current logged-in user
-  const role = user?.role || "Citizen"; // default to Citizen if none
+const DeviceAvailabilityTable = ({
+  selectedCenter = "", // 🟢 Added default values so props never break
+  selectedFilter = "All",
+}) => {
+  const { user } = useAuth();
+  const role = user?.role || "Citizen";
+
+  // 🧮 Safe filtering logic
+  const filteredDevices = Array.isArray(devices)
+    ? devices.filter((device) => {
+        const matchesCenter =
+          !selectedCenter || device.location === selectedCenter;
+
+        const matchesFilter =
+          selectedFilter === "All" ||
+          device.status === selectedFilter ||
+          device.type === selectedFilter;
+
+        return matchesCenter && matchesFilter;
+      })
+    : [];
 
   // ✅ Role-based actions
   const renderActionButton = (device) => {
@@ -38,7 +57,6 @@ const DeviceTable = () => {
       );
     }
 
-    // Default for Citizen
     return (
       <Button
         varianttype="view"
@@ -79,34 +97,53 @@ const DeviceTable = () => {
         </TableHead>
 
         <TableBody>
-          {devices.map((device, index) => (
-            <TableRow key={device.id}>
-              <TableCell sx={{ color: "white" }}>{`${index + 1}. ${
-                device.type
-              }`}</TableCell>
-              <TableCell sx={{ color: "white" }}>{device.serial}</TableCell>
-              <TableCell>
-                <Box
+          {filteredDevices.length > 0 ? (
+            filteredDevices.map((device, index) => (
+              <TableRow key={device.id || index}>
+                {/* 🟢 Added fallback for missing id */}
+                <TableCell sx={{ color: "white" }}>
+                  {`${index + 1}. ${device.type}`}
+                </TableCell>
+                <TableCell sx={{ color: "white" }}>{device.serial}</TableCell>
+                <TableCell>
+                  <Box
+                    sx={{
+                      backgroundColor:
+                        device.status === "Available" ? "#009739" : "#C8102E",
+                      color: "white",
+                      borderRadius: "12px",
+                      textAlign: "center",
+                      padding: "4px 0",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {device.status}
+                  </Box>
+                </TableCell>
+                <TableCell>{renderActionButton(device)}</TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={4}>
+                <Typography
+                  variant="body1"
                   sx={{
-                    backgroundColor:
-                      device.status === "Available" ? "#009739" : "#C8102E",
                     color: "white",
-                    borderRadius: "12px",
                     textAlign: "center",
-                    padding: "4px 0",
-                    fontWeight: "bold",
+                    padding: "20px 0",
+                    fontStyle: "italic",
                   }}
                 >
-                  {device.status}
-                </Box>
+                  No information available.
+                </Typography>
               </TableCell>
-              <TableCell>{renderActionButton(device)}</TableCell>
             </TableRow>
-          ))}
+          )}
         </TableBody>
       </Table>
     </TableContainer>
   );
 };
 
-export default DeviceTable;
+export default DeviceAvailabilityTable;
