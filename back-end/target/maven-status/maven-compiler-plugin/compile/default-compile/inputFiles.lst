@@ -25,10 +25,13 @@ E:\Github\COOL\back-end\java\com\example\prototypesetup\entity\UserLocationId.ja
 E:\Github\COOL\back-end\java\com\example\prototypesetup\entity\UserRole.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\PrototypeSetupApplication.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\AppUserRepository.java
+E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\BinRepository.java
+E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\DeviceConditionRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\DeviceRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\DeviceStatusRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\DeviceTypeRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\LoanRepository.java
+E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\LoanStatusRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\LocationRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\RoleRepository.java
 E:\Github\COOL\back-end\java\com\example\prototypesetup\repository\UserLocationAccessRepository.java

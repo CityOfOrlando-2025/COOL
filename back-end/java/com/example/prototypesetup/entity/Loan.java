@@ -150,4 +150,29 @@ public class Loan {
     public Integer getLoanConditionId() { return loanCondition != null ? loanCondition.getDeviceConditionId() : null; }
 
     public Integer getReturnConditionId() { return returnCondition != null ? returnCondition.getDeviceConditionId() : null; }
+
+
+    public static Bin createBinReference(Integer binId) {
+        Bin bin = new Bin();
+        bin.setBinId(binId);
+        return bin;
+    }
+
+    public static LoanStatus createLoanStatusReference(Integer statusId) {
+        LoanStatus status = new LoanStatus();
+        status.setLoanStatusId(statusId);
+        return status;
+    }
+
+    public static AppUser createUserReference(Long userId) {
+        AppUser user = new AppUser();
+        user.setUserId(userId);
+        return user;
+    }
+
+    public static DeviceCondition createDeviceConditionReference(Integer conditionId) {
+        DeviceCondition condition = new DeviceCondition();
+        condition.setDeviceConditionId(conditionId);
+        return condition;
+    }
 }

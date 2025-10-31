@@ -1,7 +1,7 @@
 package com.example.prototypesetup.controller;
 
 import com.example.prototypesetup.entity.*;
-import com.example.prototypesetup.repository.LoanRepository;
+import com.example.prototypesetup.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +18,18 @@ public class LoanController {
 
     @Autowired
     private LoanRepository loanRepository;
+    
+    @Autowired
+    private AppUserRepository appUserRepository;
+    
+    @Autowired
+    private BinRepository binRepository;
+    
+    @Autowired
+    private LoanStatusRepository loanStatusRepository;
+    
+    @Autowired
+    private DeviceConditionRepository deviceConditionRepository;
 
     @PostMapping
     public ResponseEntity<?> createLoan(@RequestBody CreateLoanRequest request) {
@@ -29,26 +41,37 @@ public class LoanController {
                 return ResponseEntity.status(400).body(new ErrorResponse("Missing required fields"));
             }
 
+            Optional<Bin> binOpt = binRepository.findById(request.getDeviceId());
+            if (!binOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid device ID"));
+            }
+
+            Optional<LoanStatus> statusOpt = loanStatusRepository.findById(request.getStatusId());
+            if (!statusOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid status ID"));
+            }
+
+            Optional<AppUser> citizenOpt = appUserRepository.findById(request.getCitizenId());
+            if (!citizenOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid citizen ID"));
+            }
+
+            Optional<AppUser> employeeOpt = appUserRepository.findById(request.getEmployeeId());
+            if (!employeeOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid employee ID"));
+            }
+
+            Optional<DeviceCondition> conditionOpt = deviceConditionRepository.findById(request.getLoanCondition());
+            if (!conditionOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid loan condition ID"));
+            }
+
             Loan loan = new Loan();
-            Bin bin = new Bin();
-            bin.setBinId(request.getDeviceId());
-            loan.setBin(bin);
-            
-            LoanStatus loanStatus = new LoanStatus();
-            loanStatus.setLoanStatusId(request.getStatusId());
-            loan.setLoanStatus(loanStatus);
-            
-            AppUser citizen = new AppUser();
-            citizen.setUserId(request.getCitizenId());
-            loan.setCitizen(citizen);
-            
-            AppUser employee = new AppUser();
-            employee.setUserId(request.getEmployeeId());
-            loan.setEmployee(employee);
-            
-            DeviceCondition loanCondition = new DeviceCondition();
-            loanCondition.setDeviceConditionId(request.getLoanCondition());
-            loan.setLoanCondition(loanCondition);
+            loan.setBin(binOpt.get());             
+            loan.setLoanStatus(statusOpt.get());   
+            loan.setCitizen(citizenOpt.get());     
+            loan.setEmployee(employeeOpt.get());   
+            loan.setLoanCondition(conditionOpt.get());
 
             loan.setStartAt(new Timestamp(System.currentTimeMillis()));
             loan.setDueAt(Timestamp.valueOf(request.getDueAt().atStartOfDay()));
@@ -103,38 +126,53 @@ public class LoanController {
                 return ResponseEntity.status(404).body(new ErrorResponse("Loan not found"));
             }
 
+            Optional<Bin> binOpt = binRepository.findById(request.getDeviceId());
+            if (!binOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid device ID"));
+            }
+
+            Optional<LoanStatus> statusOpt = loanStatusRepository.findById(request.getStatusId());
+            if (!statusOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid status ID"));
+            }
+
+            Optional<AppUser> citizenOpt = appUserRepository.findById(request.getCitizenId());
+            if (!citizenOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid citizen ID"));
+            }
+
+            Optional<AppUser> employeeOpt = appUserRepository.findById(request.getEmployeeId());
+            if (!employeeOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid employee ID"));
+            }
+
+            Optional<DeviceCondition> loanConditionOpt = deviceConditionRepository.findById(request.getLoanCondition());
+            if (!loanConditionOpt.isPresent()) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Invalid loan condition ID"));
+            }
+
             Loan loan = loanOpt.get();
             
-            AppUser citizen = new AppUser();
-            citizen.setUserId(request.getCitizenId());
-            loan.setCitizen(citizen);
-            
-            AppUser employee = new AppUser();
-            employee.setUserId(request.getEmployeeId());
-            loan.setEmployee(employee);
-            
-            Bin bin = new Bin();
-            bin.setBinId(request.getDeviceId());
-            loan.setBin(bin);
-            
-            LoanStatus loanStatus = new LoanStatus();
-            loanStatus.setLoanStatusId(request.getStatusId());
-            loan.setLoanStatus(loanStatus);
-            
-            DeviceCondition loanCondition = new DeviceCondition();
-            loanCondition.setDeviceConditionId(request.getLoanCondition());
-            loan.setLoanCondition(loanCondition);
+            loan.setCitizen(citizenOpt.get());
+            loan.setEmployee(employeeOpt.get());
+            loan.setBin(binOpt.get());
+            loan.setLoanStatus(statusOpt.get());
+            loan.setLoanCondition(loanConditionOpt.get());
             
             if (request.getReturnCondition() != null) {
-                DeviceCondition returnCondition = new DeviceCondition();
-                returnCondition.setDeviceConditionId(request.getReturnCondition());
-                loan.setReturnCondition(returnCondition);
+                Optional<DeviceCondition> returnConditionOpt = deviceConditionRepository.findById(request.getReturnCondition());
+                if (returnConditionOpt.isPresent()) {
+                    loan.setReturnCondition(returnConditionOpt.get());
+                } else {
+                    return ResponseEntity.status(400).body(new ErrorResponse("Invalid return condition ID"));
+                }
             } else {
                 loan.setReturnCondition(null);
             }
 
             loan.setStartAt(Timestamp.valueOf(request.getStartAt().atStartOfDay()));
             loan.setDueAt(Timestamp.valueOf(request.getDueAt().atStartOfDay()));
+            loan.setReturnedAt(request.getReturnedAt() != null ? Timestamp.valueOf(request.getReturnedAt().atStartOfDay()) : null);
             loan.setLoanConditionNotes(request.getLoanConditionNotes());
             loan.setReturnConditionNotes(request.getReturnConditionNotes());
             loan.setDamageFee(request.getDamageFee());
@@ -143,8 +181,9 @@ public class LoanController {
             loan.setNotes(request.getNotes());
             loan.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            loanRepository.save(loan);
-            return ResponseEntity.ok(new SuccessResponse("Loan replaced successfully"));
+            Loan savedLoan = loanRepository.save(loan);
+            LoanResponseDTO responseDTO = new LoanResponseDTO(savedLoan);
+            return ResponseEntity.ok(new SuccessResponse("Loan replaced successfully", responseDTO));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
@@ -263,6 +302,7 @@ public class LoanController {
         private Integer statusId;
         private java.time.LocalDate startAt;
         private java.time.LocalDate dueAt;
+        private java.time.LocalDate returnedAt;
         private Integer loanCondition;
         private String loanConditionNotes;
         private Integer returnCondition;
@@ -284,6 +324,8 @@ public class LoanController {
         public void setStartAt(java.time.LocalDate startAt) { this.startAt = startAt; }
         public java.time.LocalDate getDueAt() { return dueAt; }
         public void setDueAt(java.time.LocalDate dueAt) { this.dueAt = dueAt; }
+        public java.time.LocalDate getReturnedAt() { return returnedAt; }
+        public void setReturnedAt(java.time.LocalDate returnedAt) { this.returnedAt = returnedAt; }
         public Integer getLoanCondition() { return loanCondition; }
         public void setLoanCondition(Integer loanCondition) { this.loanCondition = loanCondition; }
         public String getLoanConditionNotes() { return loanConditionNotes; }
@@ -322,8 +364,8 @@ public class LoanController {
             this.employee_id = loan.getEmployeeId();
             this.device_id = loan.getBinId();
             this.status_id = loan.getLoanStatusId();
-            this.start_at = loan.getStartAtFormatted();
-            this.due_at = loan.getDueAtFormatted();
+            this.start_at = loan.getStartAt() != null ? loan.getStartAt().toString() : null;
+            this.due_at = loan.getDueAt() != null ? loan.getDueAt().toString() : null;
             this.loan_condition = loan.getLoanConditionId();
             this.loan_condition_notes = loan.getLoanConditionNotes();
             this.all_accessories_returned = loan.getAllAccessoriesReturned();
