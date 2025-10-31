@@ -6,5 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DeviceTypeRepository extends JpaRepository<DeviceType, Integer> {
-    // You can add custom finder methods if needed, e.g., findByIsActive
 }

@@ -3,14 +3,11 @@ package com.example.prototypesetup.controller;
 import com.example.prototypesetup.entity.UserRole;
 import com.example.prototypesetup.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.http.HttpStatus;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user-roles")
@@ -25,48 +22,51 @@ public class UserRoleController {
         return roleRepository.findAll();
     }
 
-     // GET role by ID
+    // GET role by ID
     @GetMapping("/{id}")
-    public ResponseEntity<?> getRoleById(@PathVariable(name = "id") Long id) {
+public ResponseEntity<UserRole> getRoleById(@PathVariable("id") Long id) {
     UserRole role = roleRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found with id " + id));
-
-    Map<String, Object> result = new HashMap<>();
-    result.put("roleId", role.getRoleId());
-    result.put("roleName", role.getRoleName());
-
-    return ResponseEntity.ok(result);
-    }
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found with ID " + id));
+    return ResponseEntity.ok(role);
+}
 
 
-    // CREATE role
+    // CREATE new role
     @PostMapping
-    public UserRole createRole(@RequestBody UserRole role) {
-        return roleRepository.save(role);
+    public ResponseEntity<UserRole> createRole(@RequestBody UserRole role) {
+        if (role.getRoleName() == null || role.getRoleName().trim().isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Role name cannot be empty");
+        }
+
+        UserRole savedRole = roleRepository.save(role);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedRole);
     }
 
-     // UPDATE role
-    @PutMapping("/{id}")
-    public UserRole updateRole(@PathVariable("id") Long id, @RequestBody UserRole updatedRole) {
-    UserRole role = roleRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found with id " + id));
+    // UPDATE existing role
+@PutMapping("/{id}")
+public ResponseEntity<UserRole> updateRole(@PathVariable("id") Long id,
+                                           @RequestBody UserRole updatedRole) {
+    return roleRepository.findById(id).map(role -> {
+        role.setRoleName(updatedRole.getRoleName());
+        role.setDlRequired(updatedRole.isDlRequired());
+        role.setActive(updatedRole.isActive());
 
-    role.setRoleName(updatedRole.getRoleName());
-    role.setDlRequired(updatedRole.isDlRequired());
-    role.setActive(updatedRole.isActive());
+        UserRole savedRole = roleRepository.save(role);
+        return ResponseEntity.ok(savedRole);
+    }).orElseThrow(() ->
+            new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found with ID " + id));
+}
 
-    return roleRepository.save(role);
+
+   // DELETE role
+@DeleteMapping("/{id}")
+public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id) {
+    if (!roleRepository.existsById(id)) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found with ID " + id);
     }
 
-
-    // DELETE role
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable("id") Long id) {
-    UserRole role = roleRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Role not found with id " + id));
-
-    roleRepository.delete(role);
+    roleRepository.deleteById(id);
     return ResponseEntity.noContent().build();
-    }
+}
 
 }

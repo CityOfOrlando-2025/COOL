@@ -5,8 +5,8 @@ import java.util.Objects;
 
 public class UserLocationAccessId implements Serializable {
 
-    private Long appUser;   // must match entity field name: appUser
-    private Integer location;  // must match entity field name: location
+    private Long appUser;     // Must match entity field name
+    private Integer location; // Must match entity field name
 
     public UserLocationAccessId() {}
 
@@ -18,7 +18,7 @@ public class UserLocationAccessId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof UserLocationAccessId)) return false;
         UserLocationAccessId that = (UserLocationAccessId) o;
         return Objects.equals(appUser, that.appUser) &&
                Objects.equals(location, that.location);
