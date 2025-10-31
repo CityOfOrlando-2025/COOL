@@ -124,6 +124,13 @@ public class LoanController {
                 return ResponseEntity.status(404).body(new ErrorResponse("Loan not found"));
             }
 
+            if (request.getBinId() == null || request.getLoanStatusId() == null ||
+                request.getCitizenId() == null || request.getEmployeeId() == null ||
+                request.getStartAt() == null || request.getDueAt() == null ||
+                request.getLoanConditionId() == null) {
+                return ResponseEntity.status(400).body(new ErrorResponse("Missing required fields"));
+            }
+
             Optional<Bin> binOpt = binRepository.findById(request.getBinId());
             if (!binOpt.isPresent()) {
                 return ResponseEntity.status(400).body(new ErrorResponse("Invalid bin ID"));
