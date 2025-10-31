@@ -242,7 +242,7 @@ public class LoanController {
                 return ResponseEntity.status(404).body(new ErrorResponse("Loan not found"));
             }
             loanRepository.deleteById(loan_id);
-            return ResponseEntity.status(204).body(new SuccessResponse("Loan deleted successfully"));
+            return ResponseEntity.ok(new SuccessResponse("Loan deleted successfully"));
         } catch (Exception e) {
             return ResponseEntity.status(500).body(new ErrorResponse("An unexpected error has occurred."));
         }
