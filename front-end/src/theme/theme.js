@@ -59,6 +59,7 @@ const theme = createTheme({
   shadows: [
     "none",
     "3px 3px 5px rgb(0, 72, 224)", // Custom shadow from design tokens
+    ...Array(23).fill("none"),
   ],
 
   spacing: 5, // 5px base unit

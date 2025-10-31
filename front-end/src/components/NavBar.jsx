@@ -50,7 +50,7 @@ const NavBar = () => {
                 <SettingsOutlined
                   sx={{
                     color: "white",
-                    fontSize: "6rem",
+                    fontSize: "5rem",
                   }}
                 />
               </IconButton>
@@ -58,7 +58,7 @@ const NavBar = () => {
                 <AccountCircleOutlined
                   sx={{
                     color: "white",
-                    fontSize: "6rem",
+                    fontSize: "5rem",
                   }}
                 />
               </IconButton>
