@@ -5,6 +5,7 @@ import DevicePage from "./pages/DeviceAvailabilityPage";
 import NearestPage from "./pages/NearestCenterPage";
 import { Routes, Route } from "react-router-dom";
 import NavBar from "./components/NavBar";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/signIn" element={<SignInPage />} />
         <Route path="/device" element={<DevicePage />} />
         <Route path="/nearest" element={<NearestPage />} />
+        <Route path='/adminDashboard' element={<AdminDashboardPage/>} />
       </Routes>
     </>
   );

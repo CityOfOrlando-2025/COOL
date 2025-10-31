@@ -46,12 +46,13 @@ const NavBar = () => {
                 width: 150,
               }}
             >
-              <IconButton>
+              <IconButton href='/adminDashboard'>
                 <SettingsOutlined
                   sx={{
                     color: "white",
                     fontSize: "5rem",
                   }}
+                  
                 />
               </IconButton>
               <IconButton>
